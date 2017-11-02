@@ -143,10 +143,10 @@ def main(args):
                 loss += criterion(output, target)
             loss_meter.add(loss.data[0], data.size(0))
 
-            TensorBoard: Graph
-            if epoch == 0 and i == 0:
-                writer.add_text('log', 'Added a graph', epoch)
-                writer.add_graph(model, loss)
+            # TensorBoard: Graph
+            # if epoch == 0 and i == 0:
+            #     writer.add_text('log', 'Added a graph', epoch)
+            #     writer.add_graph(model, loss)
 
             # Back propagation & weight updating
             loss.backward()
