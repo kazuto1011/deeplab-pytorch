@@ -60,7 +60,7 @@ class CocoStuff10k(data.Dataset):
             file_list = tuple(
                 open(root + '/imageLists/' + split + '.txt', 'r'))
             file_list = [id_.rstrip() for id_ in file_list]
-            self.files[split] = file_list[:10]
+            self.files[split] = file_list
 
         if self.preload:
             self.preload_data()
@@ -130,7 +130,7 @@ class CocoStuff10k(data.Dataset):
 
     def preload_data(self):
         print 'Preloading...'
-        for image_id in tqdm(self.files[self.split]):
+        for image_id in tqdm(self.files[self.split], leave=False):
             image, label = self.load_pairwise(image_id)
             self.images.append(image)
             self.labels.append(label)
@@ -146,7 +146,7 @@ if __name__ == '__main__':
             label = label.rstrip().split(': ')
             classes[int(label[0])] = label[1]
 
-    dataset = CocoStuff10k(root=dataset_root, split="test", preload=False)
+    dataset = CocoStuff10k(root=dataset_root, split="test", preload=True)
     loader = data.DataLoader(dataset, batch_size=batch_size)
 
     for i, data in tqdm(enumerate(loader),

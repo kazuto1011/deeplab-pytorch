@@ -76,7 +76,7 @@ def main(args):
         dataset=dataset,
         batch_size=args.batch_size,
         num_workers=config['num_workers'],
-        pin_memory=True,
+        pin_memory=config['pin_memory'],
         shuffle=True
     )
 
@@ -145,9 +145,9 @@ def main(args):
             loss_meter.add(loss.data[0], data.size(0))
 
             # TensorBoard: Graph
-            if epoch == 0 and i == 0:
-                writer.add_text('log', 'Added a graph', epoch)
-                writer.add_graph(model, loss)
+            # if epoch == 0 and i == 0:
+            #     writer.add_text('log', 'Added a graph', epoch)
+            #     writer.add_graph(model, loss)
 
             # Back propagation & weight updating
             loss.backward()
@@ -159,7 +159,6 @@ def main(args):
         if train_loss < best_loss:
             torch.save(
                 {'epoch': epoch,
-                 'arch': args.arch,
                  'weight': model.state_dict()},
                 osp.join(args.save_dir, 'checkpoint_best.pth.tar')
             )
@@ -183,7 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
     parser.add_argument('--n_epoch', nargs='?', type=int, default=100)
-    parser.add_argument('--batch_size', nargs='?', type=int, default=1)  # 16
+    parser.add_argument('--batch_size', nargs='?', type=int, default=16)
     parser.add_argument('--lr', nargs='?', type=float, default=0.00025)
     parser.add_argument('--momentum', nargs='?', type=float, default=0.9)
     parser.add_argument('--weight_decay', nargs='?', type=float, default=5e-4)
