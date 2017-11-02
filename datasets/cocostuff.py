@@ -82,7 +82,7 @@ class CocoStuff10k(data.Dataset):
 
     def data_augmentation(self, image, label):
         if self.scale:
-            scale_factor = random.uniform(0.5, 1.3)
+            scale_factor = random.uniform(0.5, 1.5)
             image = cv2.resize(image, None, fx=scale_factor, fy=scale_factor,
                                interpolation=cv2.INTER_LINEAR)
             label = cv2.resize(label, None, fx=scale_factor, fy=scale_factor,
