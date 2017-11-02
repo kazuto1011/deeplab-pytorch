@@ -10,19 +10,12 @@ from torchnet.meter import AverageValueMeter
 from tqdm import tqdm
 
 from datasets import get_dataset
-from models import Res_Deeplab
+from models import DeepLab_ResNet
 from utils import CrossEntropyLoss2d
 
 
-def get_1x_lr_params_NOscale(model):
-    """
-    This generator returns all the parameters of the net except for
-    the last classification layer. Note that for each batchnorm layer,
-    requires_grad is set to False in deeplab_resnet.py, therefore this function does not return
-    any batchnorm parameter
-    """
+def get_1x_lr_params(model):
     b = []
-
     b.append(model.Scale.conv1)
     b.append(model.Scale.bn1)
     b.append(model.Scale.layer1)
@@ -40,17 +33,21 @@ def get_1x_lr_params_NOscale(model):
 
 
 def get_10x_lr_params(model):
-    """
-    This generator returns all the parameters for the last layer of the net,
-    which does the classification of pixel into classes
-    """
-
     b = []
     b.append(model.Scale.layer5.parameters())
 
     for j in range(len(b)):
         for i in b[j]:
             yield i
+
+
+def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter=10, max_iter=30000, power=0.9):
+    if iter % lr_decay_iter or iter > max_iter:
+        return None
+
+    new_lr = init_lr * (1 - iter / max_iter)**power
+    optimizer.params_groups[0]['lr'] = new_lr
+    optimizer.params_groups[1]['lr'] = 10 * new_lr
 
 
 def main(args):
@@ -80,11 +77,12 @@ def main(args):
     )
 
     # Model
-    model = Res_Deeplab(n_classes=config['dataset'][args.dataset]['n_classes'])
+    model = DeepLab_ResNet(
+        n_classes=config['dataset'][args.dataset]['n_classes'])
     state_dict = torch.load(config['dataset'][args.dataset]['init_model'])
     if config['dataset'][args.dataset]['n_classes'] != 21:
         for i in state_dict:
-            # Scale.layer5.conv2d_list.3.weight
+            # 'Scale.layer5.conv2d_list.3.weight'
             i_parts = i.split('.')
             if i_parts[1] == 'layer5':
                 state_dict[i] = model.state_dict()[i]
@@ -96,7 +94,7 @@ def main(args):
     optimizer = {
         'sgd': torch.optim.SGD(
             params=[
-                {'params': get_1x_lr_params_NOscale(model), 'lr': args.lr},
+                {'params': get_1x_lr_params(model), 'lr': args.lr},
                 {'params': get_10x_lr_params(model), 'lr': 10 * args.lr}
             ],
             lr=args.lr,
@@ -106,7 +104,8 @@ def main(args):
     }.get(args.optimizer)
 
     # Loss definition
-    criterion = CrossEntropyLoss2d()
+    criterion = CrossEntropyLoss2d(
+        ignore_index=['dataset'][args.dataset]['ignore_label'])
     if args.cuda:
         criterion.cuda()
 
@@ -114,9 +113,9 @@ def main(args):
     patience = args.patience
 
     # Training loop
+    iteration = 0
     for epoch in range(args.n_epoch):
         loss_meter = AverageValueMeter()
-        accuracy_meter = AverageValueMeter()
 
         tqdm_loader = tqdm(
             enumerate(loader),
@@ -125,7 +124,6 @@ def main(args):
             leave=False
         )
 
-        iteration = 0
         model.train()
         for i, (data, target) in tqdm_loader:
             if args.cuda:
@@ -134,6 +132,14 @@ def main(args):
 
             data = Variable(data)
             target = Variable(target)
+
+            # Polynomial lr decay
+            poly_lr_scheduler(optimizer=optimizer,
+                              init_lr=args.lr,
+                              iter=iteration,
+                              lr_decay_iter=args.lr_decay,
+                              max_iter=len(loader) / args.batch_size * 2,
+                              power=args.poly_power)
 
             # Forward propagation
             optimizer.zero_grad()
@@ -148,6 +154,7 @@ def main(args):
             loss.backward()
             optimizer.step()
 
+            # In each 100 iterations
             if iteration % 100 == 0:
                 train_loss = loss_meter.value()[0]
 
@@ -183,8 +190,10 @@ if __name__ == '__main__':
     parser.add_argument('--n_epoch', nargs='?', type=int, default=100)
     parser.add_argument('--batch_size', nargs='?', type=int, default=2)
     parser.add_argument('--lr', nargs='?', type=float, default=0.00025)
+    parser.add_argument('--lr_decay', nargs='?', type=int, default=10)
     parser.add_argument('--momentum', nargs='?', type=float, default=0.9)
     parser.add_argument('--weight_decay', nargs='?', type=float, default=5e-4)
+    parser.add_argument('--poly_power', nargs='?', type=float, default=0.9)
     parser.add_argument('--patience', type=int, default=10)
     parser.add_argument('--optimizer', type=str, default='sgd')
     parser.add_argument('--save_dir', type=str, default='.')

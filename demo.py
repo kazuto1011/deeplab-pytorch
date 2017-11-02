@@ -16,7 +16,8 @@ import torch.nn.functional as F
 import yaml
 from torch.autograd import Variable
 
-from models import Res_Deeplab
+from models import DeepLab_ResNet
+import os.path as osp
 
 
 def main(args):
@@ -24,15 +25,26 @@ def main(args):
     with open(args.config) as f:
         config = yaml.load(f)
 
+    with open(config['dataset'][args.dataset]['label_list']) as f:
+        classes = {}
+        for label in f:
+            label = label.rstrip().split(': ')
+            classes[int(label[0])] = label[1]
+
     # Path to a trained model
     if args.checkpoint:
-        model_path = args.checkpoint
+        checkpoint = torch.load(args.checkpoint,
+                                map_location=lambda storage,
+                                loc: storage)
+        state_dict = checkpoint['weight']
+        print('Result after {} iterations'.format(checkpoint['iteration']))
     else:
-        model_path = config['dataset'][args.dataset]['trained_model']
+        state_dict = torch.load(
+            config['dataset'][args.dataset]['trained_model'])
 
     # Model
-    model = Res_Deeplab(n_classes=config['dataset'][args.dataset]['n_classes'])
-    model.load_state_dict(torch.load(model_path))
+    model = DeepLab_ResNet(n_classes=config['dataset'][args.dataset]['n_classes'])
+    model.load_state_dict(state_dict)
     model.eval()
     if args.cuda:
         model.cuda()
@@ -59,12 +71,12 @@ def main(args):
 
     # Class
     for label in np.unique(labelmap):
-        print '{0:2d}: {1}'.format(label, config['dataset'][args.dataset]['classes'][label])
+        print '{0:3d}: {1}'.format(label, classes[label])
 
     plt.subplot(1, 2, 1)
     plt.imshow(image_original)
     plt.subplot(1, 2, 2)
-    plt.imshow(labelmap)
+    plt.imshow(labelmap, cmap='gist_ncar')
     plt.show()
 
 
@@ -72,7 +84,7 @@ if __name__ == '__main__':
     # Parsing arguments
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--no_cuda', action='store_true', default=False)
-    parser.add_argument('--dataset', nargs='?', type=str, default='voc')
+    parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
     parser.add_argument('--checkpoint', type=str, default=None)
     parser.add_argument('--image', type=str, required=True)

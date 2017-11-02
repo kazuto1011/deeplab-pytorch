@@ -41,7 +41,7 @@ class CocoStuff10k(data.Dataset):
     """
 
     def __init__(self, root, split="train",
-                 image_size=512, scale=True, flip=True, preload=True):
+                 image_size=512, scale=True, flip=True, preload=False):
         self.root = root
         self.split = split
         self.n_classes = 91 + 91 + 1

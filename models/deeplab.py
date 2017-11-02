@@ -215,6 +215,6 @@ class MS_Deeplab(nn.Module):
         return [output100, output075, output050, outputMax]
 
 
-def Res_Deeplab(n_classes=21):
+def DeepLab_ResNet(n_classes=21):
     model = MS_Deeplab(Bottleneck, n_classes)
     return model

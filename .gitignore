@@ -102,4 +102,5 @@ ENV/
 
 *.vscode
 *.pth
+*.pth.tar
 runs/

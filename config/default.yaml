@@ -5,6 +5,10 @@ mean:
     B: 104.008
 dataset:
     voc:
+        root:
+        label_list:
+        init_model: ./MS_DeepLab_resnet_pretrained_COCO_init.pth
+        ignore_label: 255
         rows: 513
         cols: 513
         n_classes: 21
@@ -12,8 +16,11 @@ dataset:
         trained_model: ./MS_DeepLab_resnet_trained_VOC.pth
     cocostuff:
         root: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1
+        label_list: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1/cocostuff-labels.txt
+        init_model: ./MS_DeepLab_resnet_pretrained_COCO_init.pth
+        ignore_label: 0
         rows: 513
         cols: 513
         n_classes: 183
+        classes:
         trained_model: None
-        init_model: ./MS_DeepLab_resnet_pretrained_COCO_init.pth
