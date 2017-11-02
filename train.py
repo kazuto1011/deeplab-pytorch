@@ -105,7 +105,7 @@ def main(args):
 
     # Loss definition
     criterion = CrossEntropyLoss2d(
-        ignore_index=['dataset'][args.dataset]['ignore_label'])
+        ignore_index=config['dataset'][args.dataset]['ignore_label'])
     if args.cuda:
         criterion.cuda()
 
