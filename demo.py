@@ -52,8 +52,6 @@ def main(args):
 
     # Inference
     output = model(Variable(image, volatile=True))
-    for o in output:
-        print o.size()
 
     output = F.upsample(output[3], size=image_size, mode='bilinear')
     output = output[0].cpu().data.numpy().transpose(1, 2, 0)

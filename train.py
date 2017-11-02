@@ -1,24 +1,14 @@
-import os
-import pickle
-import random
-import sys
-import timeit
+import argparse
+import os.path as osp
 
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
-import scipy.misc
 import torch
-import torch.backends.cudnn as cudnn
-import torch.nn as nn
-import torch.optim as optim
+import torch.nn.functional as F
 import yaml
-from docopt import docopt
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torchnet.meter import AverageValueMeter
 from tqdm import tqdm
-import argparse
+
 from datasets import get_dataset
 from models import Res_Deeplab
 from utils import CrossEntropyLoss2d
@@ -150,6 +140,7 @@ def main(args):
             outputs = model(data)
             loss = 0
             for output in outputs:
+                output = F.upsample(output, size=321, mode='bilinear')
                 loss += criterion(output, target)
             loss_meter.add(loss.data[0], data.size(0))
 
@@ -192,7 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
     parser.add_argument('--n_epoch', nargs='?', type=int, default=100)
-    parser.add_argument('--batch_size', nargs='?', type=int, default=1)#16
+    parser.add_argument('--batch_size', nargs='?', type=int, default=1)  # 16
     parser.add_argument('--lr', nargs='?', type=float, default=0.00025)
     parser.add_argument('--momentum', nargs='?', type=float, default=0.9)
     parser.add_argument('--weight_decay', nargs='?', type=float, default=5e-4)

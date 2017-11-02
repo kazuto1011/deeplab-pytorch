@@ -1,0 +1,19 @@
+num_workers: 4
+mean:
+    R: 122.675
+    G: 116.669
+    B: 104.008
+dataset:
+    voc:
+        rows: 513
+        cols: 513
+        n_classes: 21
+        classes: ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+        trained_model: ./MS_DeepLab_resnet_trained_VOC.pth
+    cocostuff:
+        root: /home/ubuntu/cocostuff-10k-v1.1
+        rows: 513
+        cols: 513
+        n_classes: 183
+        trained_model: None
+        init_model: ./MS_DeepLab_resnet_pretrained_COCO_init.pth
