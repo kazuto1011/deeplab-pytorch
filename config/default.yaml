@@ -1,5 +1,4 @@
 num_workers: 4
-pin_memory: False
 mean:
     R: 122.675
     G: 116.669

@@ -82,7 +82,7 @@ class CocoStuff10k(data.Dataset):
 
     def data_augmentation(self, image, label):
         if self.scale:
-            scale_factor = random.uniform(0.5, 1.5)
+            scale_factor = random.uniform(0.5, 1.5)  # Hardware constraint
             image = cv2.resize(image, None, fx=scale_factor, fy=scale_factor,
                                interpolation=cv2.INTER_LINEAR)
             label = cv2.resize(label, None, fx=scale_factor, fy=scale_factor,
@@ -110,8 +110,8 @@ class CocoStuff10k(data.Dataset):
         if self.flip:
             # Random flipping
             if random.random() < 0.5:
-                image = np.flip(image, axis=1).copy() #HWC
-                label = np.flip(label, axis=1).copy() #HW
+                image = np.flip(image, axis=1).copy()  # HWC
+                label = np.flip(label, axis=1).copy()  # HW
         return image, label
 
     def load_pairwise(self, image_id):

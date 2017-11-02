@@ -125,6 +125,7 @@ def main(args):
             leave=False
         )
 
+        iteration = 0
         model.train()
         for i, (data, target) in tqdm_loader:
             if args.cuda:
@@ -143,35 +144,34 @@ def main(args):
                 loss += criterion(output, target)
             loss_meter.add(loss.data[0], data.size(0))
 
-            # TensorBoard: Graph
-            # if epoch == 0 and i == 0:
-            #     writer.add_text('log', 'Added a graph', epoch)
-            #     writer.add_graph(model, loss)
-
             # Back propagation & weight updating
             loss.backward()
             optimizer.step()
 
-        train_loss = loss_meter.value()[0]
+            if iteration % 100 == 0:
+                train_loss = loss_meter.value()[0]
 
-        # Early stopping procedure
-        if train_loss < best_loss:
-            torch.save(
-                {'epoch': epoch,
-                 'weight': model.state_dict()},
-                osp.join(args.save_dir, 'checkpoint_best.pth.tar')
-            )
-            writer.add_text('log', 'Saved a model', epoch)
-            best_loss = train_loss
-            patience = args.patience
-        else:
-            patience -= 1
-            if patience == 0:
-                writer.add_text('log', 'Early stopping', epoch)
-                break
+                # Early stopping procedure
+                if train_loss < best_loss:
+                    torch.save(
+                        {'iteration': iteration,
+                         'weight': model.state_dict()},
+                        osp.join(args.save_dir, 'checkpoint_best.pth.tar')
+                    )
+                    writer.add_text('log', 'Saved a model', iteration)
+                    best_loss = train_loss
+                    patience = args.patience
+                else:
+                    patience -= 1
+                    if patience == 0:
+                        writer.add_text('log', 'Early stopping', iteration)
+                        break
 
-        # TensorBoard: Scalar
-        writer.add_scalar('train_loss', train_loss, epoch)
+                # TensorBoard: Scalar
+                writer.add_scalar('train_loss', train_loss, iteration)
+                loss_meter.reset()
+
+            iteration += 1
 
 
 if __name__ == '__main__':
