@@ -75,10 +75,11 @@ def main(args):
     dataset = get_dataset(args.dataset)(
         root=config['dataset'][args.dataset]['root'],
         split='train',
-        image_size=(321, 321),
+        image_size=(config['image']['size']['train'],
+                    config['image']['size']['train']),
         scale=True,
         flip=True,
-        # preload=True
+        preload=True
     )
 
     # DataLoader
@@ -185,7 +186,6 @@ def main(args):
 
         if iteration % len(loader) == 0:
             loader_iter = iter(loader)
-
 
     torch.save(
         {'iteration': iteration - 1,
