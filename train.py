@@ -7,10 +7,10 @@
 
 import argparse
 import os.path as osp
-import numpy as np
+
 import cv2
+import numpy as np
 import torch
-import torch.nn.functional as F
 import yaml
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
@@ -173,10 +173,12 @@ def main(args):
             loss.backward()
             optimizer.step()
 
+            # TensorBoard: Scalar
+            train_loss = loss_meter.value()[0]
+            writer.add_scalar('train_loss', train_loss, iteration)
+
             # In each 1000 iterations
             if iteration % 100 == 0:
-                train_loss = loss_meter.value()[0]
-
                 # Early stopping procedure
                 if train_loss < best_loss:
                     torch.save(
@@ -191,10 +193,7 @@ def main(args):
                     patience -= 1
                     if patience == 0:
                         writer.add_text('log', 'Early stopping', iteration)
-                        # break
-
-                # TensorBoard: Scalar
-                writer.add_scalar('train_loss', train_loss, iteration)
+                    #     break
 
             iteration += 1
 
