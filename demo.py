@@ -6,6 +6,7 @@
 # Created:  2017-11-01
 
 import argparse
+import os.path as osp
 
 import cv2
 import matplotlib.pyplot as plt
@@ -16,8 +17,7 @@ import torch.nn.functional as F
 import yaml
 from torch.autograd import Variable
 
-from models import DeepLab
-import os.path as osp
+from libs.models import DeepLab
 
 
 def main(args):
@@ -25,6 +25,7 @@ def main(args):
     with open(args.config) as f:
         config = yaml.load(f)
 
+    # Label list
     with open(config['dataset'][args.dataset]['label_list']) as f:
         classes = {}
         for label in f:
@@ -49,16 +50,16 @@ def main(args):
     if args.cuda:
         model.cuda()
 
-    image_size = (config['dataset'][args.dataset]['rows'],
-                  config['dataset'][args.dataset]['cols'])
+    image_size = (config['image']['size']['test'],
+                  config['image']['size']['test'])
 
     # Image preprocessing
     image = cv2.imread(args.image, cv2.IMREAD_COLOR).astype(float)
     image = cv2.resize(image, image_size)
     image_original = image.astype(np.uint8)[:, :, ::-1]
-    image -= np.array([config['mean']['B'],
-                       config['mean']['G'],
-                       config['mean']['R']])
+    image -= np.array([config['image']['mean']['B'],
+                       config['image']['mean']['G'],
+                       config['image']['mean']['R']])
     image = torch.from_numpy(image.transpose(2, 0, 1)).float().unsqueeze(0)
     image = image.cuda() if args.cuda else image
 
@@ -90,7 +91,6 @@ def main(args):
         ax.set_xticks([])
         ax.set_yticks([])
 
-    # plt.savefig('./results/{}'.format(osp.basename(args.image)))
     plt.show()
 
 

@@ -1,4 +1,4 @@
-from datasets.cocostuff import CocoStuff10k
+from libs.datasets.cocostuff import CocoStuff10k
 
 
 def get_dataset(name):
