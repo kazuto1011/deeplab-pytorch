@@ -125,8 +125,6 @@ def main(args):
 
     # TensorBoard Logger
     writer = SummaryWriter(args.log_dir)
-
-    loss = 0
     loss_meter = MovingAverageValueMeter(20)
 
     model.train()
@@ -159,6 +157,7 @@ def main(args):
         target = Variable(target)
 
         # Aggregate losses for [100%, 75%, 50%, Max]
+        loss = 0
         for output in outputs:
             loss += criterion(output, target)
         loss /= args.iter_size
