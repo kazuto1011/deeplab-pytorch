@@ -7,7 +7,8 @@
 
 import argparse
 import os.path as osp
-
+import numpy as np
+import cv2
 import torch
 import torch.nn.functional as F
 import yaml
@@ -55,6 +56,14 @@ def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
     new_lr = init_lr * (1 - iter / max_iter)**power
     optimizer.param_groups[0]['lr'] = new_lr
     optimizer.param_groups[1]['lr'] = 10 * new_lr
+
+
+def resize_target(target, size):
+    new_target = np.zeros((target.shape[0], size, size), np.int32)
+    for i, t in enumerate(target.numpy()):
+        new_target[i, ...] = cv2.resize(
+            t, (size,) * 2, interpolation=cv2.INTER_NEAREST)
+    return torch.from_numpy(new_target).long()
 
 
 def main(args):
@@ -133,12 +142,9 @@ def main(args):
 
         model.train()
         for i, (data, target) in tqdm_loader:
-            if args.cuda:
-                data = data.cuda()
-                target = target.cuda()
-
+            # Image
+            data = data.cuda() if args.cuda else data
             data = Variable(data)
-            target = Variable(target)
 
             # Polynomial lr decay
             poly_lr_scheduler(optimizer=optimizer,
@@ -151,8 +157,13 @@ def main(args):
             # Forward propagation
             optimizer.zero_grad()
             outputs = model(data)
-            target = F.upsample(
-                target, size=outputs[0].size(2), mode='nearest')
+
+            # Label
+            target = resize_target(target, outputs[0].size(2))
+            target = target.cuda() if args.cuda else target
+            target = Variable(target)
+
+            # Loss
             loss = 0
             for output in outputs:
                 loss += criterion(output, target)

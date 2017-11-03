@@ -1,4 +1,4 @@
-num_workers: 4
+num_workers: 0
 mean:
     R: 122.675
     G: 116.669

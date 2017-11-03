@@ -60,7 +60,7 @@ class CocoStuff10k(data.Dataset):
             file_list = tuple(
                 open(root + '/imageLists/' + split + '.txt', 'r'))
             file_list = [id_.rstrip() for id_ in file_list]
-            self.files[split] = file_list
+            self.files[split] = file_list[:10]
 
         if self.preload:
             self.preload_data()
@@ -76,9 +76,7 @@ class CocoStuff10k(data.Dataset):
             image, label = self.load_pairwise(image_id)
         image, label = self.data_augmentation(image, label)
         image = image.transpose(2, 0, 1)
-        image = torch.from_numpy(image).float()
-        label = torch.from_numpy(label).long()
-        return image, label
+        return image.astype(np.float), label.astype(np.int32)
 
     def data_augmentation(self, image, label):
         if self.scale:
