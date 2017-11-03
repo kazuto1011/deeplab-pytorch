@@ -135,56 +135,56 @@ def main(args):
                           leave=False,
                           dynamic_ncols=True):
 
-        data, target = next(loader_iter)
+        for data, target in loader:
 
-        # Polynomial lr decay
-        poly_lr_scheduler(optimizer=optimizer,
-                          init_lr=args.lr,
-                          iter=iteration - 1,
-                          lr_decay_iter=args.lr_decay,
-                          max_iter=args.iter_max,
-                          power=args.poly_power)
+            # Polynomial lr decay
+            poly_lr_scheduler(optimizer=optimizer,
+                            init_lr=args.lr,
+                            iter=iteration - 1,
+                            lr_decay_iter=args.lr_decay,
+                            max_iter=args.iter_max,
+                            power=args.poly_power)
 
-        # Image
-        data = data.cuda() if args.cuda else data
-        data = Variable(data)
+            # Image
+            data = data.cuda() if args.cuda else data
+            data = Variable(data)
 
-        # Forward propagation
-        outputs = model(data)
+            # Forward propagation
+            outputs = model(data)
 
-        # Label
-        target = resize_target(target, outputs[0].size(2))
-        target = target.cuda() if args.cuda else target
-        target = Variable(target)
+            # Label
+            target = resize_target(target, outputs[0].size(2))
+            target = target.cuda() if args.cuda else target
+            target = Variable(target)
 
-        # Aggregate losses for [100%, 75%, 50%, Max]
-        for output in outputs:
-            loss += criterion(output, target)
-        loss /= args.iter_size
-        loss_meter.add(loss.data[0])
+            # Aggregate losses for [100%, 75%, 50%, Max]
+            for output in outputs:
+                loss += criterion(output, target)
+            loss /= args.iter_size
+            loss_meter.add(loss.data[0])
 
-        # Back propagation
-        if iteration % args.iter_size == 0:
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            loss = 0
+            # Back propagation
+            if iteration % args.iter_size == 0:
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                loss = 0
 
-        # TensorBoard
-        if iteration % args.iter_tf == 0:
-            writer.add_scalar('train_loss', loss_meter.value()[0], iteration)
+            # TensorBoard
+            if iteration % args.iter_tf == 0:
+                writer.add_scalar('train_loss', loss_meter.value()[0], iteration)
 
-        # Save a model
-        if iteration % args.iter_snapshot == 0:
-            torch.save(
-                {'iteration': iteration,
-                 'weight': model.state_dict()},
-                osp.join(args.save_dir, 'checkpoint_{}.pth.tar'.format(iteration))
-            )
-            writer.add_text('log', 'Saved a model', iteration)
+            # Save a model
+            if iteration % args.iter_snapshot == 0:
+                torch.save(
+                    {'iteration': iteration,
+                    'weight': model.state_dict()},
+                    osp.join(args.save_dir, 'checkpoint_{}.pth.tar'.format(iteration))
+                )
+                writer.add_text('log', 'Saved a model', iteration)
 
-        if iteration % len(loader) == 0:
-            loader_iter = iter(loader)
+            if iteration % len(loader) == 0:
+                loader_iter = iter(loader)
 
     torch.save(
         {'iteration': iteration - 1,
