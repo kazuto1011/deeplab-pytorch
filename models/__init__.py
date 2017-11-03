@@ -1,1 +1,1 @@
-from models.deeplab import DeepLab_ResNet
+from models.deeplab import DeepLab

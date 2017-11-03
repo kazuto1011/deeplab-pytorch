@@ -6,6 +6,8 @@
 # Created:  2017-11-01
 
 import argparse
+import os.path as osp
+from glob import glob
 
 import cv2
 import matplotlib.pyplot as plt
@@ -17,7 +19,6 @@ import yaml
 from torch.autograd import Variable
 
 from models import DeepLab
-import os.path as osp
 
 
 def main(args):
@@ -52,46 +53,49 @@ def main(args):
     image_size = (config['dataset'][args.dataset]['rows'],
                   config['dataset'][args.dataset]['cols'])
 
-    # Image preprocessing
-    image = cv2.imread(args.image, cv2.IMREAD_COLOR).astype(float)
-    image = cv2.resize(image, image_size)
-    image_original = image.astype(np.uint8)[:, :, ::-1]
-    image -= np.array([config['mean']['B'],
-                       config['mean']['G'],
-                       config['mean']['R']])
-    image = torch.from_numpy(image.transpose(2, 0, 1)).float().unsqueeze(0)
-    image = image.cuda() if args.cuda else image
+    image_list = glob(osp.join(args.image_dir, '*'))
 
-    # Inference
-    output = model(Variable(image, volatile=True))
+    for image_path in image_list:
+        # Image preprocessing
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(float)
+        image = cv2.resize(image, image_size)
+        image_original = image.astype(np.uint8)[:, :, ::-1]
+        image -= np.array([config['mean']['B'],
+                           config['mean']['G'],
+                           config['mean']['R']])
+        image = torch.from_numpy(image.transpose(2, 0, 1)).float().unsqueeze(0)
+        image = image.cuda() if args.cuda else image
 
-    output = F.upsample(output[3], size=image_size, mode='bilinear')
-    output = output[0].cpu().data.numpy().transpose(1, 2, 0)
-    labelmap = np.argmax(output, axis=2)
+        # Inference
+        output = model(Variable(image, volatile=True))
 
-    labels = np.unique(labelmap)
+        output = F.upsample(output[3], size=image_size, mode='bilinear')
+        output = output[0].cpu().data.numpy().transpose(1, 2, 0)
+        labelmap = np.argmax(output, axis=2)
 
-    rows = np.floor(np.sqrt(len(labels) + 1))
-    cols = np.ceil((len(labels) + 1) / rows)
+        labels = np.unique(labelmap)
 
-    plt.figure(figsize=(10, 10))
-    ax = plt.subplot(rows, cols, 1)
-    ax.set_title('Input image')
-    ax.imshow(image_original)
-    ax.set_xticks([])
-    ax.set_yticks([])
+        rows = np.floor(np.sqrt(len(labels) + 1))
+        cols = np.ceil((len(labels) + 1) / rows)
 
-    for i, label in enumerate(labels):
-        print '{0:3d}: {1}'.format(label, classes[label])
-        mask = labelmap == label
-        ax = plt.subplot(rows, cols, i + 2)
-        ax.set_title(classes[label])
-        ax.imshow(np.dstack((mask,) * 3) * image_original)
+        plt.figure(figsize=(10, 10))
+        ax = plt.subplot(rows, cols, 1)
+        ax.set_title('Input image')
+        ax.imshow(image_original)
         ax.set_xticks([])
         ax.set_yticks([])
 
-    # plt.savefig('./results/{}'.format(osp.basename(args.image)))
-    plt.show()
+        for i, label in enumerate(labels):
+            print '{0:3d}: {1}'.format(label, classes[label])
+            mask = labelmap == label
+            ax = plt.subplot(rows, cols, i + 2)
+            ax.set_title(classes[label])
+            ax.imshow(np.dstack((mask,) * 3) * image_original)
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+        plt.savefig('./results/{}'.format(osp.basename(image_path)))
+        # plt.show()
 
 
 if __name__ == '__main__':
@@ -101,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
     parser.add_argument('--checkpoint', type=str, default=None)
-    parser.add_argument('--image', type=str, required=True)
+    parser.add_argument('--image_dir', type=str, required=True)
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()

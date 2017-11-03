@@ -6,13 +6,12 @@ mean:
 dataset:
     voc:
         root:
-        label_list:
+        label_list: /Users/kazuto1011/Desktop/voc-labels.txt
         init_model: ./MS_DeepLab_resnet_pretrained_COCO_init.pth
         ignore_label: 255
         rows: 513
         cols: 513
         n_classes: 21
-        classes: ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
         trained_model: ./MS_DeepLab_resnet_trained_VOC.pth
     cocostuff:
         root: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1

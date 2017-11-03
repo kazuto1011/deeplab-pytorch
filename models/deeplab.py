@@ -182,9 +182,9 @@ class ResNet(nn.Module):
         return x
 
 
-class MS_Deeplab(nn.Module):
+class DeepLab_ResNet(nn.Module):
     def __init__(self, block, n_classes):
-        super(MS_Deeplab, self).__init__()
+        super(DeepLab_ResNet, self).__init__()
         self.Scale = ResNet(block, [3, 4, 23, 3],
                             n_classes)  # changed to fix #4
 
@@ -215,6 +215,6 @@ class MS_Deeplab(nn.Module):
         return [output100, output075, output050, outputMax]
 
 
-def DeepLab_ResNet(n_classes=21):
-    model = MS_Deeplab(Bottleneck, n_classes)
+def DeepLab(n_classes=21):
+    model = DeepLab_ResNet(Bottleneck, n_classes)
     return model

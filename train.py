@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# coding: utf-8
+#
+# Author:   Kazuto Nakashima
+# URL:      http://kazuto1011.github.io
+# Created:  2017-11-01
+
 import argparse
 import os.path as osp
 
@@ -6,11 +13,11 @@ import torch.nn.functional as F
 import yaml
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
-from torchnet.meter import AverageValueMeter
+from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from datasets import get_dataset
-from models import DeepLab_ResNet
+from models import DeepLab
 from utils import CrossEntropyLoss2d
 
 
@@ -41,7 +48,7 @@ def get_10x_lr_params(model):
             yield i
 
 
-def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter=10, max_iter=30000, power=0.9):
+def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
     if iter % lr_decay_iter or iter > max_iter:
         return None
 
@@ -77,8 +84,7 @@ def main(args):
     )
 
     # Model
-    model = DeepLab_ResNet(
-        n_classes=config['dataset'][args.dataset]['n_classes'])
+    model = DeepLab(n_classes=config['dataset'][args.dataset]['n_classes'])
     state_dict = torch.load(config['dataset'][args.dataset]['init_model'])
     if config['dataset'][args.dataset]['n_classes'] != 21:
         for i in state_dict:
@@ -111,17 +117,18 @@ def main(args):
 
     best_loss = 1e10
     patience = args.patience
+    loss_meter = MovingAverageValueMeter(20)
 
     # Training loop
     iteration = 0
     for epoch in range(args.n_epoch):
-        loss_meter = AverageValueMeter()
 
         tqdm_loader = tqdm(
             enumerate(loader),
             total=len(loader),
             desc='Epoch [%d]' % (epoch),
-            leave=False
+            leave=False,
+            dynamic_ncols=True
         )
 
         model.train()
@@ -138,23 +145,24 @@ def main(args):
                               init_lr=args.lr,
                               iter=iteration,
                               lr_decay_iter=args.lr_decay,
-                              max_iter=len(loader) / args.batch_size * 2,
+                              max_iter=len(loader) * args.n_epoch / args.batch_size,  # NOQA
                               power=args.poly_power)
 
             # Forward propagation
             optimizer.zero_grad()
             outputs = model(data)
+            target = F.upsample(
+                target, size=outputs[0].size(2), mode='nearest')
             loss = 0
             for output in outputs:
-                output = F.upsample(output, size=321, mode='bilinear')
                 loss += criterion(output, target)
-            loss_meter.add(loss.data[0], data.size(0))
+            loss_meter.add(loss.data[0])
 
             # Back propagation & weight updating
             loss.backward()
             optimizer.step()
 
-            # In each 100 iterations
+            # In each 1000 iterations
             if iteration % 100 == 0:
                 train_loss = loss_meter.value()[0]
 
@@ -172,13 +180,18 @@ def main(args):
                     patience -= 1
                     if patience == 0:
                         writer.add_text('log', 'Early stopping', iteration)
-                        break
+                        # break
 
                 # TensorBoard: Scalar
                 writer.add_scalar('train_loss', train_loss, iteration)
-                loss_meter.reset()
 
             iteration += 1
+
+    torch.save(
+        {'iteration': iteration - 1,
+            'weight': model.state_dict()},
+        osp.join(args.save_dir, 'checkpoint_final.pth.tar')
+    )
 
 
 if __name__ == '__main__':
@@ -187,7 +200,7 @@ if __name__ == '__main__':
     parser.add_argument('--no_cuda', action='store_true', default=False)
     parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
-    parser.add_argument('--n_epoch', nargs='?', type=int, default=100)
+    parser.add_argument('--n_epoch', nargs='?', type=int, default=2)
     parser.add_argument('--batch_size', nargs='?', type=int, default=2)
     parser.add_argument('--lr', nargs='?', type=float, default=0.00025)
     parser.add_argument('--lr_decay', nargs='?', type=int, default=10)

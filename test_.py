@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from models import DeepLab_ResNet
+from models import DeepLab
 import torchvision.models as models
 from docopt import docopt
 
@@ -64,7 +64,7 @@ def get_iou(pred, gt):
 
 gpu0 = int(args['--gpu0'])
 im_path = args['--testIMpath']
-model = DeepLab_ResNet(int(args['--NoLabels']))
+model = DeepLab(int(args['--NoLabels']))
 model.eval()
 counter = 0
 model.cuda(gpu0)

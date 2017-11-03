@@ -129,8 +129,10 @@ class CocoStuff10k(data.Dataset):
         return image, label
 
     def preload_data(self):
-        print 'Preloading...'
-        for image_id in tqdm(self.files[self.split], leave=False):
+        for image_id in tqdm(self.files[self.split],
+                             desc='Preloading...',
+                             leave=False,
+                             dynamic_ncols=True):
             image, label = self.load_pairwise(image_id)
             self.images.append(image)
             self.labels.append(label)
