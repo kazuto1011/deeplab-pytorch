@@ -40,8 +40,7 @@ class CocoStuff10k(data.Dataset):
     └── cocostuff-10k-v1.1.json
     """
 
-    def __init__(self, root, split="train",
-                 image_size=512, scale=True, flip=True, preload=False):
+    def __init__(self, root, split="train", image_size=512, scale=True, flip=True, preload=False):
         self.root = root
         self.split = split
         self.n_classes = 91 + 91 + 1
@@ -53,7 +52,8 @@ class CocoStuff10k(data.Dataset):
         self.preload = preload
         self.images = []
         self.labels = []
-        self.ignore_label = 0
+        self.ignore_label = 0  # unlabeled
+        self.fixed_size = False
 
         # Load all path to images
         for split in ["train", "test", "all"]:
@@ -85,26 +85,27 @@ class CocoStuff10k(data.Dataset):
                                interpolation=cv2.INTER_LINEAR)
             label = cv2.resize(label, None, fx=scale_factor, fy=scale_factor,
                                interpolation=cv2.INTER_NEAREST)
-            h, w = label.shape
-            if scale_factor < 1.0:
-                # Padding
-                pad_h = max(self.image_size[0] - h, 0)
-                pad_w = max(self.image_size[1] - w, 0)
-                if pad_h > 0 or pad_w > 0:
-                    image = cv2.copyMakeBorder(image, 0, pad_h, 0,
-                                               pad_w, cv2.BORDER_CONSTANT,
-                                               value=(0.0, 0.0, 0.0))
-                    label = cv2.copyMakeBorder(label, 0, pad_h, 0,
-                                               pad_w, cv2.BORDER_CONSTANT,
-                                               value=(self.ignore_label,))
-            else:
-                # Random cropping
-                off_h = random.randint(0, h - self.image_size[0])
-                off_w = random.randint(0, w - self.image_size[1])
-                image = image[off_h: off_h + self.image_size[0],
-                              off_w: off_w + self.image_size[1]]
-                label = label[off_h: off_h + self.image_size[0],
-                              off_w: off_w + self.image_size[1]]
+            if self.fixed_size:
+                h, w = label.shape
+                if scale_factor < 1.0:
+                    # Padding
+                    pad_h = max(self.image_size[0] - h, 0)
+                    pad_w = max(self.image_size[1] - w, 0)
+                    if pad_h > 0 or pad_w > 0:
+                        image = cv2.copyMakeBorder(image, 0, pad_h, 0,
+                                                   pad_w, cv2.BORDER_CONSTANT,
+                                                   value=(0.0, 0.0, 0.0))
+                        label = cv2.copyMakeBorder(label, 0, pad_h, 0,
+                                                   pad_w, cv2.BORDER_CONSTANT,
+                                                   value=(self.ignore_label,))
+                else:
+                    # Random cropping
+                    off_h = random.randint(0, h - self.image_size[0])
+                    off_w = random.randint(0, w - self.image_size[1])
+                    image = image[off_h: off_h + self.image_size[0],
+                                  off_w: off_w + self.image_size[1]]
+                    label = label[off_h: off_h + self.image_size[0],
+                                  off_w: off_w + self.image_size[1]]
         if self.flip:
             # Random flipping
             if random.random() < 0.5:
