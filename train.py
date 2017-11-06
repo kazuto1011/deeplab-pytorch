@@ -53,7 +53,7 @@ def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
     if iter % lr_decay_iter or iter > max_iter:
         return None
 
-    new_lr = init_lr * (1 - iter / max_iter)**power
+    new_lr = init_lr * (1 - float(iter) / max_iter)**power
     optimizer.param_groups[0]['lr'] = new_lr
     optimizer.param_groups[1]['lr'] = 10 * new_lr
 
@@ -61,8 +61,7 @@ def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
 def resize_target(target, size):
     new_target = np.zeros((target.shape[0], size, size), np.int32)
     for i, t in enumerate(target.numpy()):
-        new_target[i, ...] = cv2.resize(
-            t, (size,) * 2, interpolation=cv2.INTER_NEAREST)
+        new_target[i, ...] = cv2.resize(t, (size,) * 2, interpolation=cv2.INTER_NEAREST)  # NOQA
     return torch.from_numpy(new_target).long()
 
 
@@ -79,7 +78,7 @@ def main(args):
                     config['image']['size']['train']),
         scale=True,
         flip=True,
-        preload=True
+        # preload=True
     )
 
     # DataLoader
@@ -145,6 +144,8 @@ def main(args):
                           max_iter=args.iter_max,
                           power=args.poly_power)
 
+        continue
+
         # Image
         data = data.cuda() if args.cuda else data
         data = Variable(data)
@@ -188,7 +189,7 @@ def main(args):
             loader_iter = iter(loader)
 
     torch.save(
-        {'iteration': iteration - 1,
+        {'iteration': iteration,
          'weight': model.state_dict()},
         osp.join(args.save_dir, 'checkpoint_final.pth.tar')
     )

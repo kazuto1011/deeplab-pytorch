@@ -93,7 +93,8 @@ def main(args):
             mask = labelmap == label
             ax = plt.subplot(rows, cols, i + 2)
             ax.set_title(classes[label])
-            ax.imshow(np.dstack((mask,) * 3) * image_original)
+            # ax.imshow(np.dstack((mask,) * 3) * image_original)
+            ax.imshow(mask)
             ax.set_xticks([])
             ax.set_yticks([])
 
