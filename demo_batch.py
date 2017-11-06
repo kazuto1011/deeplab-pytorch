@@ -19,6 +19,7 @@ import yaml
 from torch.autograd import Variable
 
 from libs.models import DeepLab
+from libs.utils import dense_crf
 
 
 def main(args):
@@ -70,8 +71,10 @@ def main(args):
         output = model(Variable(image, volatile=True))
 
         output = F.upsample(output[3], size=image_size, mode='bilinear')
-        output = output[0].cpu().data.numpy().transpose(1, 2, 0)
-        labelmap = np.argmax(output, axis=2)
+        output = output[0].cpu().data.numpy()
+
+        labelmap = dense_crf(image_original, output)
+        labelmap = np.argmax(output.transpose(1, 2, 0), axis=2)
 
         labels = np.unique(labelmap)
 

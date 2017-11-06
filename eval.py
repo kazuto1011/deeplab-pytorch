@@ -75,8 +75,8 @@ def main(args):
         # Forward propagation
         output = model(data)
         output = F.upsample(output[3], size=image_size, mode='bilinear')
-        output = output[0].cpu().data.numpy().transpose(1, 2, 0)
-        output = np.argmax(output, axis=2)
+        output = output.data.cpu().numpy()
+        output = np.argmax(output, axis=1)
         target = target.numpy()
 
         for o, t in zip(output, target):

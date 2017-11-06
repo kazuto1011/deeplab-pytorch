@@ -18,6 +18,7 @@ import yaml
 from torch.autograd import Variable
 
 from libs.models import DeepLab
+from libs.utils import dense_crf
 
 
 def main(args):
@@ -56,7 +57,7 @@ def main(args):
     # Image preprocessing
     image = cv2.imread(args.image, cv2.IMREAD_COLOR).astype(float)
     image = cv2.resize(image, image_size)
-    image_original = image.astype(np.uint8)[:, :, ::-1]
+    image_original = image.astype(np.uint8)
     image -= np.array([config['image']['mean']['B'],
                        config['image']['mean']['G'],
                        config['image']['mean']['R']])
@@ -67,8 +68,10 @@ def main(args):
     output = model(Variable(image, volatile=True))
 
     output = F.upsample(output[3], size=image_size, mode='bilinear')
-    output = output[0].cpu().data.numpy().transpose(1, 2, 0)
-    labelmap = np.argmax(output, axis=2)
+    output = output[0].cpu().data.numpy()
+
+    labelmap = dense_crf(image_original, output)
+    labelmap = np.argmax(output.transpose(1, 2, 0), axis=2)
 
     labels = np.unique(labelmap)
 
@@ -78,7 +81,7 @@ def main(args):
     plt.figure(figsize=(10, 10))
     ax = plt.subplot(rows, cols, 1)
     ax.set_title('Input image')
-    ax.imshow(image_original)
+    ax.imshow(image_original[:, :, ::-1])
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -87,7 +90,7 @@ def main(args):
         mask = labelmap == label
         ax = plt.subplot(rows, cols, i + 2)
         ax.set_title(classes[label])
-        ax.imshow(np.dstack((mask,) * 3) * image_original)
+        ax.imshow(np.dstack((mask,) * 3) * image_original[:, :, ::-1])
         ax.set_xticks([])
         ax.set_yticks([])
 
