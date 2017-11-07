@@ -169,7 +169,7 @@ def main(args):
             loss.backward()
 
             # Reload dataloader
-            if (iteration + i) % len(loader) == 0:
+            if ((iteration - 1) * args.iter_size + i) % len(loader) == 0:
                 loader_iter = iter(loader)
 
         loss_meter.add(iter_loss)
@@ -203,14 +203,14 @@ if __name__ == '__main__':
     parser.add_argument('--no_cuda', action='store_true', default=False)
     parser.add_argument('--dataset', type=str, default='cocostuff')
     parser.add_argument('--config', type=str, default='config/default.yaml')
-    parser.add_argument('--batch_size', type=int, default=5)
+    parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--lr', type=float, default=2.5e-4)
     parser.add_argument('--lr_decay', type=int, default=10)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=5e-4)
     parser.add_argument('--poly_power', type=float, default=0.9)
     parser.add_argument('--iter_max', type=int, default=20000)
-    parser.add_argument('--iter_size', type=int, default=2)
+    parser.add_argument('--iter_size', type=int, default=10)
     parser.add_argument('--iter_tf', type=int, default=10)
     parser.add_argument('--iter_snapshot', type=int, default=5000)
     parser.add_argument('--optimizer', type=str, default='sgd')
