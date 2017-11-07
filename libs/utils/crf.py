@@ -2,6 +2,13 @@ import numpy as np
 import pydensecrf.densecrf as dcrf
 import pydensecrf.utils as utils
 
+MAX_ITER = 10
+POS_W = 3
+POS_XY_STD = 3
+Bi_W = 4
+Bi_XY_STD = 49
+Bi_RGB_STD = 5
+
 
 def dense_crf(img, output_probs):
     c = output_probs.shape[0]
@@ -15,9 +22,9 @@ def dense_crf(img, output_probs):
 
     d = dcrf.DenseCRF2D(w, h, c)
     d.setUnaryEnergy(U)
-    d.addPairwiseGaussian(sxy=3, compat=3)
-    d.addPairwiseBilateral(sxy=70, srgb=5, rgbim=img, compat=5)
+    d.addPairwiseGaussian(sxy=POS_XY_STD, compat=POS_W)
+    d.addPairwiseBilateral(sxy=Bi_XY_STD, srgb=Bi_RGB_STD, rgbim=img, compat=Bi_W)
 
-    Q = d.inference(10)
+    Q = d.inference(MAX_ITER)
     Q = np.array(Q).reshape((c, h, w))
     return Q
