@@ -125,10 +125,10 @@ class Classifier_Module(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, n_classes):
+    def __init__(self, block, layers, n_channels, n_classes):
         self.inplanes = 64
         super(ResNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)  # NOQA
+        self.conv1 = nn.Conv2d(n_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)  # NOQA
         self.bn1 = nn.BatchNorm2d(64, affine=affine_par)
         for i in self.bn1.parameters():
             i.requires_grad = False
@@ -183,10 +183,10 @@ class ResNet(nn.Module):
 
 
 class DeepLab_ResNet(nn.Module):
-    def __init__(self, block, n_classes):
+    def __init__(self, block, n_channels, n_classes):
         super(DeepLab_ResNet, self).__init__()
         self.Scale = ResNet(block, [3, 4, 23, 3],
-                            n_classes)  # changed to fix #4
+                            n_channels, n_classes)  # changed to fix #4
 
     def forward(self, x):
         output100 = self.Scale(x)
@@ -215,6 +215,6 @@ class DeepLab_ResNet(nn.Module):
         return [output100, output075, output050, outputMax]
 
 
-def DeepLab(n_classes=21):
-    model = DeepLab_ResNet(Bottleneck, n_classes)
+def DeepLab(n_channels=3, n_classes=21):
+    model = DeepLab_ResNet(Bottleneck, n_channels, n_classes)
     return model

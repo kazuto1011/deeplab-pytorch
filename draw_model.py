@@ -75,7 +75,7 @@ with open(args.config) as f:
     config = yaml.load(f)
 
 image_size = config['image']['size']['test']
-model = DeepLab(n_classes=config['dataset'][args.dataset]['n_classes'])
+model = DeepLab(n_channels=3, n_classes=config['dataset'][args.dataset]['n_classes'])
 y = model(Variable(torch.randn(1, 3, image_size, image_size)))
 g = make_dot(y[3], model.state_dict())
 g.view()

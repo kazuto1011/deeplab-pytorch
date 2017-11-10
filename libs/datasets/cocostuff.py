@@ -118,7 +118,12 @@ class CocoStuff10k(data.Dataset):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         image = cv2.resize(image, self.image_size,
                            interpolation=cv2.INTER_LINEAR)
-        image -= self.mean
+        if False:
+            image -= self.mean
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            image -= np.mean(self.mean)
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         # Load a label map
         label = sio.loadmat(label_path)['S'].astype(np.int32)
         label = cv2.resize(label, self.image_size,

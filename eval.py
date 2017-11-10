@@ -59,7 +59,7 @@ def main(args):
     print('Result after {} iterations'.format(checkpoint['iteration']))
 
     # Model
-    model = DeepLab(n_classes=n_classes)
+    model = DeepLab(n_channels=3, n_classes=n_classes)
     model.load_state_dict(state_dict)
     model.eval()
     if args.cuda:

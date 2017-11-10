@@ -78,7 +78,7 @@ def main(args):
                     config['image']['size']['train']),
         scale=True,
         flip=True,
-        preload=True
+        # preload=True
     )
 
     # DataLoader
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('--iter_snapshot', type=int, default=5000)
     parser.add_argument('--optimizer', type=str, default='sgd')
     parser.add_argument('--save_dir', type=str, default='.')
-    parser.add_argument('--log_dir', type=str, default='runs')
+    parser.add_argument('--log_dir', type=str, default='runs/grayscale')
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()

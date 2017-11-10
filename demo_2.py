@@ -9,6 +9,7 @@ import argparse
 import os.path as osp
 
 import cv2
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -75,26 +76,17 @@ def main(args):
 
     labels = np.unique(labelmap)
 
-    rows = np.floor(np.sqrt(len(labels) + 1))
-    cols = np.ceil((len(labels) + 1) / rows)
-
-    plt.figure(figsize=(10, 10))
-    ax = plt.subplot(rows, cols, 1)
-    ax.set_title('Input image')
-    ax.imshow(image_original[:, :, ::-1])
-    ax.set_xticks([])
-    ax.set_yticks([])
-
     for i, label in enumerate(labels):
         print '{0:3d}: {1}'.format(label, classes[label])
-        mask = labelmap == label
-        ax = plt.subplot(rows, cols, i + 2)
-        ax.set_title(classes[label])
-        ax.imshow(np.dstack((mask,) * 3) * image_original[:, :, ::-1])
-        ax.set_xticks([])
-        ax.set_yticks([])
+        mask = labelmap * (labelmap == label)
+        mask /= mask.max()
+        cv2.imwrite('data/results/{0:03d}_{1}.png'.format(label,
+                                                    classes[label]), mask * 255)
 
-    plt.show()
+    labelmap = labelmap / 182.
+    labelmap = cm.gist_ncar(labelmap) * 255
+    labelmap = labelmap[:, :, 0:3]
+    cv2.imwrite('data/results/labelmap.png', np.uint8(labelmap[:, :, ::-1]))
 
 
 if __name__ == '__main__':
