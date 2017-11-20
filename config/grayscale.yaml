@@ -1,0 +1,26 @@
+num_workers: 0
+image:
+    mean:
+        R: 114.451
+        G: 114.451
+        B: 114.451
+    size:
+        train: 321
+        test: 513
+dataset:
+    voc:
+        name: Pascal VOC 2012
+        root:
+        label_list: /Users/kazuto1011/Desktop/voc-labels.txt
+        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
+        ignore_label: 255
+        n_classes: 21
+        trained_model: ./data/models/MS_DeepLab_resnet_trained_VOC.pth
+    cocostuff:
+        name: COCO Stuff 10k
+        root: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1
+        label_list: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1/cocostuff-labels.txt
+        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
+        ignore_label: 0
+        n_classes: 183
+        trained_model: None

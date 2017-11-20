@@ -12,7 +12,7 @@ import yaml
 from graphviz import Digraph
 from torch.autograd import Variable
 
-from libs.models import DeepLab
+from libs.models import *
 
 
 def make_dot(var, params):
@@ -26,6 +26,7 @@ def make_dot(var, params):
         params: dict of (name, Variable) to add names to node that
             require grad (TODO: make optional)
     """
+
     param_map = {id(v): k for k, v in params.items()}
 
     node_attr = dict(style='filled',
@@ -46,10 +47,9 @@ def make_dot(var, params):
                 dot.node(str(id(var)), size_to_str(var.size()), fillcolor='orange')
             elif hasattr(var, 'variable'):
                 u = var.variable
-                node_name = '%s\n %s' % (param_map.get(id(u)), size_to_str(u.size()))
-                dot.node(str(id(var)), node_name, fillcolor='lightblue')
+                dot.node(str(id(var)), size_to_str(u.size()), fillcolor='lightblue')
             else:
-                dot.node(str(id(var)), str(type(var).__name__))
+                dot.node(str(id(var)), str(type(var).__name__.replace('Backward', '')))
             seen.add(var)
             if hasattr(var, 'next_functions'):
                 for u in var.next_functions:
@@ -74,8 +74,15 @@ args = parser.parse_args()
 with open(args.config) as f:
     config = yaml.load(f)
 
-image_size = config['image']['size']['test']
-model = DeepLab(n_channels=3, n_classes=config['dataset'][args.dataset]['n_classes'])
+image_size = config[args.dataset]['image']['size']['test']
+# model = DeepLabV2(n_classes=config[args.dataset]['n_classes'],
+#                   n_blocks=[3, 4, 23, 3],
+#                   pyramids=[6, 12, 18, 24])
+model = PSPNet(n_classes=config[args.dataset]['n_classes'],
+               n_blocks=[3, 4, 6, 3],
+               pyramids=[6, 3, 2, 1])
+model.eval()
 y = model(Variable(torch.randn(1, 3, image_size, image_size)))
-g = make_dot(y[3], model.state_dict())
+g = make_dot(y, model.state_dict())
+
 g.view()

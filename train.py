@@ -18,18 +18,17 @@ from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.models import DeepLab
+from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import CrossEntropyLoss2d
 
 
 def get_1x_lr_params(model):
     b = []
-    b.append(model.Scale.conv1)
-    b.append(model.Scale.bn1)
-    b.append(model.Scale.layer1)
-    b.append(model.Scale.layer2)
-    b.append(model.Scale.layer3)
-    b.append(model.Scale.layer4)
+    b.append(model.scale.layer1)
+    b.append(model.scale.layer2)
+    b.append(model.scale.layer3)
+    b.append(model.scale.layer4)
+    b.append(model.scale.layer5)
 
     for i in range(len(b)):
         for j in b[i].modules():
@@ -42,7 +41,7 @@ def get_1x_lr_params(model):
 
 def get_10x_lr_params(model):
     b = []
-    b.append(model.Scale.layer5.parameters())
+    b.append(model.scale.aspp.parameters())
 
     for j in range(len(b)):
         for i in b[j]:
@@ -72,13 +71,13 @@ def main(args):
 
     # Dataset
     dataset = get_dataset(args.dataset)(
-        root=config['dataset'][args.dataset]['root'],
+        root=config[args.dataset]['root'],
         split='train',
-        image_size=(config['image']['size']['train'],
-                    config['image']['size']['train']),
+        image_size=(config[args.dataset]['image']['size']['train'],
+                    config[args.dataset]['image']['size']['train']),
         scale=True,
         flip=True,
-        preload=True
+        # preload=True
     )
 
     # DataLoader
@@ -91,14 +90,12 @@ def main(args):
     loader_iter = iter(loader)
 
     # Model
-    model = DeepLab(n_channels=3, n_classes=config['dataset'][args.dataset]['n_classes'])
-    state_dict = torch.load(config['dataset'][args.dataset]['init_model'])
-    if config['dataset'][args.dataset]['n_classes'] != 21:
-        for i in state_dict:
-            # 'Scale.layer5.conv2d_list.3.weight'
-            i_parts = i.split('.')
-            if i_parts[1] == 'layer5':
-                state_dict[i] = model.state_dict()[i]
+    model = DeepLabV2_ResNet101_MSC(n_classes=config[args.dataset]['n_classes'])  # NOQA
+    state_dict = torch.load(config[args.dataset]['init_model'])
+    # This loop can be deleted with 'strict=False' option
+    for layer_name, params in model.state_dict().items():
+        if 'aspp' in layer_name:
+            state_dict[layer_name] = params
     model.load_state_dict(state_dict)
     if args.cuda:
         model.cuda()
@@ -118,7 +115,7 @@ def main(args):
 
     # Loss definition
     criterion = CrossEntropyLoss2d(
-        ignore_index=config['dataset'][args.dataset]['ignore_label']
+        ignore_index=config[args.dataset]['ignore_label']
     )
     if args.cuda:
         criterion.cuda()

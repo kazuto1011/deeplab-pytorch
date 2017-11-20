@@ -20,7 +20,8 @@ from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.models import DeepLab
+from libs.utils import dense_crf
+from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import CrossEntropyLoss2d, scores
 
 
@@ -29,13 +30,13 @@ def main(args):
     with open(args.config) as f:
         config = yaml.load(f)
 
-    image_size = (config['image']['size']['test'],
-                  config['image']['size']['test'])
-    n_classes = config['dataset'][args.dataset]['n_classes']
+    image_size = (config[args.dataset]['image']['size']['test'],
+                  config[args.dataset]['image']['size']['test'])
+    n_classes = config[args.dataset]['n_classes']
 
     # Dataset
     dataset = get_dataset(args.dataset)(
-        root=config['dataset'][args.dataset]['root'],
+        root=config[args.dataset]['root'],
         split='test',
         image_size=image_size,
         scale=False,
@@ -50,7 +51,6 @@ def main(args):
         num_workers=config['num_workers'],
         shuffle=False
     )
-    loader_iter = iter(loader)
 
     checkpoint = torch.load(args.checkpoint,
                             map_location=lambda storage,
@@ -59,8 +59,8 @@ def main(args):
     print('Result after {} iterations'.format(checkpoint['iteration']))
 
     # Model
-    model = DeepLab(n_channels=3, n_classes=n_classes)
-    model.load_state_dict(state_dict)
+    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
+    # model.load_state_dict(state_dict)
     model.eval()
     if args.cuda:
         model.cuda()
@@ -74,8 +74,17 @@ def main(args):
 
         # Forward propagation
         output = model(data)
-        output = F.upsample(output[3], size=image_size, mode='bilinear')
+        output = F.upsample(output, size=image_size, mode='bilinear')
+        output = F.softmax(output)
         output = output.data.cpu().numpy()
+
+        crf_output = np.zeros(output.shape)
+        images = data.data.cpu().numpy().astype(np.uint8)
+        for i, (image, prob_map) in enumerate(zip(images, output)):
+            image = image.transpose(1, 2, 0)
+            crf_output[i] = dense_crf(image, prob_map)
+        output = crf_output
+
         output = np.argmax(output, axis=1)
         target = target.numpy()
 

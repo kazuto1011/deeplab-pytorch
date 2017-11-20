@@ -1,0 +1,20 @@
+255	unlabeled
+0	Road
+1	Sidewalk
+2	Building
+3	Wall
+4	Fence
+5	Pole
+6	Traffic light
+7	Traffic sign
+8	Vegetation
+9	Terrain
+10	Sky
+11	Person
+12	Rider
+13	Car
+14	Truck
+15	Bus
+16	Train
+17	Motorcycle
+18	Bicycle

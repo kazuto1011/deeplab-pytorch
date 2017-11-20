@@ -1,11 +1,7 @@
-# DeepLab v2 with PyTorch
+# DeepLab with PyTorch
 
-PyTorch implementation to train **DeepLab v2** model on **COCO Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10,000 images from 183 thing/stuff classes.
-|Input image|Result|
-|:-:|:-:|
-|![](data/samples/cat_dog.png)|![](data/samples/cat_dog.png)|
-|![](data/samples/coco.jpg)|![](data/samples/coco.jpg)|
-|![](data/samples/longbeach_rgb.jpg)|![](data/samples/longbeach_rgb.jpg)|
+PyTorch implementation to train **DeepLab v2** on **COCO Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10,000 images from 183 thing/stuff classes.
+
 ## Prerequisite
 
 * pytorch
@@ -18,12 +14,18 @@ PyTorch implementation to train **DeepLab v2** model on **COCO Stuff 10k** datas
 
 ## Usage
 
-### Dataset
+### Dataset and Models
 
 Download the followings and set the paths to ```config/default.yaml```.
 
-* Init parameters from MS COCO.
+* Init parameters trained on MS COCO.
 * COCO Stuff 10k
+
+Convert caffemodels to PyTorch compatibles.
+
+```sh
+python convert.py --dataset coco_init
+```
 
 ### Training
 

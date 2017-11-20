@@ -1,26 +1,31 @@
 num_workers: 0
-image:
-    mean:
-        R: 122.675
-        G: 116.669
-        B: 104.008
-    size:
-        train: 321
-        test: 513
-dataset:
-    voc:
-        name: Pascal VOC 2012
-        root:
-        label_list: /Users/kazuto1011/Desktop/voc-labels.txt
-        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
-        ignore_label: 255
-        n_classes: 21
-        trained_model: ./data/models/MS_DeepLab_resnet_trained_VOC.pth
-    cocostuff:
-        name: COCO Stuff 10k
-        root: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1
-        label_list: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1/cocostuff-labels.txt
-        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
-        ignore_label: 0
-        n_classes: 183
-        trained_model: None
+voc12:
+    name: Pascal VOC 2012
+    root: None
+    label_list: ./data/datasets/voc12/labels.txt
+    init_model: ./data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_COCO_init.pth
+    ignore_label: 255
+    n_classes: 21
+    image:
+        mean:
+            R: 122.675
+            G: 116.669
+            B: 104.008
+        size:
+            train: 473
+            test: 473
+cocostuff:
+    name: COCO Stuff 10k
+    root: /Users/kazuto1011/Desktop/cocostuff-10k-v1.1
+    label_list: ./data/datasets/cocostuff/labels.txt
+    init_model: ./data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_COCO_init.pth
+    ignore_label: 0
+    n_classes: 183
+    image:
+        mean:
+            R: 122.675
+            G: 116.669
+            B: 104.008
+        size:
+            train: 321
+            test: 513

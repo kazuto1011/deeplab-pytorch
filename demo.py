@@ -3,78 +3,99 @@
 #
 # Author:   Kazuto Nakashima
 # URL:      http://kazuto1011.github.io
-# Created:  2017-11-01
+# Created:  2017-11-15
 
-import argparse
-import os.path as osp
 
+import click
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import yaml
+from libs.models import DeepLabV2_ResNet101_MSC
+from libs.utils import dense_crf
 from torch.autograd import Variable
 
-from libs.models import DeepLab
-from libs.utils import dense_crf
 
+@click.command()
+@click.option('--dataset', required=True, type=click.Choice(['voc12']))
+@click.option('--image_path', required=True)
+@click.option('--model_path', default=None)
+@click.option('--cuda/--no-cuda', default=True)
+@click.option('--crf', is_flag=True)
+def main(dataset, image_path, model_path, cuda, crf):
+    CONFIG = {
+        'voc12': {
+            'path_pytorch_model': 'data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth',
+            'label_list': 'data/datasets/voc12/labels.txt',
+            'n_classes': 21,
+            'n_blocks': [3, 4, 23, 3],
+            'pyramids': [6, 3, 2, 1],
+            'image': {
+                'size': {
+                    'train': 473,
+                    'test': 473,
+                },
+                'mean': {
+                    'R': 122.675,
+                    'G': 116.669,
+                    'B': 104.008,
+                }
+            },
+        },
+    }.get(dataset)
 
-def main(args):
-    # Configuration
-    with open(args.config) as f:
-        config = yaml.load(f)
+    cuda = cuda and torch.cuda.is_available()
 
     # Label list
-    with open(config['dataset'][args.dataset]['label_list']) as f:
+    with open(CONFIG['label_list']) as f:
         classes = {}
         for label in f:
-            label = label.rstrip().split(': ')
-            classes[int(label[0])] = label[1]
+            label = label.rstrip().split('\t')
+            classes[int(label[0])] = label[1].split(',')[0]
 
-    # Path to a trained model
-    if args.checkpoint:
-        checkpoint = torch.load(args.checkpoint,
-                                map_location=lambda storage,
-                                loc: storage)
-        state_dict = checkpoint['weight']
-        print('Result after {} iterations'.format(checkpoint['iteration']))
+    # Load a model
+    if model_path is None:
+        state_dict = torch.load(CONFIG['path_pytorch_model'])
     else:
-        state_dict = torch.load(
-            config['dataset'][args.dataset]['trained_model'])
+        state_dict = torch.load(model_path)
 
     # Model
-    model = DeepLab(n_channels=3, n_classes=config['dataset'][args.dataset]['n_classes'])
+    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG['n_classes'])
     model.load_state_dict(state_dict)
     model.eval()
-    if args.cuda:
+    if cuda:
         model.cuda()
 
-    image_size = (config['image']['size']['test'],
-                  config['image']['size']['test'])
+    image_size = (CONFIG['image']['size']['test'],
+                  CONFIG['image']['size']['test'])
 
     # Image preprocessing
-    image = cv2.imread(args.image, cv2.IMREAD_COLOR).astype(float)
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(float)
     image = cv2.resize(image, image_size)
     image_original = image.astype(np.uint8)
-    image -= np.array([config['image']['mean']['B'],
-                       config['image']['mean']['G'],
-                       config['image']['mean']['R']])
+    image -= np.array([float(CONFIG['image']['mean']['B']),
+                       float(CONFIG['image']['mean']['G']),
+                       float(CONFIG['image']['mean']['R'])])
     image = torch.from_numpy(image.transpose(2, 0, 1)).float().unsqueeze(0)
-    image = image.cuda() if args.cuda else image
+    image = image.cuda() if cuda else image
 
     # Inference
     output = model(Variable(image, volatile=True))
 
-    output = F.upsample(output[3], size=image_size, mode='bilinear')
-    output = output[0].cpu().data.numpy()
+    output = F.upsample(output, size=image_size, mode='bilinear')
+    output = F.softmax(output)
+    output = output.data.cpu().numpy()[0]
 
-    labelmap = dense_crf(image_original, output)
+    if crf:
+        output = dense_crf(image_original, output)
     labelmap = np.argmax(output.transpose(1, 2, 0), axis=2)
 
     labels = np.unique(labelmap)
 
+    # Show results
     rows = np.floor(np.sqrt(len(labels) + 1))
     cols = np.ceil((len(labels) + 1) / rows)
 
@@ -98,18 +119,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    # Parsing arguments
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--no_cuda', action='store_true', default=False)
-    parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
-    parser.add_argument('--config', type=str, default='config/default.yaml')
-    parser.add_argument('--checkpoint', type=str, default=None)
-    parser.add_argument('--image', type=str, required=True)
-
-    args = parser.parse_args()
-    args.cuda = not args.no_cuda and torch.cuda.is_available()
-
-    for arg in vars(args):
-        print('{0:20s}: {1}'.format(arg.rjust(20), getattr(args, arg)))
-
-    main(args)
+    main()

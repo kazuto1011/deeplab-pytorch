@@ -1,2 +1,4 @@
 *.pth
 *.pth.tar
+*.caffemodel
+*.npy

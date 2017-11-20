@@ -1,0 +1,18 @@
+num_workers: 0
+image:
+    mean:
+        R: 122.675
+        G: 116.669
+        B: 104.008
+    size:
+        train: 473
+        test: 473
+dataset:
+    ade20k:
+        name: ADE20K
+        root:
+        label_list: ./data/objectInfo150.txt
+        init_model:
+        ignore_label: 255
+        n_classes: 150
+        trained_model: ./data/models/pspnet/pspnet50_ADE20K.pth

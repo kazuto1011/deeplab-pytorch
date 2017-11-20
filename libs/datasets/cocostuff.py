@@ -118,7 +118,7 @@ class CocoStuff10k(data.Dataset):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         image = cv2.resize(image, self.image_size,
                            interpolation=cv2.INTER_LINEAR)
-        if False:
+        if True:
             image -= self.mean
         else:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
