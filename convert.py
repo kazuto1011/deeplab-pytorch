@@ -124,13 +124,13 @@ def main(dataset):
     MODEL_ROOT = 'data/models/deeplab_resnet101/voc12/'
     CONFIG = {
         'voc12': {
-            'path_caffe_model': MODEL_ROOT + 'train2_iter_20000.caffemodel',
-            'path_pytorch_model': MODEL_ROOT + 'deeplabv2_resnet101_VOC2012.pth',
+            'path_caffe_model': 'data/models/deeplab_resnet101/voc12/train2_iter_20000.caffemodel',
+            'path_pytorch_model':  'data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth',
             'n_classes': 21,
         },
         'coco_init': {
-            'path_caffe_model': MODEL_ROOT + 'init.caffemodel',
-            'path_pytorch_model': MODEL_ROOT + 'deeplabv2_resnet101_COCO_init.pth',
+            'path_caffe_model': 'data/models/deeplab_resnet101/voc12/init.caffemodel',
+            'path_pytorch_model': 'data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth',
             'n_classes': 91,
         },
     }.get(dataset)
@@ -152,10 +152,6 @@ def main(dataset):
                 values = values.view_as(own_state[param_name])
                 state_dict[param_name] = values
                 print(layer_name.ljust(25), '->', param_name, ': Copied')
-
-    # Check
-    # model.load_state_dict(state_dict, strict=False)
-    # model.load_state_dict(state_dict)
 
     torch.save(state_dict, CONFIG['path_pytorch_model'])
 

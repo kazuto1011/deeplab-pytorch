@@ -5,21 +5,21 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-01
 
-import argparse
 import os.path as osp
 
+import click
 import cv2
 import numpy as np
-import torch
 import yaml
-from tensorboardX import SummaryWriter
-from torch.autograd import Variable
-from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
+import torch
 from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import CrossEntropyLoss2d
+from tensorboardX import SummaryWriter
+from torch.autograd import Variable
+from torchnet.meter import MovingAverageValueMeter
 
 
 def get_1x_lr_params(model):
@@ -64,17 +64,22 @@ def resize_target(target, size):
     return torch.from_numpy(new_target).long()
 
 
-def main(args):
+@click.command()
+@click.option('--config', type=str, default='config/cocostuff.yaml')
+@click.option('--cuda/--no-cuda', default=True)
+def main(config, cuda):
     # Configuration
-    with open(args.config) as f:
-        config = yaml.load(f)
+    with open(config) as f:
+        CONFIG = yaml.load(f)
+
+    cuda = cuda and torch.cuda.is_available()
 
     # Dataset
-    dataset = get_dataset(args.dataset)(
-        root=config[args.dataset]['root'],
+    dataset = get_dataset(CONFIG['DATASET'])(
+        root=CONFIG['ROOT'],
         split='train',
-        image_size=(config[args.dataset]['image']['size']['train'],
-                    config[args.dataset]['image']['size']['train']),
+        image_size=(CONFIG['IMAGE']['SIZE']['TRAIN'],
+                    CONFIG['IMAGE']['SIZE']['TRAIN']),
         scale=True,
         flip=True,
         # preload=True
@@ -83,69 +88,65 @@ def main(args):
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=args.batch_size,
-        num_workers=config['num_workers'],
+        batch_size=CONFIG['BATCH_SIZE'],
+        num_workers=CONFIG['NUM_WORKERS'],
         shuffle=True
     )
     loader_iter = iter(loader)
 
     # Model
-    model = DeepLabV2_ResNet101_MSC(n_classes=config[args.dataset]['n_classes'])  # NOQA
-    state_dict = torch.load(config[args.dataset]['init_model'])
-    # This loop can be deleted with 'strict=False' option
-    for layer_name, params in model.state_dict().items():
-        if 'aspp' in layer_name:
-            state_dict[layer_name] = params
-    model.load_state_dict(state_dict)
-    if args.cuda:
+    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG['N_CLASSES'])  # NOQA
+    state_dict = torch.load(CONFIG['INIT_MODEL'])
+    model.load_state_dict(state_dict, strict=False)  # Skip "aspp" layer
+    if cuda:
         model.cuda()
 
     # Optimizer
     optimizer = {
         'sgd': torch.optim.SGD(
             params=[
-                {'params': get_1x_lr_params(model), 'lr': args.lr},
-                {'params': get_10x_lr_params(model), 'lr': 10 * args.lr}
+                {'params': get_1x_lr_params(model), 'lr': CONFIG['LR']},
+                {'params': get_10x_lr_params(model), 'lr': 10 * CONFIG['LR']}
             ],
-            lr=args.lr,
-            momentum=args.momentum,
-            weight_decay=args.weight_decay
+            lr=CONFIG['LR'],
+            momentum=CONFIG['MOMENTUM'],
+            weight_decay=CONFIG['WEIGHT_DECAY']
         ),
-    }.get(args.optimizer)
+    }.get(CONFIG['OPTIMIZER'])
 
     # Loss definition
     criterion = CrossEntropyLoss2d(
-        ignore_index=config[args.dataset]['ignore_label']
+        ignore_index=CONFIG['IGNORE_LABEL']
     )
-    if args.cuda:
+    if cuda:
         criterion.cuda()
 
     # TensorBoard Logger
-    writer = SummaryWriter(args.log_dir)
+    writer = SummaryWriter(CONFIG['LOG_DIR'])
     loss_meter = MovingAverageValueMeter(20)
 
     model.train()
-    for iteration in tqdm(range(1, args.iter_max + 1),
-                          total=args.iter_max,
+    for iteration in tqdm(range(1, CONFIG['ITER_MAX'] + 1),
+                          total=CONFIG['ITER_MAX'],
                           leave=False,
                           dynamic_ncols=True):
 
         # Polynomial lr decay
         poly_lr_scheduler(optimizer=optimizer,
-                          init_lr=args.lr,
+                          init_lr=CONFIG['LR'],
                           iter=iteration - 1,
-                          lr_decay_iter=args.lr_decay,
-                          max_iter=args.iter_max,
-                          power=args.poly_power)
+                          lr_decay_iter=CONFIG['LR_DECAY'],
+                          max_iter=CONFIG['ITER_MAX'],
+                          power=CONFIG['POLY_POWER'])
 
         optimizer.zero_grad()
 
         iter_loss = 0
-        for i in range(1, args.iter_size + 1):
+        for i in range(1, CONFIG['ITER_SIZE'] + 1):
             data, target = next(loader_iter)
 
             # Image
-            data = data.cuda() if args.cuda else data
+            data = data.cuda() if cuda else data
             data = Variable(data)
 
             # Forward propagation
@@ -153,7 +154,7 @@ def main(args):
 
             # Label
             target = resize_target(target, outputs[0].size(2))
-            target = target.cuda() if args.cuda else target
+            target = target.cuda() if cuda else target
             target = Variable(target)
 
             # Aggregate losses for [100%, 75%, 50%, Max]
@@ -161,12 +162,12 @@ def main(args):
             for output in outputs:
                 loss += criterion(output, target)
 
-            loss /= args.iter_size
+            loss /= CONFIG['ITER_SIZE']
             iter_loss += loss.data[0]
             loss.backward()
 
             # Reload dataloader
-            if ((iteration - 1) * args.iter_size + i) % len(loader) == 0:
+            if ((iteration - 1) * CONFIG['ITER_SIZE'] + i) % len(loader) == 0:
                 loader_iter = iter(loader)
 
         loss_meter.add(iter_loss)
@@ -175,49 +176,25 @@ def main(args):
         optimizer.step()
 
         # TensorBoard
-        if iteration % args.iter_tf == 0:
+        if iteration % CONFIG['ITER_TF'] == 0:
             writer.add_scalar('train_loss', loss_meter.value()[0], iteration)
 
         # Save a model
-        if iteration % args.iter_snapshot == 0:
+        if iteration % CONFIG['ITER_SNAP'] == 0:
             torch.save(
                 {'iteration': iteration,
                  'weight': model.state_dict()},
-                osp.join(args.save_dir, 'checkpoint_{}.pth.tar'.format(iteration))
+                osp.join(CONFIG['SAVE_DIR'],
+                         'checkpoint_{}.pth.tar'.format(iteration))
             )
             writer.add_text('log', 'Saved a model', iteration)
 
     torch.save(
         {'iteration': iteration,
          'weight': model.state_dict()},
-        osp.join(args.save_dir, 'checkpoint_final.pth.tar')
+        osp.join(CONFIG['SAVE_DIR'], 'checkpoint_final.pth.tar')
     )
 
 
 if __name__ == '__main__':
-    # Parsing arguments
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--no_cuda', action='store_true', default=False)
-    parser.add_argument('--dataset', type=str, default='cocostuff')
-    parser.add_argument('--config', type=str, default='config/default.yaml')
-    parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--lr', type=float, default=2.5e-4)
-    parser.add_argument('--lr_decay', type=int, default=10)
-    parser.add_argument('--momentum', type=float, default=0.9)
-    parser.add_argument('--weight_decay', type=float, default=5e-4)
-    parser.add_argument('--poly_power', type=float, default=0.9)
-    parser.add_argument('--iter_max', type=int, default=20000)
-    parser.add_argument('--iter_size', type=int, default=10)
-    parser.add_argument('--iter_tf', type=int, default=10)
-    parser.add_argument('--iter_snapshot', type=int, default=5000)
-    parser.add_argument('--optimizer', type=str, default='sgd')
-    parser.add_argument('--save_dir', type=str, default='.')
-    parser.add_argument('--log_dir', type=str, default='runs')
-
-    args = parser.parse_args()
-    args.cuda = not args.no_cuda and torch.cuda.is_available()
-
-    for arg in vars(args):
-        print('{0:20s}: {1}'.format(arg.rjust(20), getattr(args, arg)))
-
-    main(args)
+    main()

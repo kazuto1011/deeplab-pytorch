@@ -85,4 +85,4 @@ model.eval()
 y = model(Variable(torch.randn(1, 3, image_size, image_size)))
 g = make_dot(y, model.state_dict())
 
-g.view()
+g.view(filename='model', cleanup=True)

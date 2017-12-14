@@ -8,31 +8,65 @@ PyTorch implementation to train **DeepLab v2** on **COCO Stuff 10k** dataset. De
   * pytorch 0.2.0
   * torchvision
   * tnt
+* cv2
 * tensorboardX
 * tqdm
-* cv2
+* click
 
 ## Usage
 
-### Dataset and Models
+### Dataset
 
-Download the followings and set the paths to ```config/default.yaml```.
+1. Download [COCO Stuff 10k]() dataset and unzip it.
+1. Set the path to the dataset in ```config/default.yaml```.
 
-* Init parameters trained on MS COCO.
-* COCO Stuff 10k
+```
+cocostuff-10k-v1.1
+├── images
+│   ├── COCO_train2014_000000000077.jpg
+│   └── ...
+├── annotations
+│   ├── COCO_train2014_000000000077.mat
+│   └── ...
+├── imageLists
+│   ├── all.txt
+│   ├── test.txt
+│   └── train.txt
+├── cocostuff-labels.txt
+└── cocostuff-10k-v1.1.json
+```
 
-Convert caffemodels to PyTorch compatibles.
+### Models
+
+1. Download [init.caffemodel]() pre-trained on MS COCO under the directory ```data/models/deeplab_resnet101/coco_init/```.
+1. Convert the caffemodel to PyTorch compatible. No need to build the official implementation.
 
 ```sh
+# This generates deeplabv2_resnet101_COCO_init.pth
 python convert.py --dataset coco_init
 ```
+
+### Demo
+
+You can also convert *train2_iter_20000.caffemodel* which has fine-tuned on VOC2012 with an option ```--dataset voc12```.
+
+```sh
+# This generates deeplabv2_resnet101_VOC2012.pth
+python convert.py --dataset voc12
+```
+
+```sh
+# This opens an another window like the following
+python demo.py --dataset voc12 --image_path <path to an image>
+```
+![](./docs/demo.png)
 
 ### Training
 
 ```sh
-python train.py [-h]
+python train.py [--help]
 ```
-
+Default settings:
 * Stochastic gradient descent (SGD) is used with momentum of 0.9 and initial learning rate of 2.5e-4. Polynomial learning rate decay is employed; the learning rate is multiplied by ```(1-iter/max_iter)**power``` at every 10 iterations.
 * Weights are updated 20,000 iterations with mini-batch of 10. The batch is not processed at once due to high occupancy of video memories, instead, gradients from semi-batch loss are aggregated and finally the SGD is performed (```batch_size * iter_size = 10```).
 * Input images are randomly scaled by factors ranging from 0.5 to 1.5, and are randomly cropped or zero-padded so that the input size is fixed during training.
@@ -44,13 +78,5 @@ python train.py [-h]
 ### Evaluation
 
 ```
-python eval.py [-h]
+python eval.py [--help]
 ```
-
-### Demo
-
-```
-python demo.py --image <path to an image>
-```
-
-

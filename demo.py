@@ -45,6 +45,24 @@ def main(dataset, image_path, model_path, cuda, crf):
                 }
             },
         },
+        'cocostuff': {
+            'path_pytorch_model': 'data/models/deeplab_resnet101/cocostuff_rgb/deeplabv2_resnet101_VOC2012.pth',
+            'label_list': 'data/datasets/voc12/labels.txt',
+            'n_classes': 183,
+            'n_blocks': [3, 4, 23, 3],
+            'pyramids': [6, 3, 2, 1],
+            'image': {
+                'size': {
+                    'train': 321,
+                    'test': 513,
+                },
+                'mean': {
+                    'R': 122.675,
+                    'G': 116.669,
+                    'B': 104.008,
+                }
+            },
+        },
     }.get(dataset)
 
     cuda = cuda and torch.cuda.is_available()

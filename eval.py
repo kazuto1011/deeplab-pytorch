@@ -60,7 +60,7 @@ def main(args):
 
     # Model
     model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    # model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict)
     model.eval()
     if args.cuda:
         model.cuda()
