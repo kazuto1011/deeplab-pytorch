@@ -6,9 +6,9 @@
 # Created:  2017-11-03
 
 
-import argparse
 import os.path as osp
 
+import click
 import cv2
 import numpy as np
 import torch
@@ -20,23 +20,28 @@ from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.utils import dense_crf
 from libs.models import DeepLabV2_ResNet101_MSC
-from libs.utils import CrossEntropyLoss2d, scores
+from libs.utils import CrossEntropyLoss2d, dense_crf, scores
 
 
-def main(args):
+@click.command()
+@click.option('--config', type=str, default='config/cocostuff.yaml')
+@click.option('--model-path', type=str, required=True)
+@click.option('--cuda/--no-cuda', default=True)
+def main(config, model_path, cuda):
     # Configuration
-    with open(args.config) as f:
-        config = yaml.load(f)
+    with open(config) as f:
+        CONFIG = yaml.load(f)
 
-    image_size = (config[args.dataset]['image']['size']['test'],
-                  config[args.dataset]['image']['size']['test'])
-    n_classes = config[args.dataset]['n_classes']
+    cuda = cuda and torch.cuda.is_available()
+
+    image_size = (CONFIG['IMAGE']['SIZE']['TEST'],
+                  CONFIG['IMAGE']['SIZE']['TEST'])
+    n_classes = CONFIG['N_CLASSES']
 
     # Dataset
-    dataset = get_dataset(args.dataset)(
-        root=config[args.dataset]['root'],
+    dataset = get_dataset(CONFIG['DATASET'])(
+        root=CONFIG['ROOT'],
         split='test',
         image_size=image_size,
         scale=False,
@@ -47,29 +52,29 @@ def main(args):
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=args.batch_size,
-        num_workers=config['num_workers'],
+        batch_size=CONFIG['BATCH_SIZE'],
+        num_workers=CONFIG['NUM_WORKERS'],
         shuffle=False
     )
 
-    checkpoint = torch.load(args.checkpoint,
+    state_dict = torch.load(model_path,
                             map_location=lambda storage,
                             loc: storage)
-    state_dict = checkpoint['weight']
-    print('Result after {} iterations'.format(checkpoint['iteration']))
+    state_dict = state_dict['weight']
+    # print('Result after {} iterations'.format(state_dict['iteration']))
 
     # Model
     model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    model.load_state_dict(state_dict)
+    # model.load_state_dict(state_dict)
     model.eval()
-    if args.cuda:
+    if cuda:
         model.cuda()
 
     targets, outputs = [], []
     for data, target in tqdm(loader, total=len(loader),
                              leave=False, dynamic_ncols=True):
         # Image
-        data = data.cuda() if args.cuda else data
+        data = data.cuda() if cuda else data
         data = Variable(data, volatile=True)
 
         # Forward propagation
@@ -102,18 +107,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    # Parsing arguments
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--no_cuda', action='store_true', default=False)
-    parser.add_argument('--dataset', nargs='?', type=str, default='cocostuff')
-    parser.add_argument('--config', type=str, default='config/default.yaml')
-    parser.add_argument('--checkpoint', type=str, default=None)
-    parser.add_argument('--batch_size', type=int, default=1)
-
-    args = parser.parse_args()
-    args.cuda = not args.no_cuda and torch.cuda.is_available()
-
-    for arg in vars(args):
-        print('{0:20s}: {1}'.format(arg.rjust(20), getattr(args, arg)))
-
-    main(args)
+    main()

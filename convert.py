@@ -12,9 +12,8 @@ from collections import OrderedDict
 
 import click
 import numpy as np
-
-import caffe_pb2
 import torch
+
 from libs.models import DeepLabV2_ResNet101_MSC
 
 

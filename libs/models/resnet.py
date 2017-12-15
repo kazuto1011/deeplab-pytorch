@@ -5,11 +5,12 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-19
 
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
-import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
-from collections import OrderedDict
+import torch.utils.model_zoo as model_zoo
 
 
 class _ConvBatchNormReLU(nn.Sequential):

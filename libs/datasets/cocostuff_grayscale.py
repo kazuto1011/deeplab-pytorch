@@ -38,7 +38,7 @@ class CocoStuff10k(data.Dataset):
         self.preload = preload
         self.images = []
         self.labels = []
-        self.ignore_label = 0
+        self.ignore_label = 0  # unlabeled
 
         # Load all path to images
         for split in ["train", "test", "all"]:
@@ -104,7 +104,12 @@ class CocoStuff10k(data.Dataset):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         image = cv2.resize(image, self.image_size,
                            interpolation=cv2.INTER_LINEAR)
-        image -= self.mean
+        if True:
+            image -= self.mean
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            image -= np.mean(self.mean)
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         # Load a label map
         label = sio.loadmat(label_path)['S'].astype(np.int32)
         label = cv2.resize(label, self.image_size,
@@ -140,9 +145,8 @@ if __name__ == '__main__':
         imgs, labels = data
 
         if i == 0:
-            img = torchvision.utils.make_grid(imgs).numpy()
-            img = np.transpose(img, (1, 2, 0)) + np.array([104.00699, 116.66877, 122.67892])
-            img = img[:, :, ::-1].astype(np.uint8)
+            img = torchvision.utils.make_grid(imgs).numpy().astype(np.uint8)
+            img = np.transpose(img, (1, 2, 0))[:, :, ::-1]
             for i, (word, cnt) in enumerate(Counter(labels.numpy().flatten()).most_common(10)):
                 print i, classes[word]
             plt.imshow(img)

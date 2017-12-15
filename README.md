@@ -5,7 +5,7 @@ PyTorch implementation to train **DeepLab v2** on **COCO Stuff 10k** dataset. De
 ## Prerequisite
 
 * pytorch
-  * pytorch 0.2.0
+  * pytorch 0.3.0
   * torchvision
   * tnt
 * cv2
@@ -46,21 +46,6 @@ cocostuff-10k-v1.1
 python convert.py --dataset coco_init
 ```
 
-### Demo
-
-You can also convert *train2_iter_20000.caffemodel* which has fine-tuned on VOC2012 with an option ```--dataset voc12```.
-
-```sh
-# This generates deeplabv2_resnet101_VOC2012.pth
-python convert.py --dataset voc12
-```
-
-```sh
-# This opens an another window like the following
-python demo.py --dataset voc12 --image_path <path to an image>
-```
-![](./docs/demo.png)
-
 ### Training
 
 ```sh
@@ -82,3 +67,20 @@ Default settings:
 ```
 python eval.py [--help]
 ```
+
+### Demo
+
+#### PASCAL VOC2012
+
+You can also convert *train2_iter_20000.caffemodel* which has fine-tuned on VOC2012 with an option ```--dataset voc12```.
+
+```sh
+# This generates deeplabv2_resnet101_VOC2012.pth
+python convert.py --dataset voc12
+```
+
+```sh
+# This opens an another window like the following
+python demo.py --dataset voc12 --image_path <path to an image>
+```
+![](./docs/demo.png)

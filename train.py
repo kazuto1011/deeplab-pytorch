@@ -10,16 +10,16 @@ import os.path as osp
 import click
 import cv2
 import numpy as np
-import yaml
-from tqdm import tqdm
-
 import torch
-from libs.datasets import get_dataset
-from libs.models import DeepLabV2_ResNet101_MSC
-from libs.utils import CrossEntropyLoss2d
+import yaml
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torchnet.meter import MovingAverageValueMeter
+from tqdm import tqdm
+
+from libs.datasets import get_dataset
+from libs.models import DeepLabV2_ResNet101_MSC
+from libs.utils import CrossEntropyLoss2d
 
 
 def get_1x_lr_params(model):
@@ -82,7 +82,7 @@ def main(config, cuda):
                     CONFIG['IMAGE']['SIZE']['TRAIN']),
         scale=True,
         flip=True,
-        preload=True
+        # preload=True
     )
 
     # DataLoader

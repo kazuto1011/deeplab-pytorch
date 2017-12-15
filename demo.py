@@ -10,13 +10,13 @@ import click
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
+
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import dense_crf
-from torch.autograd import Variable
 
 
 @click.command()
