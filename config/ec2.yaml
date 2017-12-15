@@ -1,26 +1,36 @@
-num_workers: 0
-image:
-    mean:
+DATASET: cocostuff
+ROOT: /home/ubuntu/cocostuff-10k-v1.1
+IGNORE_LABEL: 0
+LABELS: ./data/datasets/cocostuff/labels.txt
+
+IMAGE:
+    MEAN:
         R: 122.675
         G: 116.669
         B: 104.008
-    size:
-        train: 321
-        test: 513
-dataset:
-    voc:
-        name: Pascal VOC 2012
-        root:
-        label_list: /Users/kazuto1011/Desktop/voc-labels.txt
-        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
-        ignore_label: 255
-        n_classes: 21
-        trained_model: ./MS_DeepLab_resnet_trained_VOC.pth
-    cocostuff:
-        name: COCO Stuff 10k
-        root: /home/ubuntu/cocostuff-10k-v1.1
-        label_list: /home/ubuntu/cocostuff-10k-v1.1/cocostuff-labels.txt
-        init_model: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
-        ignore_label: 0
-        n_classes: 183
-        trained_model: None
+    SIZE:
+        TRAIN: 321
+        TEST: 513
+
+# Model definition
+N_CLASSES: 183
+N_BLOCKS: [3, 4, 6, 3]
+PYRAMIDS: [6, 3, 2, 1]
+
+# Training setting
+BATCH_SIZE: 1
+OPTIMIZER: sgd
+LR: 2.5e-4
+LR_DECAY: 10
+MOMENTUM: 0.9
+WEIGHT_DECAY: 5e-4
+POLY_POWER: 0.9
+ITER_MAX: 20000
+ITER_SIZE: 10
+ITER_TF: 10
+ITER_SNAP: 1000
+
+INIT_MODEL: ./data/models/MS_DeepLab_resnet_pretrained_COCO_init.pth
+SAVE_DIR: .
+LOG_DIR: runs
+NUM_WORKERS: 1

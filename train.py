@@ -105,12 +105,12 @@ def main(config, cuda):
     optimizer = {
         'sgd': torch.optim.SGD(
             params=[
-                {'params': get_1x_lr_params(model), 'lr': CONFIG['LR']},
-                {'params': get_10x_lr_params(model), 'lr': 10 * CONFIG['LR']}
+                {'params': get_1x_lr_params(model), 'lr': float(CONFIG['LR'])},
+                {'params': get_10x_lr_params(model), 'lr': 10 * float(CONFIG['LR'])}
             ],
-            lr=CONFIG['LR'],
-            momentum=CONFIG['MOMENTUM'],
-            weight_decay=CONFIG['WEIGHT_DECAY']
+            lr=float(CONFIG['LR']),
+            momentum=float(CONFIG['MOMENTUM']),
+            weight_decay=float(CONFIG['WEIGHT_DECAY'])
         ),
     }.get(CONFIG['OPTIMIZER'])
 
@@ -133,7 +133,7 @@ def main(config, cuda):
 
         # Polynomial lr decay
         poly_lr_scheduler(optimizer=optimizer,
-                          init_lr=CONFIG['LR'],
+                          init_lr=float(CONFIG['LR']),
                           iter=iteration - 1,
                           lr_decay_iter=CONFIG['LR_DECAY'],
                           max_iter=CONFIG['ITER_MAX'],
