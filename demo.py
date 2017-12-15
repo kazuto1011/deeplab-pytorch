@@ -104,7 +104,7 @@ def main(dataset, image_path, model_path, cuda, crf):
     output = model(Variable(image, volatile=True))
 
     output = F.upsample(output, size=image_size, mode='bilinear')
-    output = F.softmax(output)
+    output = F.softmax(output, dim=1)
     output = output.data.cpu().numpy()[0]
 
     if crf:

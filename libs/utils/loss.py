@@ -8,4 +8,4 @@ class CrossEntropyLoss2d(nn.Module):
         self.nll_loss = nn.NLLLoss2d(weight, size_average, ignore_index)
 
     def forward(self, inputs, targets):
-        return self.nll_loss(F.log_softmax(inputs), targets)
+        return self.nll_loss(F.log_softmax(inputs, dim=1), targets)

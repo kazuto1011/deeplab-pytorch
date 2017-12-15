@@ -75,6 +75,8 @@ Default settings:
 * Moving average loss (```average_loss``` in Caffe) can be monitored in TensorBoard (please specify a log directory, e.g., ```runs```).
 * GPU memory usage is approx. 5.8 GB with the default setting (tested on Tesla K80)
 
+![](docs/dataaugmentation.png)
+
 ### Evaluation
 
 ```

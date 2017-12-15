@@ -82,7 +82,7 @@ def main(config, cuda):
                     CONFIG['IMAGE']['SIZE']['TRAIN']),
         scale=True,
         flip=True,
-        # preload=True
+        preload=True
     )
 
     # DataLoader
@@ -95,7 +95,7 @@ def main(config, cuda):
     loader_iter = iter(loader)
 
     # Model
-    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG['N_CLASSES'])  # NOQA
+    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG['N_CLASSES'])
     state_dict = torch.load(CONFIG['INIT_MODEL'])
     model.load_state_dict(state_dict, strict=False)  # Skip "aspp" layer
     if cuda:
@@ -106,7 +106,7 @@ def main(config, cuda):
         'sgd': torch.optim.SGD(
             params=[
                 {'params': get_1x_lr_params(model), 'lr': float(CONFIG['LR'])},
-                {'params': get_10x_lr_params(model), 'lr': 10 * float(CONFIG['LR'])}
+                {'params': get_10x_lr_params(model), 'lr': 10 * float(CONFIG['LR'])}  # NOQA
             ],
             lr=float(CONFIG['LR']),
             momentum=float(CONFIG['MOMENTUM']),
@@ -115,9 +115,7 @@ def main(config, cuda):
     }.get(CONFIG['OPTIMIZER'])
 
     # Loss definition
-    criterion = CrossEntropyLoss2d(
-        ignore_index=CONFIG['IGNORE_LABEL']
-    )
+    criterion = CrossEntropyLoss2d(ignore_index=CONFIG['IGNORE_LABEL'])
     if cuda:
         criterion.cuda()
 
@@ -181,19 +179,12 @@ def main(config, cuda):
 
         # Save a model
         if iteration % CONFIG['ITER_SNAP'] == 0:
-            torch.save(
-                {'iteration': iteration,
-                 'weight': model.state_dict()},
-                osp.join(CONFIG['SAVE_DIR'],
-                         'checkpoint_{}.pth.tar'.format(iteration))
-            )
+            torch.save(model.state_dict(),
+                       osp.join(CONFIG['SAVE_DIR'], 'checkpoint_{}.pth.tar'.format(iteration)))  # NOQA
             writer.add_text('log', 'Saved a model', iteration)
 
-    torch.save(
-        {'iteration': iteration,
-         'weight': model.state_dict()},
-        osp.join(CONFIG['SAVE_DIR'], 'checkpoint_final.pth.tar')
-    )
+    torch.save(model.state_dict(),
+               osp.join(CONFIG['SAVE_DIR'], 'checkpoint_final.pth.tar'))
 
 
 if __name__ == '__main__':

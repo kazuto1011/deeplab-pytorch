@@ -23,21 +23,7 @@ import random
 
 class CocoStuff10k(data.Dataset):
     """
-    COCO Stuff 10k: MS COCO Semantic Segmentation Dataset
-
-    cocostuff-10k-v1.1
-    ├── images
-    │   ├── COCO_train2014_000000000077.jpg
-    │   └── ...
-    ├── annotations
-    │   ├── COCO_train2014_000000000077.mat
-    │   └── ...
-    ├── imageLists
-    │   ├── all.txt
-    │   ├── test.txt
-    │   └── train.txt
-    ├── cocostuff-labels.txt
-    └── cocostuff-10k-v1.1.json
+    COCO Stuff 10k
     """
 
     def __init__(self, root, split="train", image_size=512, scale=True, flip=True, preload=False):
