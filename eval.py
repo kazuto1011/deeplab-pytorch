@@ -6,6 +6,7 @@
 # Created:  2017-11-03
 
 
+import json
 import os.path as osp
 
 import click
@@ -60,12 +61,10 @@ def main(config, model_path, cuda):
     state_dict = torch.load(model_path,
                             map_location=lambda storage,
                             loc: storage)
-    state_dict = state_dict['weight']
-    # print('Result after {} iterations'.format(state_dict['iteration']))
 
     # Model
     model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    # model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict)
     model.eval()
     if cuda:
         model.cuda()
@@ -80,7 +79,7 @@ def main(config, model_path, cuda):
         # Forward propagation
         output = model(data)
         output = F.upsample(output, size=image_size, mode='bilinear')
-        output = F.softmax(output)
+        output = F.softmax(output, dim=1)
         output = output.data.cpu().numpy()
 
         crf_output = np.zeros(output.shape)
@@ -102,8 +101,12 @@ def main(config, model_path, cuda):
     for k, v in score.items():
         print k, v
 
+    score['Class IoU'] = {}
     for i in range(n_classes):
-        print i, class_iou[i]
+        score['Class IoU'][i] = class_iou[i]
+
+    with open('results.json', 'w') as f:
+        json.dump(score, f)
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
 
 import numpy as np
 
+
 def _fast_hist(label_true, label_pred, n_class):
     mask = (label_true >= 0) & (label_true < n_class)
     hist = np.bincount(
@@ -30,7 +31,7 @@ def scores(label_trues, label_preds, n_class):
     fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     cls_iu = dict(zip(range(n_class), iu))
 
-    return {'Overall Acc: \t': acc,
-            'Mean Acc : \t': acc_cls,
-            'FreqW Acc : \t': fwavacc,
-            'Mean IoU : \t': mean_iu, }, cls_iu
+    return {'Overall Acc': acc,
+            'Mean Acc': acc_cls,
+            'FreqW Acc': fwavacc,
+            'Mean IoU': mean_iu, }, cls_iu
