@@ -28,7 +28,7 @@ POLY_POWER: 0.9
 ITER_MAX: 20000
 ITER_SIZE: 10
 ITER_TF: 10
-ITER_SNAP: 1000
+ITER_SNAP: 5000
 
 INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
 SAVE_DIR: .
