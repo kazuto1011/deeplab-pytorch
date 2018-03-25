@@ -109,3 +109,5 @@ exps/
 _*
 *.pdf
 *.gv
+.style.yapf
+./*.json

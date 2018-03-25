@@ -5,37 +5,19 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-06
 
-import argparse
-
 import torch
 import yaml
 from graphviz import Digraph
+from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 
-from libs.models import *
+from libs.models import DeepLabV2, DeepLabV2_ResNet101_MSC
 
 
 def make_dot(var, params):
-    """ Produces Graphviz representation of PyTorch autograd graph
 
-    Blue nodes are the Variables that require grad, orange are Tensors
-    saved for backward in torch.autograd.Function
-
-    Args:
-        var: output Variable
-        params: dict of (name, Variable) to add names to node that
-            require grad (TODO: make optional)
-    """
-
-    param_map = {id(v): k for k, v in params.items()}
-
-    node_attr = dict(style='filled',
-                     shape='box',
-                     align='left',
-                     fontsize='12',
-                     ranksep='0.1',
-                     height='0.2')
-    dot = Digraph(node_attr=node_attr, graph_attr=dict(size="12,12"))
+    node_attr = dict(style='filled', shape='box', align='left', fontsize='12', ranksep='0.1', height='0.2')
+    dot = Digraph(node_attr=node_attr, graph_attr=dict(size="30,30"))
     seen = set()
 
     def size_to_str(size):
@@ -66,23 +48,13 @@ def make_dot(var, params):
     return dot
 
 
-parser = argparse.ArgumentParser(description='')
-parser.add_argument('--config', type=str, default='config/default.yaml')
-parser.add_argument('--dataset', type=str, default='cocostuff')
-args = parser.parse_args()
+model = DeepLabV2_ResNet101_MSC(n_classes=183)
 
-with open(args.config) as f:
-    config = yaml.load(f)
+input = Variable(torch.randn(1, 3, 513, 513))
 
-image_size = config[args.dataset]['image']['size']['test']
-# model = DeepLabV2(n_classes=config[args.dataset]['n_classes'],
-#                   n_blocks=[3, 4, 23, 3],
-#                   pyramids=[6, 12, 18, 24])
-model = PSPNet(n_classes=config[args.dataset]['n_classes'],
-               n_blocks=[3, 4, 6, 3],
-               pyramids=[6, 3, 2, 1])
-model.eval()
-y = model(Variable(torch.randn(1, 3, image_size, image_size)))
-g = make_dot(y, model.state_dict())
+# y = model(input)
+# g = make_dot(y, model.state_dict())
+# g.view(filename='model', cleanup=True)
 
-g.view(filename='model', cleanup=True)
+with SummaryWriter('runs/graph', comment='DeepLabV2') as w:
+    w.add_graph(model, (input, ))

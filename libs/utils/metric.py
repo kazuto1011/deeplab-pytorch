@@ -7,18 +7,12 @@ import numpy as np
 def _fast_hist(label_true, label_pred, n_class):
     mask = (label_true >= 0) & (label_true < n_class)
     hist = np.bincount(
-        n_class * label_true[mask].astype(int) +
-        label_pred[mask], minlength=n_class**2).reshape(n_class, n_class)
+        n_class * label_true[mask].astype(int) + label_pred[mask], minlength=n_class**2
+    ).reshape(n_class, n_class)
     return hist
 
 
 def scores(label_trues, label_preds, n_class):
-    """Returns accuracy score evaluation result.
-      - overall accuracy
-      - mean accuracy
-      - mean IU
-      - fwavacc
-    """
     hist = np.zeros((n_class, n_class))
     for lt, lp in zip(label_trues, label_preds):
         hist += _fast_hist(lt.flatten(), lp.flatten(), n_class)
@@ -31,7 +25,9 @@ def scores(label_trues, label_preds, n_class):
     fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     cls_iu = dict(zip(range(n_class), iu))
 
-    return {'Overall Acc': acc,
-            'Mean Acc': acc_cls,
-            'FreqW Acc': fwavacc,
-            'Mean IoU': mean_iu, }, cls_iu
+    return {
+        'Overall Acc': acc,
+        'Mean Acc': acc_cls,
+        'FreqW Acc': fwavacc,
+        'Mean IoU': mean_iu,
+    }, cls_iu

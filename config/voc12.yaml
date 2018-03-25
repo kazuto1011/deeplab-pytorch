@@ -1,0 +1,36 @@
+DATASET: voc12
+ROOT:
+LABELS: ./data/datasets/voc12/labels.txt
+
+IMAGE:
+    MEAN:
+        R: 122.675
+        G: 116.669
+        B: 104.008
+    SIZE:
+        TRAIN: 473
+        TEST: 473
+
+# Model definition
+N_CLASSES: 21
+N_BLOCKS: [3, 4, 23, 3]
+PYRAMIDS: [6, 12, 18, 24]
+
+# Training setting
+BATCH_SIZE: 5
+IGNORE_LABEL: -1
+ITER_MAX: 20000
+ITER_SIZE: 2
+ITER_SNAP: 5000
+ITER_TF: 10
+LR_DECAY: 10
+LR: 2.5e-4
+MOMENTUM: 0.9
+OPTIMIZER: sgd
+POLY_POWER: 0.9
+WEIGHT_DECAY: 5.0e-4
+
+INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
+SAVE_DIR: .
+LOG_DIR: runs/voc12
+NUM_WORKERS: 1
