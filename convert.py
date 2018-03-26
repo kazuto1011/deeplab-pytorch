@@ -120,7 +120,7 @@ def translate_layer_name(source):
 
 
 @click.command()
-@click.option('--dataset', required=True, type=click.Choice(['voc12', 'coco_init']))
+@click.option('--dataset', required=True, type=click.Choice(['voc12', 'coco_init', 'init']))
 def main(dataset):
     WHITELIST = ['kernel_size', 'stride', 'padding', 'dilation', 'eps', 'momentum']  # NOQA
     CONFIG = {
@@ -134,6 +134,12 @@ def main(dataset):
             'path_pytorch_model': 'data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth',
             'n_classes': 91,
         },
+        'init': {
+            # The same as the coco_init parameters
+            'path_caffe_model': 'data/models/deeplab_resnet101/init/deeplabv2_resnet101_init.caffemodel',
+            'path_pytorch_model': 'data/models/deeplab_resnet101/init/deeplabv2_resnet101_init.pth',
+            'n_classes': 91,
+        },
     }.get(dataset)
 
     params = parse_caffemodel(CONFIG['path_caffe_model'])
@@ -145,7 +151,7 @@ def main(dataset):
     state_dict = OrderedDict()
     for layer_name, layer_dict in params.items():
         for param_name, values in layer_dict.items():
-            if param_name in WHITELIST and dataset != 'coco_init':
+            if param_name in WHITELIST and dataset != 'coco_init' and dataset != 'init':
                 attribute = translate_layer_name(layer_name)
                 attribute = eval('model.' + attribute + '.' + param_name)
                 if isinstance(attribute, tuple):
