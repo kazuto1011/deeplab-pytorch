@@ -12,44 +12,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from resnet import _ConvBatchNormReLU, _ResBlock, _ResBlockMG
+from deeplabv3 import _ASPPModule
 
 
-class _ASPPModule(nn.Module):
-    """Atrous Spatial Pyramid Pooling with image pool"""
-
-    def __init__(self, in_channels, out_channels, pyramids):
-        super(_ASPPModule, self).__init__()
-        self.stages = nn.Module()
-        self.stages.add_module(
-            'c0',
-            _ConvBatchNormReLU(in_channels, out_channels, 1, 1, 0, 1),
-        )
-        for i, (dilation, padding) in enumerate(zip(pyramids, pyramids)):
-            self.stages.add_module(
-                'c{}'.format(i + 1),
-                _ConvBatchNormReLU(in_channels, out_channels, 3, 1, padding, dilation),
-            )
-        self.imagepool = nn.Sequential(
-            OrderedDict([
-                ('pool', nn.AdaptiveAvgPool2d(1)),
-                ('conv', _ConvBatchNormReLU(in_channels, out_channels, 1, 1, 0, 1)),
-            ])
-        )
-
-    def forward(self, x):
-        h = self.imagepool(x)
-        h = [F.upsample(h, size=x.shape[2:], mode='bilinear')]
-        for stage in self.stages.children():
-            h += [stage(x)]
-        h = torch.cat(h, dim=1)
-        return h
-
-
-class DeepLabV3(nn.Sequential):
-    """DeepLab v3"""
+class DeepLabV3Plus(nn.Sequential):
+    """DeepLab v3+ (OS=8)"""
 
     def __init__(self, n_classes, n_blocks, pyramids, multi_grid=[1, 2, 1]):
-        super(DeepLabV3, self).__init__()
+        super(DeepLabV3Plus, self).__init__()
         self.add_module(
             'layer1',
             nn.Sequential(
@@ -65,10 +35,32 @@ class DeepLabV3(nn.Sequential):
         self.add_module('layer5', _ResBlockMG(n_blocks[3], 1024, 512, 2048, 1, 2, mg=multi_grid))
         self.add_module('aspp', _ASPPModule(2048, 256, pyramids))
         self.add_module('fc1', _ConvBatchNormReLU(256 * (len(pyramids) + 2), 256, 1, 1, 0, 1))
-        self.add_module('fc2', nn.Conv2d(256, n_classes, kernel_size=1))
+        self.add_module('reduce', _ConvBatchNormReLU(512, 48, 1, 1, 0, 1))
+        self.add_module(
+            'fc2',
+            nn.Sequential(
+                OrderedDict([
+                    ('conv1', _ConvBatchNormReLU(304, 256, 3, 1, 1, 1)),
+                    ('conv2', _ConvBatchNormReLU(256, 256, 3, 1, 1, 1)),
+                    ('conv3', nn.Conv2d(256, n_classes, kernel_size=1)),
+                ])
+            )
+        )
 
     def forward(self, x):
-        return super(DeepLabV3, self).forward(x)
+        h = self.layer1(x)
+        h = self.layer2(h)
+        h = self.layer3(h)
+        h_ = self.reduce(h)
+        h = self.layer4(h)
+        h = self.layer5(h)
+        h = self.aspp(h)
+        h = self.fc1(h)
+        h = F.upsample(h, size=h_.shape[2:], mode='bilinear')
+        h = torch.cat((h, h_), dim=1)
+        h = self.fc2(h)
+        h = F.upsample(h, scale_factor=4, mode='bilinear')
+        return h
 
     def freeze_bn(self):
         for m in self.modules():
@@ -78,7 +70,7 @@ class DeepLabV3(nn.Sequential):
 
 if __name__ == '__main__':
     from msc import MSC
-    model = MSC(DeepLabV3(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18]))
+    model = MSC(DeepLabV3Plus(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18]))
     model.eval()
     print list(model.named_children())
     image = torch.autograd.Variable(torch.randn(1, 3, 513, 513), volatile=True)

@@ -11,7 +11,7 @@ from graphviz import Digraph
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 
-from libs.models import DeepLabV2, DeepLabV2_ResNet101_MSC
+from libs.models import *
 
 
 def make_dot(var, params):
@@ -48,13 +48,13 @@ def make_dot(var, params):
     return dot
 
 
-model = DeepLabV2_ResNet101_MSC(n_classes=183)
+input = Variable(torch.randn(1, 3, 513, 513)).cuda()
 
-input = Variable(torch.randn(1, 3, 513, 513))
+with SummaryWriter('runs/deeplab_v2', comment='DeepLabV2') as w:
+    w.add_graph(DeepLabV2_ResNet101_MSC(n_classes=183).cuda(), (input, ))
 
-# y = model(input)
-# g = make_dot(y, model.state_dict())
-# g.view(filename='model', cleanup=True)
+with SummaryWriter('runs/deeplab_v3', comment='DeepLabV3') as w:
+    w.add_graph(DeepLabV3_ResNet101_MSC(n_classes=183).cuda(), (input, ))
 
-with SummaryWriter('runs/graph', comment='DeepLabV2') as w:
-    w.add_graph(model, (input, ))
+with SummaryWriter('runs/deeplab_v3_plus', comment='DeepLabV3+') as w:
+    w.add_graph(DeepLabV3Plus_ResNet101_MSC(n_classes=183).cuda(), (input, ))
