@@ -74,48 +74,10 @@ class DeepLabV2(nn.Sequential):
                 m.eval()
 
 
-class MSC(nn.Module):
-    """Multi-Scale Inputs"""
-
-    def __init__(self, model):
-        super(MSC, self).__init__()
-        self.scale = model
-
-    def forward(self, x):
-        output100 = self.scale(x)
-        input_size = x.size(2)
-        size100 = output100.size(2)
-        size075 = int(input_size * 0.75)
-        size050 = int(input_size * 0.5)
-
-        self.interp075 = nn.Upsample(size=(size075, ) * 2, mode='bilinear')
-        self.interp050 = nn.Upsample(size=(size050, ) * 2, mode='bilinear')
-        self.interp100 = nn.Upsample(size=(size100, ) * 2, mode='bilinear')
-
-        output075 = self.scale(self.interp075(x))
-        output050 = self.scale(self.interp050(x))
-
-        outputMAX = torch.max(
-            torch.stack((
-                output100,
-                self.interp100(output075),
-                self.interp100(output050),
-            )), dim=0
-        )[0]
-
-        if self.training:
-            return [output100, output075, output050, outputMAX]
-        else:
-            return outputMAX
-
-
-def DeepLabV2_ResNet101_MSC(n_classes):
-    return MSC(DeepLabV2(n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]))
-
-
 if __name__ == '__main__':
-    model = DeepLabV2_ResNet101_MSC(n_classes=21)
-    print list(model.named_children())
+    from msc import MSC
+    model = MSC(DeepLabV2(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]))
     model.eval()
+    print list(model.named_children())
     image = torch.autograd.Variable(torch.randn(1, 3, 513, 513))
     print model(image)[0].size()

@@ -79,3 +79,16 @@ class _ResBlock(nn.Sequential):
 
     def __call__(self, x):
         return super(_ResBlock, self).forward(x)
+
+
+class _ResBlockMG(nn.Sequential):
+    """3x Residual Block with multi-grid"""
+
+    def __init__(self, n_layers, in_channels, mid_channels, out_channels, stride, dilation, mg=[1, 2, 1]):
+        super(_ResBlockMG, self).__init__()
+        self.add_module('block1', _Bottleneck(in_channels, mid_channels, out_channels, stride, dilation * mg[0], True))
+        self.add_module('block2', _Bottleneck(out_channels, mid_channels, out_channels, 1, dilation * mg[1], False))
+        self.add_module('block3', _Bottleneck(out_channels, mid_channels, out_channels, 1, dilation * mg[2], False))
+
+    def __call__(self, x):
+        return super(_ResBlockMG, self).forward(x)
