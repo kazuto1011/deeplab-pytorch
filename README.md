@@ -1,6 +1,6 @@
 # DeepLab with PyTorch
 
-Unofficial implementation to train **DeepLab v2 (ResNet-101)** on **COCO-Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10,000 images from 182 thing/stuff classes.
+Unofficial implementation to train **DeepLab v2 (ResNet-101)** on **COCO-Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10,000 images from 182 thing/stuff classes. This reposotory contains DeepLab v3/v3+ model definition but not the training scripts.
 
 ### Requirements
 
@@ -88,11 +88,11 @@ You can run with a option ```--crf```. See ```--help``` for more details.
 
 #### Results
 
-After 20k iterations with a mini-batch of 10, no crf
+After 20k iterations with a mini-batch of 10, without crf
 
 ||Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
 |:-:|:-:|:-:|:-:|:-:|
-|20k iterations|64.7%|45.4%|33.9%|50.0%|
+|DeepLab v2|64.7%|45.4%|33.9%|50.0%|
 |[Official report](https://github.com/nightrome/cocostuff10k)|65.1%|45.5%|34.4%|50.4%|
 
 ### Demo
@@ -119,10 +119,6 @@ python uvcdemo.py --config config/cocostuff.yaml \
 ```bash
 python draw_model.py
 ```
-
-### TODO
-
-* Add DeepLab v3
 
 ## References
 
