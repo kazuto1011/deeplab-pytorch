@@ -75,8 +75,8 @@ class DeepLabV2(nn.Sequential):
 
 
 if __name__ == '__main__':
-    from msc import MSC
-    model = MSC(DeepLabV2(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]))
+    model = DeepLabV2(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
+    model.freeze_bn()
     model.eval()
     print list(model.named_children())
     image = torch.autograd.Variable(torch.randn(1, 3, 513, 513))
