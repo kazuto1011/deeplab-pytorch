@@ -4,10 +4,10 @@ import pydensecrf.utils as utils
 
 MAX_ITER = 10
 POS_W = 3
-POS_XY_STD = 3
+POS_XY_STD = 1
 Bi_W = 4
-Bi_XY_STD = 49
-Bi_RGB_STD = 5
+Bi_XY_STD = 67
+Bi_RGB_STD = 3
 
 
 def dense_crf(img, output_probs):
