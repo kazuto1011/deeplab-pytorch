@@ -161,7 +161,11 @@ def main(config, cuda):
 
         iter_loss = 0
         for i in range(1, CONFIG.ITER_SIZE + 1):
-            data, target = next(loader_iter)
+            try:
+                data, target = next(loader_iter)
+            except:
+                loader_iter = iter(loader)
+                data, target = next(loader_iter)
 
             # Image
             data = data.cuda() if cuda else data
@@ -186,10 +190,6 @@ def main(config, cuda):
 
             iter_loss += loss.data[0]
 
-            # Reload dataloader
-            if ((iteration - 1) * CONFIG.ITER_SIZE + i) % len(loader) == 0:
-                loader_iter = iter(loader)
-
         loss_meter.add(iter_loss)
 
         # Update weights with accumulated gradients
@@ -200,8 +200,6 @@ def main(config, cuda):
             writer.add_scalar('train_loss', loss_meter.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
                 writer.add_scalar('train_lr_group{}'.format(i), o['lr'], iteration)
-            if iteration % 1000 != 0:
-                continue
             for name, param in model.named_parameters():
                 name = name.replace('.', '/')
                 writer.add_histogram(name, param, iteration, bins="auto")

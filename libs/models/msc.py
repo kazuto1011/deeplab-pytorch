@@ -7,38 +7,34 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class MSC(nn.Module):
-    """Multi-Scale Inputs"""
+    """Multi-scale inputs"""
 
-    def __init__(self, model):
+    def __init__(self, model, pyramids=[0.5, 0.75]):
         super(MSC, self).__init__()
         self.scale = model
+        self.pyramids = pyramids
 
     def forward(self, x):
-        output100 = self.scale(x)
-        input_size = x.size(2)
-        size100 = output100.size(2)
-        size075 = int(input_size * 0.75)
-        size050 = int(input_size * 0.5)
+        # Original
+        logits = self.scale(x)
+        interp = nn.Upsample(size=logits.shape[2:], mode='bilinear')
 
-        self.interp075 = nn.Upsample(size=(size075, ) * 2, mode='bilinear')
-        self.interp050 = nn.Upsample(size=(size050, ) * 2, mode='bilinear')
-        self.interp100 = nn.Upsample(size=(size100, ) * 2, mode='bilinear')
+        # Scaled
+        logits_pyramid = []
+        for p in self.pyramids:
+            size = [int(s * p) for s in x.shape[2:]]
+            h = F.upsample(x, size=size, mode='bilinear')
+            logits_pyramid.append(self.scale(h))
 
-        output075 = self.scale(self.interp075(x))
-        output050 = self.scale(self.interp050(x))
-
-        outputMAX = torch.max(
-            torch.stack((
-                output100,
-                self.interp100(output075),
-                self.interp100(output050),
-            )), dim=0
-        )[0]
+        # Pixel-wise max
+        logits_all = [logits] + map(interp, logits_pyramid)
+        logits_max = torch.max(torch.stack(logits_all), dim=0)[0]
 
         if self.training:
-            return [output100, output075, output050, outputMAX]
+            return [logits] + logits_pyramid + [logits_max]
         else:
-            return outputMAX
+            return logits_max
