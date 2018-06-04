@@ -21,17 +21,19 @@ class MSC(nn.Module):
     def forward(self, x):
         # Original
         logits = self.scale(x)
-        interp = nn.Upsample(size=logits.shape[2:], mode='bilinear')
+        interp = nn.Upsample(
+            size=logits.shape[2:], mode="bilinear", align_corners=False
+        )
 
         # Scaled
         logits_pyramid = []
         for p in self.pyramids:
             size = [int(s * p) for s in x.shape[2:]]
-            h = F.upsample(x, size=size, mode='bilinear')
+            h = F.upsample(x, size=size, mode="bilinear", align_corners=False)
             logits_pyramid.append(self.scale(h))
 
         # Pixel-wise max
-        logits_all = [logits] + map(interp, logits_pyramid)
+        logits_all = [logits] + [interp(l) for l in logits_pyramid]
         logits_max = torch.max(torch.stack(logits_all), dim=0)[0]
 
         if self.training:

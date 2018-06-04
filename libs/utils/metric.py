@@ -7,7 +7,8 @@ import numpy as np
 def _fast_hist(label_true, label_pred, n_class):
     mask = (label_true >= 0) & (label_true < n_class)
     hist = np.bincount(
-        n_class * label_true[mask].astype(int) + label_pred[mask], minlength=n_class**2
+        n_class * label_true[mask].astype(int) + label_pred[mask],
+        minlength=n_class ** 2,
     ).reshape(n_class, n_class)
     return hist
 
@@ -26,8 +27,8 @@ def scores(label_trues, label_preds, n_class):
     cls_iu = dict(zip(range(n_class), iu))
 
     return {
-        'Overall Acc': acc,
-        'Mean Acc': acc_cls,
-        'FreqW Acc': fwavacc,
-        'Mean IoU': mean_iu,
+        "Overall Acc": acc,
+        "Mean Acc": acc_cls,
+        "FreqW Acc": fwavacc,
+        "Mean IoU": mean_iu,
     }, cls_iu
