@@ -1,3 +1,3 @@
-from libs.utils.loss import CrossEntropyLoss2d
-from libs.utils.metric import scores
-from libs.utils.crf import dense_crf
+from .loss import CrossEntropyLoss2d
+from .metric import scores
+from .crf import dense_crf

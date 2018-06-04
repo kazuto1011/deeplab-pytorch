@@ -1,11 +1,11 @@
 # DeepLab with PyTorch
 
-Unofficial implementation to train **DeepLab v2 (ResNet-101)** on **COCO-Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10,000 images from 182 thing/stuff classes. This reposotory contains DeepLab v3/v3+ model definition but not the training scripts.
+Unofficial implementation to train **DeepLab v2 (ResNet-101)** on **COCO-Stuff 10k** dataset. DeepLab is one of the CNN architectures for semantic image segmentation. COCO Stuff 10k is a semantic segmentation dataset, which includes 10k images from 182 thing/stuff classes.
 
 ### Requirements
 
 * pytorch
-  * pytorch >= 0.3.1
+  * pytorch 0.4.0
   * torchvision
   * [tnt](https://github.com/pytorch/tnt)
 * cv2 >= 3.0.0
@@ -14,6 +14,8 @@ Unofficial implementation to train **DeepLab v2 (ResNet-101)** on **COCO-Stuff 1
 * click
 * addict
 * [pydensecrf](https://github.com/lucasb-eyer/pydensecrf)
+* h5py (for COCO-Stuff v1.0)
+* scipy (for COCO-Stuff v1.1)
 
 ## Usage
 
@@ -110,8 +112,8 @@ python demo.py --config config/cocostuff.yaml \
 #### From a web camera
 
 ```bash
-python uvcdemo.py --config config/cocostuff.yaml \
-                  --model-path <PATH TO MODEL>
+python livedemo.py --config config/cocostuff.yaml \
+                   --model-path <PATH TO MODEL>
 ```
 
 #### Visualize the model on *TensorBoard*
@@ -128,5 +130,4 @@ In arXiv preprint arXiv:1606.00915, 2016.
 
 * [COCO-Stuff: Thing and Stuff Classes in Context](https://arxiv.org/abs/1612.03716)<br>
 H. Caesar, J. Uijlings, V. Ferrari,<br>
-In arXiv preprint arXiv:1612.03716, 2017.
-
+In Computer Vision and Pattern Recognition (CVPR), 2018.
