@@ -33,7 +33,8 @@ from libs.utils import dense_crf, scores
 @click.option("--cuda/--no-cuda", default=True)
 @click.option("--crf", is_flag=True)
 def main(config, model_path, cuda, crf):
-    device = torch.device("cuda" if cuda and torch.cuda.is_available() else "cpu")
+    cuda = cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
 
     if cuda:
         current_device = torch.cuda.current_device()

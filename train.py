@@ -68,7 +68,8 @@ def resize_target(target, size):
 @click.option("-c", "--config", type=str, required=True)
 @click.option("--cuda/--no-cuda", default=True)
 def main(config, cuda):
-    device = torch.device("cuda" if cuda and torch.cuda.is_available() else "cpu")
+    cuda = cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
 
     if cuda:
         current_device = torch.cuda.current_device()
