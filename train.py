@@ -26,7 +26,7 @@ from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils.loss import CrossEntropyLoss2d
 
 
-def get_lr_params(model, key):
+def get_params(model, key):
     # For Dilated FCN
     if key == "1x":
         for m in model.named_modules():
@@ -68,7 +68,8 @@ def resize_target(target, size):
 @click.option("-c", "--config", type=str, required=True)
 @click.option("--cuda/--no-cuda", default=True)
 def main(config, cuda):
-    device = torch.device("cuda" if cuda and torch.cuda.is_available() else "cpu")
+    cuda = cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
 
     if cuda:
         current_device = torch.cuda.current_device()
@@ -83,16 +84,18 @@ def main(config, cuda):
     dataset = CocoStuff10k(
         root=CONFIG.ROOT,
         split="train",
-        image_size=513,
+        base_size=513,
         crop_size=CONFIG.IMAGE.SIZE.TRAIN,
-        scale=True,
+        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        warp=CONFIG.WARP_IMAGE,
+        scale=(0.5, 1.5),
         flip=True,
     )
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=CONFIG.BATCH_SIZE,
+        batch_size=CONFIG.BATCH_SIZE.TRAIN,
         num_workers=CONFIG.NUM_WORKERS,
         shuffle=True,
     )
@@ -111,17 +114,17 @@ def main(config, cuda):
             # cf lr_mult and decay_mult in train.prototxt
             params=[
                 {
-                    "params": get_lr_params(model.module, key="1x"),
+                    "params": get_params(model.module, key="1x"),
                     "lr": CONFIG.LR,
                     "weight_decay": CONFIG.WEIGHT_DECAY,
                 },
                 {
-                    "params": get_lr_params(model.module, key="10x"),
+                    "params": get_params(model.module, key="10x"),
                     "lr": 10 * CONFIG.LR,
                     "weight_decay": CONFIG.WEIGHT_DECAY,
                 },
                 {
-                    "params": get_lr_params(model.module, key="20x"),
+                    "params": get_params(model.module, key="20x"),
                     "lr": 20 * CONFIG.LR,
                     "weight_decay": 0.0,
                 },
@@ -200,11 +203,14 @@ def main(config, cuda):
             writer.add_scalar("train_loss", loss_meter.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
                 writer.add_scalar("train_lr_group{}".format(i), o["lr"], iteration)
-            # for name, param in model.named_parameters():
-            #     name = name.replace('.', '/')
-            #     writer.add_histogram(name, param, iteration, bins="auto")
-            #     if param.requires_grad:
-            #         writer.add_histogram(name + '/grad', param.grad, iteration, bins="auto")
+            if False:  # This produces a large log file
+                for name, param in model.named_parameters():
+                    name = name.replace(".", "/")
+                    writer.add_histogram(name, param, iteration, bins="auto")
+                    if param.requires_grad:
+                        writer.add_histogram(
+                            name + "/grad", param.grad, iteration, bins="auto"
+                        )
 
         # Save a model
         if iteration % CONFIG.ITER_SNAP == 0:

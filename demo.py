@@ -29,7 +29,8 @@ from libs.utils import dense_crf
 @click.option("--cuda/--no-cuda", default=True)
 @click.option("--crf", is_flag=True, help="Apply CRF post processing.")
 def main(config, image_path, model_path, cuda, crf):
-    device = torch.device("cuda" if cuda and torch.cuda.is_available() else "cpu")
+    cuda = cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
 
     if cuda:
         current_device = torch.cuda.current_device()
@@ -55,11 +56,9 @@ def main(config, image_path, model_path, cuda, crf):
     model.eval()
     model.to(device)
 
-    image_size = (CONFIG.IMAGE.SIZE.TEST,) * 2
-
     # Image preprocessing
     image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(float)
-    image = cv2.resize(image, image_size)
+    image = cv2.resize(image, (CONFIG.IMAGE.SIZE.TEST,) * 2)
     image_original = image.astype(np.uint8)
     image -= np.array(
         [
@@ -73,13 +72,15 @@ def main(config, image_path, model_path, cuda, crf):
 
     # Inference
     output = model(image)
-    output = F.upsample(output, size=image_size, mode="bilinear", align_corners=False)
+    output = F.upsample(
+        output, size=image.shape[2:], mode="bilinear", align_corners=False
+    )
     output = F.softmax(output, dim=1)
     output = output.data.cpu().numpy()[0]
 
     if crf:
         output = dense_crf(image_original, output)
-    labelmap = np.argmax(output.transpose(1, 2, 0), axis=2)
+    labelmap = np.argmax(output, axis=0)
 
     labels = np.unique(labelmap)
 
