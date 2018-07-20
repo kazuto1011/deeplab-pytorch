@@ -57,8 +57,6 @@ def main(config, model_path, cuda, crf, camera_id):
     model.eval()
     model.to(device)
 
-    image_size = (CONFIG.IMAGE.SIZE.TEST,) * 2
-
     cap = cv2.VideoCapture(camera_id)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
 

@@ -45,22 +45,21 @@ def main(config, model_path, cuda, crf):
     # Configuration
     CONFIG = Dict(yaml.load(open(config)))
 
-    image_size = (CONFIG.IMAGE.SIZE.TEST,) * 2
-
     # Dataset
     dataset = CocoStuff10k(
         root=CONFIG.ROOT,
         split="test",
-        image_size=image_size,
-        scale=False,
+        base_size=CONFIG.IMAGE.SIZE.TEST,
+        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        warp=CONFIG.WARP_IMAGE,
+        scale=None,
         flip=False,
-        preload=False,
     )
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=CONFIG.BATCH_SIZE,
+        batch_size=CONFIG.BATCH_SIZE.TEST,
         num_workers=CONFIG.NUM_WORKERS,
         shuffle=False,
     )
@@ -69,9 +68,8 @@ def main(config, model_path, cuda, crf):
 
     # Model
     model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
-    model.load_state_dict(
-        torch.load(model_path, map_location=lambda storage, loc: storage)
-    )
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
     model = nn.DataParallel(model)
     model.eval()
     model.to(device)
@@ -86,7 +84,7 @@ def main(config, model_path, cuda, crf):
         # Forward propagation
         output = model(data)
         output = F.upsample(
-            output, size=image_size, mode="bilinear", align_corners=False
+            output, size=data.shape[2:], mode="bilinear", align_corners=False
         )
         output = F.softmax(output, dim=1)
         output = output.data.cpu().numpy()

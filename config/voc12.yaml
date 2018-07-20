@@ -17,7 +17,9 @@ N_BLOCKS: [3, 4, 23, 3]
 PYRAMIDS: [6, 12, 18, 24]
 
 # Training setting
-BATCH_SIZE: 5
+BATCH_SIZE:
+    TRAIN: 5
+    TEST: 5
 IGNORE_LABEL: 255
 ITER_MAX: 20000
 ITER_SIZE: 2
@@ -33,4 +35,4 @@ WEIGHT_DECAY: 5.0e-4
 INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
 SAVE_DIR: .
 LOG_DIR: runs/voc12
-NUM_WORKERS: 1
+NUM_WORKERS: 0

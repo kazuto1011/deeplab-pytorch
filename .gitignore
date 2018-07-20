@@ -112,3 +112,4 @@ _*
 .style.yapf
 ./*.json
 *_v3plus.py
+*.json
