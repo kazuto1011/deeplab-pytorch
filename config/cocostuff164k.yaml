@@ -1,6 +1,6 @@
-DATASET: cocostuff
-ROOT: /media/kazuto1011/Extra/cocostuff/cocostuff-10k-v1.1
-LABELS: ./data/datasets/cocostuff10k/labels_2.txt
+DATASET: cocostuff164k
+ROOT: /media/kazuto1011/Extra/cocostuff/cocostuff-164k
+LABELS: ./data/datasets/cocostuff/labels_2.txt
 
 IMAGE:
     MEAN:
@@ -11,6 +11,10 @@ IMAGE:
         TRAIN: 321
         TEST: 513
 
+SPLIT:
+    TRAIN: train2017
+    EVAL: val2017
+
 # Model definition
 N_CLASSES: 182
 N_BLOCKS: [3, 4, 23, 3]
@@ -20,11 +24,11 @@ PYRAMIDS: [6, 12, 18, 24]
 BATCH_SIZE:
     TRAIN: 5
     TEST: 5
-IGNORE_LABEL: -1
-ITER_MAX: 20000
+IGNORE_LABEL: 255
+ITER_MAX: 100000
 ITER_SIZE: 2
-ITER_SNAP: 5000
-ITER_TF: 100
+ITER_SAVE: 5000
+ITER_TB: 100
 LR_DECAY: 10
 LR: 2.5e-4
 MOMENTUM: 0.9
@@ -34,6 +38,6 @@ WEIGHT_DECAY: 5.0e-4
 
 INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
 SAVE_DIR: .
-LOG_DIR: runs/cocostuff10k
+LOG_DIR: runs/cocostuff164k
 NUM_WORKERS: 0
 WARP_IMAGE: True

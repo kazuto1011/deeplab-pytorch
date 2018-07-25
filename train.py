@@ -21,7 +21,7 @@ from tensorboardX import SummaryWriter
 from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
-from libs.datasets import CocoStuff10k
+from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils.loss import CrossEntropyLoss2d
 
@@ -80,10 +80,10 @@ def main(config, cuda):
     # Configuration
     CONFIG = Dict(yaml.load(open(config)))
 
-    # Dataset
-    dataset = CocoStuff10k(
+    # Dataset 10k or 164k
+    dataset = get_dataset(CONFIG.DATASET)(
         root=CONFIG.ROOT,
-        split="train",
+        split=CONFIG.SPLIT.TRAIN,
         base_size=513,
         crop_size=CONFIG.IMAGE.SIZE.TRAIN,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
@@ -131,6 +131,7 @@ def main(config, cuda):
             ],
             momentum=CONFIG.MOMENTUM,
         )
+        # Add any other optimizer
     }.get(CONFIG.OPTIMIZER)
 
     # Loss definition
@@ -199,7 +200,7 @@ def main(config, cuda):
         optimizer.step()
 
         # TensorBoard
-        if iteration % CONFIG.ITER_TF == 0:
+        if iteration % CONFIG.ITER_TB == 0:
             writer.add_scalar("train_loss", loss_meter.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
                 writer.add_scalar("train_lr_group{}".format(i), o["lr"], iteration)
@@ -213,13 +214,13 @@ def main(config, cuda):
                         )
 
         # Save a model
-        if iteration % CONFIG.ITER_SNAP == 0:
+        if iteration % CONFIG.ITER_SAVE == 0:
             torch.save(
                 model.module.state_dict(),
                 osp.join(CONFIG.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
             )
 
-        # Save a model
+        # Save a model (short term)
         if iteration % 100 == 0:
             torch.save(
                 model.module.state_dict(),

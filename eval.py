@@ -22,7 +22,7 @@ from tensorboardX import SummaryWriter
 from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
-from libs.datasets import CocoStuff10k
+from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import dense_crf, scores
 
@@ -45,10 +45,10 @@ def main(config, model_path, cuda, crf):
     # Configuration
     CONFIG = Dict(yaml.load(open(config)))
 
-    # Dataset
-    dataset = CocoStuff10k(
+    # Dataset 10k or 164k
+    dataset = get_dataset(CONFIG.DATASET)(
         root=CONFIG.ROOT,
-        split="test",
+        split=CONFIG.SPLIT.EVAL,
         base_size=CONFIG.IMAGE.SIZE.TEST,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
         warp=CONFIG.WARP_IMAGE,
