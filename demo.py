@@ -58,7 +58,8 @@ def main(config, image_path, model_path, cuda, crf):
 
     # Image preprocessing
     image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(float)
-    image = cv2.resize(image, (CONFIG.IMAGE.SIZE.TEST,) * 2)
+    scale = CONFIG.IMAGE.SIZE.TEST / max(image.shape[:2])
+    image = cv2.resize(image, dsize=None, fx=scale, fy=scale)
     image_original = image.astype(np.uint8)
     image -= np.array(
         [
@@ -72,9 +73,7 @@ def main(config, image_path, model_path, cuda, crf):
 
     # Inference
     output = model(image)
-    output = F.upsample(
-        output, size=image.shape[2:], mode="bilinear", align_corners=False
-    )
+    output = F.interpolate(output, size=image.shape[2:], mode="bilinear")
     output = F.softmax(output, dim=1)
     output = output.data.cpu().numpy()[0]
 
@@ -100,7 +99,7 @@ def main(config, image_path, model_path, cuda, crf):
         mask = labelmap == label
         ax = plt.subplot(rows, cols, i + 2)
         ax.set_title(classes[label])
-        ax.imshow(image_original[:, :, ::-1])
+        ax.imshow(image_original[..., ::-1])
         ax.imshow(mask.astype(np.float32), alpha=0.5, cmap="viridis")
         ax.set_xticks([])
         ax.set_yticks([])

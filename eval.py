@@ -48,7 +48,7 @@ def main(config, model_path, cuda, crf):
     # Dataset 10k or 164k
     dataset = get_dataset(CONFIG.DATASET)(
         root=CONFIG.ROOT,
-        split=CONFIG.SPLIT.EVAL,
+        split=CONFIG.SPLIT.VAL,
         base_size=CONFIG.IMAGE.SIZE.TEST,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
         warp=CONFIG.WARP_IMAGE,
@@ -83,9 +83,7 @@ def main(config, model_path, cuda, crf):
 
         # Forward propagation
         output = model(data)
-        output = F.upsample(
-            output, size=data.shape[2:], mode="bilinear", align_corners=False
-        )
+        output = F.interpolate(output, size=data.shape[2:], mode="bilinear")
         output = F.softmax(output, dim=1)
         output = output.data.cpu().numpy()
 

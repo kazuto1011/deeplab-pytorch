@@ -1,6 +1,7 @@
 DATASET: cocostuff10k
 ROOT: /media/kazuto1011/Extra/cocostuff/cocostuff-10k-v1.1
 LABELS: ./data/datasets/cocostuff/labels_2.txt
+IGNORE_LABEL: -1
 
 IMAGE:
     MEAN:
@@ -13,7 +14,8 @@ IMAGE:
 
 SPLIT:
     TRAIN: train
-    EVAL: test
+    VAL: test
+    TEST:
 
 # Model definition
 N_CLASSES: 182
@@ -24,7 +26,6 @@ PYRAMIDS: [6, 12, 18, 24]
 BATCH_SIZE:
     TRAIN: 5
     TEST: 5
-IGNORE_LABEL: -1
 ITER_MAX: 20000
 ITER_SIZE: 2
 ITER_SAVE: 5000

@@ -76,13 +76,13 @@ def main(config, model_path, cuda, crf, camera_id):
         image = image.to(device)
 
         # Inference
-        output = model(image)
-        output = F.upsample(output, size=(h, w), mode="bilinear", align_corners=False)
+        output = model.scale(image)
+        output = F.interpolate(output, size=(h, w), mode="bilinear")
         output = F.softmax(output, dim=1)
         output = output.data.cpu().numpy()[0]
 
         if crf:
-            output = dense_crf(raw_image, output)
+            output = dense_crf(frame, output)
         labelmap = np.argmax(output.transpose(1, 2, 0), axis=2)
 
         labelmap = labelmap.astype(float) / CONFIG.N_CLASSES
