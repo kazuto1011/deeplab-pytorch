@@ -1,6 +1,7 @@
 DATASET: voc12
 ROOT:
 LABELS: ./data/datasets/voc12/labels.txt
+IGNORE_LABEL: 255
 
 IMAGE:
     MEAN:
@@ -11,6 +12,11 @@ IMAGE:
         TRAIN: 473
         TEST: 473
 
+SPLIT:
+    TRAIN:
+    VAL:
+    TEST:
+
 # Model definition
 N_CLASSES: 21
 N_BLOCKS: [3, 4, 23, 3]
@@ -20,11 +26,10 @@ PYRAMIDS: [6, 12, 18, 24]
 BATCH_SIZE:
     TRAIN: 5
     TEST: 5
-IGNORE_LABEL: 255
 ITER_MAX: 20000
 ITER_SIZE: 2
-ITER_SNAP: 5000
-ITER_TF: 10
+ITER_SAVE: 5000
+ITER_TB: 10
 LR_DECAY: 10
 LR: 2.5e-4
 MOMENTUM: 0.9

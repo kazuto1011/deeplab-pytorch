@@ -23,23 +23,35 @@ def init_weights(model):
 
 def DeepLabV2_ResNet101_MSC(n_classes):
     return MSC(
-        DeepLabV2(n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
+        scale=DeepLabV2(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]
+        ),
+        pyramids=[0.5, 0.75],
     )
 
 
 def DeepLabV2S_ResNet101_MSC(n_classes):
     return MSC(
-        DeepLabV2(n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[3, 6, 9, 12])
+        scale=DeepLabV2(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[3, 6, 9, 12]
+        ),
+        pyramids=[0.5, 0.75],
     )
 
 
 def DeepLabV3_ResNet101_MSC(n_classes):
     return MSC(
-        DeepLabV3(n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18])
+        scale=DeepLabV3(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18]
+        ),
+        pyramids=[0.5, 0.75],
     )
 
 
 def DeepLabV3Plus_ResNet101_MSC(n_classes):
     return MSC(
-        DeepLabV3Plus(n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18])
+        scale=DeepLabV3Plus(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18]
+        ),
+        pyramids=[0.5, 0.75],
     )

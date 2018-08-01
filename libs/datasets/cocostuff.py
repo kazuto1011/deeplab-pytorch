@@ -11,6 +11,7 @@ import glob
 import os.path as osp
 import random
 from collections import defaultdict
+from glob import glob
 
 import cv2
 import h5py
@@ -21,8 +22,8 @@ from torch.utils import data
 from tqdm import tqdm
 
 
-class CocoStuff10k(data.Dataset):
-    """COCO-Stuff 10k dataset"""
+class _CocoStuff(data.Dataset):
+    """COCO-Stuff base class"""
 
     def __init__(
         self,
@@ -35,7 +36,6 @@ class CocoStuff10k(data.Dataset):
         warp=True,
         flip=True,
         preload=False,
-        version="1.1",
     ):
         self.root = root
         self.split = split
@@ -46,35 +46,21 @@ class CocoStuff10k(data.Dataset):
         self.warp = warp
         self.flip = flip
         self.preload = preload
-        self.version = version
 
-        self.files = defaultdict(list)
+        self.files = []
         self.images = []
         self.labels = []
-        self.ignore_label = -1
+        self.ignore_label = None
 
-        # Load all path to images
-        for split in ["train", "test", "all"]:
-            file_list = tuple(open(root + "/imageLists/" + split + ".txt", "r"))
-            file_list = [id_.rstrip() for id_ in file_list]
-            self.files[split] = file_list
+        self._set_files()
 
         if self.preload:
             self._preload_data()
 
         cv2.setNumThreads(0)
 
-    def __len__(self):
-        return len(self.files[self.split])
-
-    def __getitem__(self, index):
-        if self.preload:
-            image, label = self.images[index], self.labels[index]
-        else:
-            image_id = self.files[self.split][index]
-            image, label = self._load_data(image_id)
-        image, label = self._transform(image, label)
-        return image.astype(np.float32), label.astype(np.int64)
+    def _set_files(self):
+        raise NotImplementedError()
 
     def _transform(self, image, label):
         # Mean subtraction
@@ -128,6 +114,55 @@ class CocoStuff10k(data.Dataset):
         return image, label
 
     def _load_data(self, image_id):
+        raise NotImplementedError()
+
+    def _preload_data(self):
+        for image_id in tqdm(
+            self.files, desc="Preloading...", leave=False, dynamic_ncols=True
+        ):
+            image, label = self._load_data(image_id)
+            self.images.append(image)
+            self.labels.append(label)
+
+    def __getitem__(self, index):
+        if self.preload:
+            image, label = self.images[index], self.labels[index]
+        else:
+            image_id = self.files[index]
+            image, label = self._load_data(image_id)
+        image, label = self._transform(image, label)
+        return image.astype(np.float32), label.astype(np.int64)
+
+    def __len__(self):
+        return len(self.files)
+
+    def __repr__(self):
+        fmt_str = "Dataset " + self.__class__.__name__ + "\n"
+        fmt_str += "    Number of datapoints: {}\n".format(self.__len__())
+        fmt_str += "    Split: {}\n".format(self.split)
+        fmt_str += "    Root Location: {}\n".format(self.root)
+        return fmt_str
+
+
+class CocoStuff10k(_CocoStuff):
+    """COCO-Stuff 10k dataset"""
+
+    def __init__(self, version="1.1", **kwargs):
+        super(CocoStuff10k, self).__init__(**kwargs)
+        self.version = version
+        self.ignore_label = -1
+
+    def _set_files(self):
+        # Create data list via {train, test, all}.txt
+        if self.split in ["train", "test", "all"]:
+            file_list = osp.join(self.root, "imageLists", self.split + ".txt")
+            file_list = tuple(open(file_list, "r"))
+            file_list = [id_.rstrip() for id_ in file_list]
+            self.files = file_list
+        else:
+            raise ValueError("Invalid split name: {}".format(self.split))
+
+    def _load_data(self, image_id):
         # Set paths
         image_path = osp.join(self.root, "images", image_id + ".jpg")
         label_path = osp.join(self.root, "annotations", image_id + ".mat")
@@ -143,24 +178,31 @@ class CocoStuff10k(data.Dataset):
             label -= 2  # unlabeled (1 -> -1)
         return image, label
 
-    def _preload_data(self):
-        for image_id in tqdm(
-            self.files[self.split],
-            desc="Preloading...",
-            leave=False,
-            dynamic_ncols=True,
-        ):
-            image, label = self._load_data(image_id)
-            self.images.append(image)
-            self.labels.append(label)
 
-    def __repr__(self):
-        fmt_str = "Dataset " + self.__class__.__name__ + "\n"
-        fmt_str += "    Version: {}\n".format(self.version)
-        fmt_str += "    Number of datapoints: {}\n".format(self.__len__())
-        fmt_str += "    Split: {}\n".format(self.split)
-        fmt_str += "    Root Location: {}\n".format(self.root)
-        return fmt_str
+class CocoStuff164k(_CocoStuff):
+    """COCO-Stuff 164k dataset"""
+
+    def __init__(self, **kwargs):
+        super(CocoStuff164k, self).__init__(**kwargs)
+        self.ignore_label = 255
+
+    def _set_files(self):
+        # Create data list by parsing the "images" folder
+        if self.split in ["train2017", "val2017"]:
+            file_list = sorted(glob(osp.join(self.root, "images", self.split, "*.jpg")))
+            file_list = [f.split("/")[-1].replace(".jpg", "") for f in file_list]
+            self.files = file_list
+        else:
+            raise ValueError("Invalid split name: {}".format(self.split))
+
+    def _load_data(self, image_id):
+        # Set paths
+        image_path = osp.join(self.root, "images", self.split, image_id + ".jpg")
+        label_path = osp.join(self.root, "annotations", self.split, image_id + ".png")
+        # Load an image
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
+        label = cv2.imread(label_path, cv2.IMREAD_GRAYSCALE).astype(np.int64)
+        return image, label
 
 
 if __name__ == "__main__":
@@ -170,19 +212,19 @@ if __name__ == "__main__":
     import torchvision
     from torchvision.utils import make_grid
 
-    dataset_root = "/media/kazuto1011/Extra/cocostuff/cocostuff-10k-v" + "1.1"
-    kwargs = {"nrow": 10, "padding": 30}
+    kwargs = {"nrow": 10, "padding": 50}
     batch_size = 100
 
-    dataset = CocoStuff10k(root=dataset_root, split="train")
+    dataset_root = "/media/kazuto1011/Extra/cocostuff/cocostuff-164k"
+    dataset = CocoStuff164k(root=dataset_root, split="train2017")
+
     print(dataset)
 
     loader = data.DataLoader(dataset, batch_size=batch_size)
 
-    for i, data in tqdm(
+    for i, (images, labels) in tqdm(
         enumerate(loader), total=np.ceil(len(dataset) / batch_size), leave=False
     ):
-        imgs, labels = data
 
         if i == 0:
             mean = (
@@ -191,24 +233,21 @@ if __name__ == "__main__":
                 .unsqueeze(2)
                 .unsqueeze(3)
             )
-            imgs += mean.expand_as(imgs)
-            img = make_grid(imgs, **kwargs).numpy()
-            img = np.transpose(img, (1, 2, 0))
-            img = img[:, :, ::-1].astype(np.uint8)
+            images += mean.expand_as(images)
+            image = make_grid(images, pad_value=-1, **kwargs).numpy()
+            image = np.transpose(image, (1, 2, 0))
+            mask = np.zeros(image.shape[:2])
+            mask[(image != -1)[..., 0]] = 255
+            image = np.dstack((image, mask)).astype(np.uint8)
 
-            label = make_grid(
-                labels[:, np.newaxis, ...], pad_value=-1, **kwargs
-            ).numpy()
-            label_ = np.transpose(label, (1, 2, 0))[..., 0].astype(np.float32) + 1
-            label = cm.jet(label_ / 183.)[..., :3] * 255
-            label *= (label_ != 0)[..., None]
+            labels = labels[:, np.newaxis, ...]
+            label = make_grid(labels, pad_value=255, **kwargs).numpy()
+            label_ = np.transpose(label, (1, 2, 0))[..., 0].astype(np.float32)
+            label = cm.jet_r(label_ / 182.) * 255
+            mask = np.zeros(label.shape[:2])
+            label[..., 3][(label_ == 255)] = 0
             label = label.astype(np.uint8)
 
-            img = np.hstack((img, label))
-            plt.figure(figsize=(20, 20))
-            plt.imshow(img)
-            plt.axis("off")
-            plt.tight_layout()
-            # plt.savefig("./docs/data.png", bbox_inches="tight", transparent=True)
-            plt.show()
+            tiled_images = np.hstack((image, label))
+            cv2.imwrite("./docs/data.png", tiled_images)
             quit()

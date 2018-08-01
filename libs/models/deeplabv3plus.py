@@ -64,10 +64,10 @@ class DeepLabV3Plus(nn.Sequential):
         h = self.layer5(h)
         h = self.aspp(h)
         h = self.fc1(h)
-        h = F.upsample(h, size=h_.shape[2:], mode="bilinear", align_corners=False)
+        h = F.interpolate(h, size=h_.shape[2:], mode="bilinear")
         h = torch.cat((h, h_), dim=1)
         h = self.fc2(h)
-        h = F.upsample(h, scale_factor=4, mode="bilinear", align_corners=False)
+        h = F.interpolate(h, scale_factor=4, mode="bilinear")
         return h
 
     def freeze_bn(self):

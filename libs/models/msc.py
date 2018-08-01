@@ -13,23 +13,21 @@ import torch.nn.functional as F
 class MSC(nn.Module):
     """Multi-scale inputs"""
 
-    def __init__(self, model, pyramids=[0.5, 0.75]):
+    def __init__(self, scale, pyramids=[0.5, 0.75]):
         super(MSC, self).__init__()
-        self.scale = model
+        self.scale = scale
         self.pyramids = pyramids
 
     def forward(self, x):
         # Original
         logits = self.scale(x)
-        interp = nn.Upsample(
-            size=logits.shape[2:], mode="bilinear", align_corners=False
-        )
+        interp = lambda l: F.interpolate(l, size=logits.shape[2:], mode="bilinear")
 
         # Scaled
         logits_pyramid = []
         for p in self.pyramids:
             size = [int(s * p) for s in x.shape[2:]]
-            h = F.upsample(x, size=size, mode="bilinear", align_corners=False)
+            h = F.interpolate(x, size=size, mode="bilinear")
             logits_pyramid.append(self.scale(h))
 
         # Pixel-wise max
