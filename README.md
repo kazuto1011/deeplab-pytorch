@@ -177,7 +177,7 @@ Results with the provided validation set.
 ||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
 |:-:|:-:|:-:|:-:|:-:|:-:|
 |DeepLab v2|No|65.6%|49.8%|37.7%|50.1%|
-|DeepLab v2|Yes|-|-|-|-|
+|DeepLab v2|Yes|66.8%|50.3%|38.7%|51.2%|
 
 **COCO-Stuff 10k:** after 20k iterations with a mini-batch of 10 ([trained model](https://drive.google.com/file/d/1epxFDE3O_0LXVpxpde5En1hdMeV9s3e5/view?usp=sharing))
 
