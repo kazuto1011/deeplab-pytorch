@@ -212,11 +212,8 @@ if __name__ == "__main__":
     import torchvision
     from torchvision.utils import make_grid
 
-    kwargs = {"nrow": 10, "padding": 30}
+    kwargs = {"nrow": 10, "padding": 50}
     batch_size = 100
-
-    # dataset_root = "/media/kazuto1011/Extra/cocostuff/cocostuff-10k-v" + "1.1"
-    # dataset = CocoStuff10k(root=dataset_root, split="train")
 
     dataset_root = "/media/kazuto1011/Extra/cocostuff/cocostuff-164k"
     dataset = CocoStuff164k(root=dataset_root, split="train2017")
@@ -225,10 +222,9 @@ if __name__ == "__main__":
 
     loader = data.DataLoader(dataset, batch_size=batch_size)
 
-    for i, data in tqdm(
+    for i, (images, labels) in tqdm(
         enumerate(loader), total=np.ceil(len(dataset) / batch_size), leave=False
     ):
-        imgs, labels = data
 
         if i == 0:
             mean = (
@@ -237,32 +233,21 @@ if __name__ == "__main__":
                 .unsqueeze(2)
                 .unsqueeze(3)
             )
-            imgs += mean.expand_as(imgs)
-            img = make_grid(imgs, **kwargs).numpy()
-            img = np.transpose(img, (1, 2, 0))
-            img = img[:, :, ::-1].astype(np.uint8)
+            images += mean.expand_as(images)
+            image = make_grid(images, pad_value=-1, **kwargs).numpy()
+            image = np.transpose(image, (1, 2, 0))
+            mask = np.zeros(image.shape[:2])
+            mask[(image != -1)[..., 0]] = 255
+            image = np.dstack((image, mask)).astype(np.uint8)
 
-            # label = make_grid(
-            #     labels[:, np.newaxis, ...], pad_value=-1, **kwargs
-            # ).numpy()
-            # label_ = np.transpose(label, (1, 2, 0))[..., 0].astype(np.float32) + 1
-            # label = cm.jet(label_ / 183.)[..., :3] * 255
-            # label *= (label_ != 0)[..., None]
-            # label = label.astype(np.uint8)
-
-            label = make_grid(
-                labels[:, np.newaxis, ...], pad_value=255, **kwargs
-            ).numpy()
+            labels = labels[:, np.newaxis, ...]
+            label = make_grid(labels, pad_value=255, **kwargs).numpy()
             label_ = np.transpose(label, (1, 2, 0))[..., 0].astype(np.float32)
-            label = cm.jet(label_ / 182.)[..., :3] * 255
-            label *= (label_ != 255)[..., None]
+            label = cm.jet_r(label_ / 182.) * 255
+            mask = np.zeros(label.shape[:2])
+            label[..., 3][(label_ == 255)] = 0
             label = label.astype(np.uint8)
 
-            img = np.hstack((img, label))
-            plt.figure(figsize=(20, 20))
-            plt.imshow(img)
-            plt.axis("off")
-            plt.tight_layout()
-            # plt.savefig("./docs/data.png", bbox_inches="tight", transparent=True)
-            plt.show()
+            tiled_images = np.hstack((image, label))
+            cv2.imwrite("./docs/data.png", tiled_images)
             quit()
