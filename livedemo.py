@@ -53,7 +53,8 @@ def main(config, model_path, cuda, crf, camera_id):
 
     # Model
     model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
-    model.load_state_dict(torch.load(model_path))
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
     model.eval()
     model.to(device)
 
