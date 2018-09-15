@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .resnet import _ConvBatchNormReLU, _ResBlock, _ResBlockMG
+from .resnet import _ConvBatchNormReLU, _ResBlock
 
 
 class _ASPPModule(nn.Module):
@@ -49,8 +49,16 @@ class _ASPPModule(nn.Module):
 class DeepLabV3(nn.Sequential):
     """DeepLab v3"""
 
-    def __init__(self, n_classes, n_blocks, pyramids, multi_grid=[1, 2, 1]):
+    def __init__(self, n_classes, n_blocks, pyramids, grids, output_stride):
         super(DeepLabV3, self).__init__()
+
+        if output_stride == 8:
+            stride = [1, 2, 1, 1]
+            dilation = [1, 1, 2, 2]
+        elif output_stride == 16:
+            stride = [1, 2, 2, 1]
+            dilation = [1, 1, 1, 2]
+
         self.add_module(
             "layer1",
             nn.Sequential(
@@ -62,11 +70,18 @@ class DeepLabV3(nn.Sequential):
                 )
             ),
         )
-        self.add_module("layer2", _ResBlock(n_blocks[0], 64, 64, 256, 1, 1))  # OS=4
-        self.add_module("layer3", _ResBlock(n_blocks[1], 256, 128, 512, 2, 1))  # OS=8
-        self.add_module("layer4", _ResBlock(n_blocks[2], 512, 256, 1024, 1, 2))  # OS=8
         self.add_module(
-            "layer5", _ResBlockMG(n_blocks[3], 1024, 512, 2048, 1, 2, mg=multi_grid)
+            "layer2", _ResBlock(n_blocks[0], 64, 64, 256, stride[0], dilation[0])
+        )
+        self.add_module(
+            "layer3", _ResBlock(n_blocks[1], 256, 128, 512, stride[1], dilation[1])
+        )
+        self.add_module(
+            "layer4", _ResBlock(n_blocks[2], 512, 256, 1024, stride[2], dilation[2])
+        )
+        self.add_module(
+            "layer5",
+            _ResBlock(n_blocks[3], 1024, 512, 2048, stride[3], dilation[3], mg=grids),
         )
         self.add_module("aspp", _ASPPModule(2048, 256, pyramids))
         self.add_module(
@@ -79,13 +94,18 @@ class DeepLabV3(nn.Sequential):
 
     def freeze_bn(self):
         for m in self.named_modules():
-            if "layer" in m[0]:
-                if isinstance(m[1], nn.BatchNorm2d):
-                    m[1].eval()
+            if isinstance(m[1], nn.BatchNorm2d):
+                m[1].eval()
 
 
 if __name__ == "__main__":
-    model = DeepLabV3(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18])
+    model = DeepLabV3(
+        n_classes=21,
+        n_blocks=[3, 4, 23, 3],
+        pyramids=[6, 12, 18],
+        grids=[1, 2, 4],
+        output_stride=16,
+    )
     model.freeze_bn()
     model.eval()
     print(list(model.named_children()))
