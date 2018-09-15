@@ -205,12 +205,27 @@ class CocoStuff164k(_CocoStuff):
         return image, label
 
 
+def get_parent_class(value, dictionary):
+    # Get parent class with COCO-Stuff hierarchy
+    for k, v in dictionary.items():
+        if isinstance(v, list):
+            if value in v:
+                yield k
+        elif isinstance(v, dict):
+            if value in list(v.keys()):
+                yield k
+            else:
+                for res in get_parent_class(value, v):
+                    yield res
+
+
 if __name__ == "__main__":
     import matplotlib
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import torchvision
     from torchvision.utils import make_grid
+    import yaml
 
     kwargs = {"nrow": 10, "padding": 50}
     batch_size = 100
@@ -249,5 +264,16 @@ if __name__ == "__main__":
             label = label.astype(np.uint8)
 
             tiled_images = np.hstack((image, label))
-            cv2.imwrite("./docs/data.png", tiled_images)
-            quit()
+            # cv2.imwrite("./docs/data.png", tiled_images)
+            plt.imshow(np.dstack((tiled_images[..., 2::-1], tiled_images[..., 3])))
+            plt.show()
+            break
+
+    class_hierarchy = "./data/datasets/cocostuff/cocostuff_hierarchy.yaml"
+    data = yaml.load(open(class_hierarchy))
+    key = "person"
+
+    for _ in range(3):
+        key = get_parent_class(key, data)
+        key = list(key)[0]
+        print(key)
