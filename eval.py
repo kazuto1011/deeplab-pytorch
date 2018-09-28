@@ -103,14 +103,7 @@ def main(config, model_path, cuda, crf):
             outputs.append(o)
             targets.append(t)
 
-    score, class_iou = scores(targets, outputs, n_class=CONFIG.N_CLASSES)
-
-    for k, v in score.items():
-        print(k, v)
-
-    score["Class IoU"] = {}
-    for i in range(CONFIG.N_CLASSES):
-        score["Class IoU"][i] = class_iou[i]
+    score = scores(targets, outputs, n_class=CONFIG.N_CLASSES)
 
     with open(model_path.replace(".pth", ".json"), "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
