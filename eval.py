@@ -8,23 +8,24 @@
 from __future__ import absolute_import, division, print_function
 
 import json
-import os.path as osp
+import multiprocessing as mp
 
 import click
-import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import yaml
 from addict import Dict
-from tensorboardX import SummaryWriter
-from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import dense_crf, scores
+
+
+def dense_crf_wrapper(args):
+    return dense_crf(args[0], args[1])
 
 
 @click.command()
@@ -89,12 +90,10 @@ def main(config, model_path, cuda, crf):
 
         # Postprocessing
         if crf:
-            crf_output = np.zeros(output.shape)
-            images = data.data.cpu().numpy().astype(np.uint8)
-            for i, (image, prob_map) in enumerate(zip(images, output)):
-                image = image.transpose(1, 2, 0)
-                crf_output[i] = dense_crf(image, prob_map)
-            output = crf_output
+            images = data.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
+            p = mp.Pool(mp.cpu_count())
+            output = p.map(dense_crf_wrapper, zip(images, output))
+            p.close()
 
         output = np.argmax(output, axis=1)
         target = target.numpy()
