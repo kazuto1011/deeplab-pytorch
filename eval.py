@@ -8,23 +8,24 @@
 from __future__ import absolute_import, division, print_function
 
 import json
-import os.path as osp
+import multiprocessing as mp
 
 import click
-import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import yaml
 from addict import Dict
-from tensorboardX import SummaryWriter
-from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import dense_crf, scores
+
+
+def dense_crf_wrapper(args):
+    return dense_crf(args[0], args[1])
 
 
 @click.command()
@@ -74,43 +75,30 @@ def main(config, model_path, cuda, crf):
     model.eval()
     model.to(device)
 
-    targets, outputs = [], []
-    for data, target in tqdm(
+    preds, gts = [], []
+    for images, labels in tqdm(
         loader, total=len(loader), leave=False, dynamic_ncols=True
     ):
         # Image
-        data = data.to(device)
+        images = images.to(device)
 
         # Forward propagation
-        output = model(data)
-        output = F.interpolate(output, size=data.shape[2:], mode="bilinear")
-        output = F.softmax(output, dim=1)
-        output = output.data.cpu().numpy()
+        logits = model(images)
+        logits = F.interpolate(logits, size=images.shape[2:], mode="bilinear")
+        probs = F.softmax(logits, dim=1)
+        probs = probs.data.cpu().numpy()
 
         # Postprocessing
         if crf:
-            crf_output = np.zeros(output.shape)
-            images = data.data.cpu().numpy().astype(np.uint8)
-            for i, (image, prob_map) in enumerate(zip(images, output)):
-                image = image.transpose(1, 2, 0)
-                crf_output[i] = dense_crf(image, prob_map)
-            output = crf_output
+            pool = mp.Pool(mp.cpu_count())
+            images = images.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
+            probs = pool.map(dense_crf_wrapper, zip(images, probs))
+            pool.close()
 
-        output = np.argmax(output, axis=1)
-        target = target.numpy()
+        preds += list(np.argmax(probs, axis=1))
+        gts += list(labels.numpy())
 
-        for o, t in zip(output, target):
-            outputs.append(o)
-            targets.append(t)
-
-    score, class_iou = scores(targets, outputs, n_class=CONFIG.N_CLASSES)
-
-    for k, v in score.items():
-        print(k, v)
-
-    score["Class IoU"] = {}
-    for i in range(CONFIG.N_CLASSES):
-        score["Class IoU"][i] = class_iou[i]
+    score = scores(gts, preds, n_class=CONFIG.N_CLASSES)
 
     with open(model_path.replace(".pth", ".json"), "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)

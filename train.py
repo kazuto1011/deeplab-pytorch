@@ -57,13 +57,6 @@ def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
     optimizer.param_groups[2]["lr"] = 20 * new_lr
 
 
-def resize_target(target, size):
-    new_target = np.zeros((target.shape[0], size, size), np.int32)
-    for i, t in enumerate(target.numpy()):
-        new_target[i, ...] = cv2.resize(t, (size,) * 2, interpolation=cv2.INTER_NEAREST)
-    return torch.from_numpy(new_target).long()
-
-
 @click.command()
 @click.option("-c", "--config", type=str, required=True)
 @click.option("--cuda/--no-cuda", default=True)
@@ -88,7 +81,7 @@ def main(config, cuda):
         crop_size=CONFIG.IMAGE.SIZE.TRAIN,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
         warp=CONFIG.WARP_IMAGE,
-        scale=(0.5, 1.5),
+        scale=(0.5, 0.75, 1.0, 1.25, 1.5),
         flip=True,
     )
 
@@ -109,30 +102,27 @@ def main(config, cuda):
     model.to(device)
 
     # Optimizer
-    optimizer = {
-        "sgd": torch.optim.SGD(
-            # cf lr_mult and decay_mult in train.prototxt
-            params=[
-                {
-                    "params": get_params(model.module, key="1x"),
-                    "lr": CONFIG.LR,
-                    "weight_decay": CONFIG.WEIGHT_DECAY,
-                },
-                {
-                    "params": get_params(model.module, key="10x"),
-                    "lr": 10 * CONFIG.LR,
-                    "weight_decay": CONFIG.WEIGHT_DECAY,
-                },
-                {
-                    "params": get_params(model.module, key="20x"),
-                    "lr": 20 * CONFIG.LR,
-                    "weight_decay": 0.0,
-                },
-            ],
-            momentum=CONFIG.MOMENTUM,
-        )
-        # Add any other optimizer
-    }.get(CONFIG.OPTIMIZER)
+    optimizer = torch.optim.SGD(
+        # cf lr_mult and decay_mult in train.prototxt
+        params=[
+            {
+                "params": get_params(model.module, key="1x"),
+                "lr": CONFIG.LR,
+                "weight_decay": CONFIG.WEIGHT_DECAY,
+            },
+            {
+                "params": get_params(model.module, key="10x"),
+                "lr": 10 * CONFIG.LR,
+                "weight_decay": CONFIG.WEIGHT_DECAY,
+            },
+            {
+                "params": get_params(model.module, key="20x"),
+                "lr": 20 * CONFIG.LR,
+                "weight_decay": 0.0,
+            },
+        ],
+        momentum=CONFIG.MOMENTUM,
+    )
 
     # Loss definition
     criterion = CrossEntropyLoss2d(ignore_index=CONFIG.IGNORE_LABEL)
@@ -168,25 +158,25 @@ def main(config, cuda):
         iter_loss = 0
         for i in range(1, CONFIG.ITER_SIZE + 1):
             try:
-                data, target = next(loader_iter)
+                images, labels = next(loader_iter)
             except:
                 loader_iter = iter(loader)
-                data, target = next(loader_iter)
+                images, labels = next(loader_iter)
 
-            # Image
-            data = data.to(device)
+            images = images.to(device)
+            labels = labels.to(device).unsqueeze(1).float()
 
             # Propagate forward
-            outputs = model(data)
+            logits = model(images)
 
             # Loss
             loss = 0
-            for output in outputs:
-                # Resize target for {100%, 75%, 50%, Max} outputs
-                target_ = resize_target(target, output.size(2))
-                target_ = target_.to(device)
+            for logit in logits:
+                # Resize labels for {100%, 75%, 50%, Max} logits
+                labels_ = F.interpolate(labels, logit.shape[2:], mode="nearest")
+                labels_ = labels_.squeeze(1).long()
                 # Compute crossentropy loss
-                loss += criterion(output, target_)
+                loss += criterion(logit, labels_)
 
             # Backpropagate (just compute gradients wrt the loss)
             loss /= float(CONFIG.ITER_SIZE)

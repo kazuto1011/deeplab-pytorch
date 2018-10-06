@@ -21,7 +21,8 @@ def scores(label_trues, label_preds, n_class):
     acc_cls = np.diag(hist) / hist.sum(axis=1)
     acc_cls = np.nanmean(acc_cls)
     iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-    mean_iu = np.nanmean(iu)
+    valid = hist.sum(axis=1) > 0  # added
+    mean_iu = np.nanmean(iu[valid])
     freq = hist.sum(axis=1) / hist.sum()
     fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     cls_iu = dict(zip(range(n_class), iu))
@@ -31,4 +32,5 @@ def scores(label_trues, label_preds, n_class):
         "Mean Acc": acc_cls,
         "FreqW Acc": fwavacc,
         "Mean IoU": mean_iu,
-    }, cls_iu
+        "Class IoU": cls_iu,
+    }
