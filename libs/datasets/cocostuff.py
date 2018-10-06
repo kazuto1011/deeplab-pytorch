@@ -32,7 +32,7 @@ class _CocoStuff(data.Dataset):
         base_size=513,
         crop_size=321,
         mean=(104.008, 116.669, 122.675),
-        scale=(0.5, 1.5),
+        scale=(0.5, 0.75, 1.0, 1.25, 1.5),
         warp=True,
         flip=True,
         preload=False,
@@ -78,7 +78,7 @@ class _CocoStuff(data.Dataset):
         label = cv2.resize(label, base_size, interpolation=cv2.INTER_NEAREST)
         if self.scale is not None:
             # Scaling
-            scale_factor = random.uniform(self.scale[0], self.scale[1])
+            scale_factor = random.choice(self.scale)
             scale_kwargs = {"dsize": None, "fx": scale_factor, "fy": scale_factor}
             image = cv2.resize(image, interpolation=cv2.INTER_LINEAR, **scale_kwargs)
             label = cv2.resize(label, interpolation=cv2.INTER_NEAREST, **scale_kwargs)
@@ -87,10 +87,10 @@ class _CocoStuff(data.Dataset):
             pad_h = max(max(base_size[1], self.crop_size) - scale_h, 0)
             pad_w = max(max(base_size[0], self.crop_size) - scale_w, 0)
             pad_kwargs = {
-                "top": pad_h // 2,
-                "bottom": pad_h - pad_h // 2,
-                "left": pad_w // 2,
-                "right": pad_w - pad_w // 2,
+                "top": 0,
+                "bottom": pad_h,
+                "left": 0,
+                "right": pad_w,
                 "borderType": cv2.BORDER_CONSTANT,
             }
             if pad_h > 0 or pad_w > 0:
@@ -172,10 +172,14 @@ class CocoStuff10k(_CocoStuff):
         if self.version == "1.1":
             label = sio.loadmat(label_path)["S"].astype(np.int64)
             label -= 1  # unlabeled (0 -> -1)
-        else:
+        elif self.version == "1.0":
             label = np.array(h5py.File(label_path, "r")["S"], dtype=np.int64)
             label = label.transpose(1, 0)
             label -= 2  # unlabeled (1 -> -1)
+        else:
+            raise NotImplementedError(
+                "1.0 or 1.1 expected, but got: {}".format(self.version)
+            )
         return image, label
 
 
