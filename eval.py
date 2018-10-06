@@ -75,34 +75,30 @@ def main(config, model_path, cuda, crf):
     model.eval()
     model.to(device)
 
-    targets, outputs = [], []
-    for data, target in tqdm(
+    preds, gts = [], []
+    for images, labels in tqdm(
         loader, total=len(loader), leave=False, dynamic_ncols=True
     ):
         # Image
-        data = data.to(device)
+        images = images.to(device)
 
         # Forward propagation
-        output = model(data)
-        output = F.interpolate(output, size=data.shape[2:], mode="bilinear")
-        output = F.softmax(output, dim=1)
-        output = output.data.cpu().numpy()
+        logits = model(images)
+        logits = F.interpolate(logits, size=images.shape[2:], mode="bilinear")
+        probs = F.softmax(logits, dim=1)
+        probs = probs.data.cpu().numpy()
 
         # Postprocessing
         if crf:
-            images = data.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
-            p = mp.Pool(mp.cpu_count())
-            output = p.map(dense_crf_wrapper, zip(images, output))
-            p.close()
+            pool = mp.Pool(mp.cpu_count())
+            images = images.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
+            probs = pool.map(dense_crf_wrapper, zip(images, probs))
+            pool.close()
 
-        output = np.argmax(output, axis=1)
-        target = target.numpy()
+        preds += list(np.argmax(probs, axis=1))
+        gts += list(labels.numpy())
 
-        for o, t in zip(output, target):
-            outputs.append(o)
-            targets.append(t)
-
-    score = scores(targets, outputs, n_class=CONFIG.N_CLASSES)
+    score = scores(gts, preds, n_class=CONFIG.N_CLASSES)
 
     with open(model_path.replace(".pth", ".json"), "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
