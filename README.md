@@ -5,7 +5,7 @@ DeepLab v2 is one of the CNN architectures for semantic image segmentation.
 COCO-Stuff is a semantic segmentation dataset, which includes 164k images annotated with 171 thing/stuff classes (+ unlabeled).
 In this repository, the model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 with Caffe.
 Trained models are provided [here](#performance).
-ResNet-based DeepLab v3/v3+ are also included, but they are not tested.
+ResNet-based DeepLab v3/v3+ are also included, although they are not tested.
 
 ## Setup
 
@@ -41,6 +41,37 @@ conda install pytorch -c pytorch  # depends on your environment
 COCO-Stuff 164k is the latest version and recommended.
 
 <details>
+<summary><strong>COCO-Stuff 10k</strong> (click to show the structure)</summary>
+<pre>
+├── images
+│   ├── COCO_train2014_000000000077.jpg
+│   └── ...
+├── annotations
+│   ├── COCO_train2014_000000000077.mat
+│   └── ...
+└── imageLists
+    ├── all.txt
+    ├── test.txt
+    └── train.txt
+</pre>
+</details>
+<br>
+
+1. Run the script below to download the dataset (2GB).
+
+```sh
+./scripts/setup_cocostuff10k.sh <PATH TO DOWNLOAD>
+```
+
+2. Set the path to the dataset in ```config/cocostuff10k.yaml```.
+
+```yaml
+DATASET: cocostuff10k
+ROOT: # <- Write here
+...
+```
+
+<details>
 <summary><strong>COCO-Stuff 164k</strong> (click to show the structure)</summary>
 <pre>
 ├── images
@@ -71,37 +102,6 @@ COCO-Stuff 164k is the latest version and recommended.
 
 ```yaml
 DATASET: cocostuff164k
-ROOT: # <- Write here
-...
-```
-
-<details>
-<summary><strong>COCO-Stuff 10k</strong> (click to show the structure)</summary>
-<pre>
-├── images
-│   ├── COCO_train2014_000000000077.jpg
-│   └── ...
-├── annotations
-│   ├── COCO_train2014_000000000077.mat
-│   └── ...
-└── imageLists
-    ├── all.txt
-    ├── test.txt
-    └── train.txt
-</pre>
-</details>
-<br>
-
-1. Run the script below to download the dataset (2GB).
-
-```sh
-./scripts/setup_cocostuff10k.sh <PATH TO DOWNLOAD>
-```
-
-2. Set the path to the dataset in ```config/cocostuff10k.yaml```.
-
-```yaml
-DATASET: cocostuff10k
 ROOT: # <- Write here
 ...
 ```
@@ -172,20 +172,23 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 
 Results with the provided validation set.
 
-**COCO-Stuff 164k:** after 100k iterations with a mini-batch of 10 ([trained model](https://drive.google.com/file/d/1-rJsLGDXy0nlScos-QLcsQLuEepy5ukv/view?usp=sharing))
+* [Trained models](https://drive.google.com/drive/folders/1m3wyXvvWy-IvGmdFS_dsQCRXhFNhek8_?usp=sharing)
+* [Scores](https://drive.google.com/drive/folders/1PouglnlwsyHTwdSo_d55WgMgdnxbxmE6?usp=sharing)
 
-||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|DeepLab v2|No|65.6%|49.8%|37.7%|50.1%|
-|DeepLab v2|Yes|66.8%|50.3%|38.7%|51.2%|
-
-**COCO-Stuff 10k:** after 20k iterations with a mini-batch of 10 ([trained model](https://drive.google.com/file/d/1epxFDE3O_0LXVpxpde5En1hdMeV9s3e5/view?usp=sharing))
+**COCO-Stuff 10k:** after 20k iterations with a mini-batch of 10
 
 ||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
 |:-:|:-:|:-:|:-:|:-:|:-:|
 |DeepLab v2<br>([**official**](https://github.com/nightrome/cocostuff10k))|No|65.1%|45.5%|34.4%|50.4%|
-|DeepLab v2|No|64.8%|45.1%|33.8%|50.1%|
-|DeepLab v2|Yes|66.3%|45.8%|34.9%|51.6%|
+|DeepLab v2<br>(this repo)|No|65.1%|45.3%|34.4%|50.3%|
+|DeepLab v2<br>(this repo)|Yes|66.7%|46.0%|35.6%|51.8%|
+
+**COCO-Stuff 164k:** after 100k iterations with a mini-batch of 10
+
+||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
+|:-:|:-:|:-:|:-:|:-:|:-:|
+|DeepLab v2<br>(this repo)|No|65.5%|49.3%|37.4%|49.9%|
+|DeepLab v2<br>(this repo)|Yes|--|--|--|--|
 
 ## Demo
 
