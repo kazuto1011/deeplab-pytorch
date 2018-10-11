@@ -188,7 +188,7 @@ Results with the provided validation set.
 ||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
 |:-:|:-:|:-:|:-:|:-:|:-:|
 |DeepLab v2<br>(this repo)|No|65.5%|49.3%|37.4%|49.9%|
-|DeepLab v2<br>(this repo)|Yes|--|--|--|--|
+|DeepLab v2<br>(this repo)|Yes|66.6%|49.8%|38.4%|50.9%|
 
 ## Demo
 
