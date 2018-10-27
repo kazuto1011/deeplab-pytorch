@@ -84,7 +84,9 @@ def main(config, model_path, cuda, crf):
 
         # Forward propagation
         logits = model(images)
-        logits = F.interpolate(logits, size=images.shape[2:], mode="bilinear")
+        logits = F.interpolate(
+            logits, size=images.shape[2:], mode="bilinear", align_corners=True
+        )
         probs = F.softmax(logits, dim=1)
         probs = probs.data.cpu().numpy()
 

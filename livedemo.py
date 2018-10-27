@@ -78,7 +78,7 @@ def main(config, model_path, cuda, crf, camera_id):
 
         # Inference
         output = model.scale(image)
-        output = F.interpolate(output, size=(h, w), mode="bilinear")
+        output = F.interpolate(output, size=(h, w), mode="bilinear", align_corners=True)
         output = F.softmax(output, dim=1)
         output = output.data.cpu().numpy()[0]
 
