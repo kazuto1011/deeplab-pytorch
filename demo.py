@@ -74,7 +74,9 @@ def main(config, image_path, model_path, cuda, crf):
 
     # Inference
     output = model(image)
-    output = F.interpolate(output, size=image.shape[2:], mode="bilinear")
+    output = F.interpolate(
+        output, size=image.shape[2:], mode="bilinear", align_corners=True
+    )
     output = F.softmax(output, dim=1)
     output = output.data.cpu().numpy()[0]
 

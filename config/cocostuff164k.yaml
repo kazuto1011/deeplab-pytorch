@@ -38,7 +38,7 @@ POLY_POWER: 0.9
 WEIGHT_DECAY: 5.0e-4
 
 INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
-SAVE_DIR: .
+SAVE_DIR: ./data/models/deeplab_resnet101/cocostuff164k
 LOG_DIR: runs/cocostuff164k
 NUM_WORKERS: 0
 WARP_IMAGE: True

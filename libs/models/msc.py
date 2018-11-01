@@ -21,13 +21,15 @@ class MSC(nn.Module):
     def forward(self, x):
         # Original
         logits = self.scale(x)
-        interp = lambda l: F.interpolate(l, size=logits.shape[2:], mode="bilinear")
+        interp = lambda l: F.interpolate(
+            l, size=logits.shape[2:], mode="bilinear", align_corners=True
+        )
 
         # Scaled
         logits_pyramid = []
         for p in self.pyramids:
             size = [int(s * p) for s in x.shape[2:]]
-            h = F.interpolate(x, size=size, mode="bilinear")
+            h = F.interpolate(x, size=size, mode="bilinear", align_corners=True)
             logits_pyramid.append(self.scale(h))
 
         # Pixel-wise max
