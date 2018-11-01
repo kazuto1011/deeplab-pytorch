@@ -1,15 +1,24 @@
 # DeepLab with PyTorch
 
-This is an unofficial implementation to train **DeepLab v2** (ResNet-101) on **COCO-Stuff** dataset.
-DeepLab v2 is one of the CNN architectures for semantic image segmentation.
+PyTorch implementation to train **DeepLab v2** model (ResNet backbone) on **COCO-Stuff** dataset.
+DeepLab is one of the CNN architectures for semantic image segmentation.
 COCO-Stuff is a semantic segmentation dataset, which includes 164k images annotated with 171 thing/stuff classes (+ unlabeled).
-In this repository, the model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 with Caffe.
-Trained models are provided [here](#performance).
+This repository aims to reproduce the official score of DeepLab v2 on COCO-Stuff datasets.
+The model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 implemented by Caffe.
+Trained models are provided [here](#trained-models).
 ResNet-based DeepLab v3/v3+ are also included, although they are not tested.
 
 ## Setup
 
 ### Requirements
+
+For anaconda users:
+
+```sh
+conda env create --file config/conda_env.yaml
+conda activate deeplab-pytorch
+conda install pytorch torchvision -c pytorch  # depends on your environment
+```
 
 * python 2.7/3.6
 * pytorch
@@ -27,14 +36,6 @@ ResNet-based DeepLab v3/v3+ are also included, although they are not tested.
 * scipy
 * matplotlib
 * yaml
-
-For anaconda users:
-
-```sh
-conda env create --file config/conda_env.yaml
-conda activate deeplab-pytorch
-conda install pytorch -c pytorch  # depends on your environment
-```
 
 ### Datasets
 
@@ -127,12 +128,12 @@ You can also convert an included ```train2_iter_20000.caffemodel``` for PASCAL V
 Training, evaluation, and some demos are all through the [```.yaml``` configuration files](config/README.md).
 
 ```sh
-# Training
+# Train DeepLab v2 on COCO-Stuff 164k
 python train.py --config config/cocostuff164k.yaml
 ```
 
 ```sh
-# Monitoring
+# Monitor a cross-entropy loss
 tensorboard --logdir runs
 ```
 
@@ -162,6 +163,7 @@ WARP_IMAGE: False
 ## Evaluation
 
 ```sh
+# Evaluate the final model on COCO-Stuff 164k validation set
 python eval.py --config config/cocostuff164k.yaml \
                --model-path checkpoint_final.pth
 ```
@@ -170,25 +172,31 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 
 ## Performance
 
-Results with the provided validation set.
+Results with provided validation sets.
+
+### COCO-Stuff 10k
+
+* After 20k iterations with a mini-batch of 10
+
+||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
+|:-:|:-:|:-:|:-:|:-:|:-:|
+|[**Official**](https://github.com/nightrome/cocostuff10k)|No|65.1%|45.5%|34.4%|50.4%|
+|This repo|No|65.3%|45.3%|34.4%|50.5%|
+|This repo|Yes|66.7%|45.9%|35.5%|51.9%|
+
+### COCO-Stuff 164k
+
+* After 100k iterations with a mini-batch of 10
+
+||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
+|:-:|:-:|:-:|:-:|:-:|:-:|
+|This repo|No|65.7%|49.7%|37.6%|50.0%|
+|This repo|Yes|66.8%|50.1%|38.5%|51.1%|
+
+### Trained models
 
 * [Trained models](https://drive.google.com/drive/folders/1m3wyXvvWy-IvGmdFS_dsQCRXhFNhek8_?usp=sharing)
 * [Scores](https://drive.google.com/drive/folders/1PouglnlwsyHTwdSo_d55WgMgdnxbxmE6?usp=sharing)
-
-**COCO-Stuff 10k:** after 20k iterations with a mini-batch of 10
-
-||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|DeepLab v2<br>([**official**](https://github.com/nightrome/cocostuff10k))|No|65.1%|45.5%|34.4%|50.4%|
-|DeepLab v2<br>(this repo)|No|65.1%|45.3%|34.4%|50.3%|
-|DeepLab v2<br>(this repo)|Yes|66.7%|46.0%|35.6%|51.8%|
-
-**COCO-Stuff 164k:** after 100k iterations with a mini-batch of 10
-
-||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|DeepLab v2<br>(this repo)|No|65.5%|49.3%|37.4%|49.9%|
-|DeepLab v2<br>(this repo)|Yes|66.6%|49.8%|38.4%|50.9%|
 
 ## Demo
 
@@ -210,10 +218,10 @@ python livedemo.py --config config/cocostuff164k.yaml \
 
 ## References
 
-* [DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915)<br>
-L. C. Chen, G. Papandreou, I. Kokkinos et al.,<br>
-In arXiv, 2016.
+1. [DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915)<br>
+Liang-Chieh Chen, George Papandreou, Iasonas Kokkinos, Kevin Murphy, Alan L. Yuille<br>
+In *arXiv*, 2016.
 
-* [COCO-Stuff: Thing and Stuff Classes in Context](https://arxiv.org/abs/1612.03716)<br>
-H. Caesar, J. Uijlings, V. Ferrari,<br>
-In CVPR, 2018.
+2. [COCO-Stuff: Thing and Stuff Classes in Context](https://arxiv.org/abs/1612.03716)<br>
+Holger Caesar, Jasper Uijlings, Vittorio Ferrari<br>
+In *CVPR*, 2018.
