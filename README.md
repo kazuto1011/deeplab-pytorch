@@ -5,7 +5,7 @@ DeepLab is one of the CNN architectures for semantic image segmentation.
 COCO-Stuff is a semantic segmentation dataset, which includes 164k images annotated with 171 thing/stuff classes (+ unlabeled).
 This repository aims to reproduce the official score of DeepLab v2 on COCO-Stuff datasets.
 The model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 implemented by Caffe.
-Trained models are provided [here](#trained-models).
+Trained models are provided [here](#pre-trained-models).
 ResNet-based DeepLab v3/v3+ are also included, although they are not tested.
 
 ## Setup
@@ -172,28 +172,23 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 
 ## Performance
 
-Results with provided validation sets.
+### Validation scores
 
-### COCO-Stuff 10k
+<small>
 
-* After 20k iterations with a mini-batch of 10
+||Train set|Eval set|CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Freq. Weighted IoU|
+|:-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|[**Official (Caffe)**](https://github.com/nightrome/cocostuff10k)|**10k train**|**10k val**|**No**|**65.1%**|**45.5%**|**34.4%**|**50.4%**|
+|**This repo**|**10k train**|**10k val**|**No**|**65.3%**|**45.3%**|**34.4%**|**50.5%**|
+|This repo|10k train|10k val|Yes|66.7%|45.9%|35.5%|51.9%|
+|This repo|164k train|10k val|No|67.6%|54.9%|43.2%|53.9%|
+|This repo|164k train|10k val|Yes|68.7%|55.3%|44.4%|55.1%|
+|This repo|164k train|164k val|No|65.7%|49.7%|37.6%|50.0%|
+|This repo|164k train|164k val|Yes|66.8%|50.1%|38.5%|51.1%|
 
-||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|[**Official**](https://github.com/nightrome/cocostuff10k)|No|65.1%|45.5%|34.4%|50.4%|
-|This repo|No|65.3%|45.3%|34.4%|50.5%|
-|This repo|Yes|66.7%|45.9%|35.5%|51.9%|
+</small>
 
-### COCO-Stuff 164k
-
-* After 100k iterations with a mini-batch of 10
-
-||CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Frequency Weighted IoU|
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|This repo|No|65.7%|49.7%|37.6%|50.0%|
-|This repo|Yes|66.8%|50.1%|38.5%|51.1%|
-
-### Trained models
+### Pre-trained models
 
 * [Trained models](https://drive.google.com/drive/folders/1m3wyXvvWy-IvGmdFS_dsQCRXhFNhek8_?usp=sharing)
 * [Scores](https://drive.google.com/drive/folders/1PouglnlwsyHTwdSo_d55WgMgdnxbxmE6?usp=sharing)
