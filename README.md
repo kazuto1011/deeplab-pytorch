@@ -16,8 +16,6 @@ For anaconda users:
 
 ```sh
 conda env create --file config/conda_env.yaml
-conda activate deeplab-pytorch
-conda install pytorch torchvision -c pytorch  # depends on your environment
 ```
 
 * python 2.7/3.6
@@ -209,6 +207,17 @@ python demo.py --config config/cocostuff164k.yaml \
 python livedemo.py --config config/cocostuff164k.yaml \
                    --model-path <PATH TO MODEL> \
                    --camera-id <CAMERA ID>
+```
+
+### torch.hub
+
+```python
+import torch.hub
+
+model = torch.hub.load(
+    "kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", n_classes=182
+)
+model.load_state_dict(torch.load("cocostuff164k_iter100k.pth"))
 ```
 
 ## References
