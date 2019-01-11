@@ -174,7 +174,7 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 
 ### Validation scores
 
-||Train set|Eval set|CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|FreqW IoU|
+||Train set|Eval set|CRF?|Pixel<br>Accuracy|Mean<br>Accuracy|Mean IoU|FreqW IoU|
 |:-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 |[**Official (Caffe)**](https://github.com/nightrome/cocostuff10k)|**10k train**|**10k val**|**No**|**65.1%**|**45.5%**|**34.4%**|**50.4%**|
 |**This repo**|**10k train**|**10k val**|**No**|**65.3%**|**45.3%**|**34.4%**|**50.5%**|
