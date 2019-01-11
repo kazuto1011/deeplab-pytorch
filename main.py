@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 #
-# Author:   Kazuto Nakashima
-# URL:      http://kazuto1011.github.io
-# Created:  2017-11-01
+# Author: Kazuto Nakashima
+# URL:    https://kazuto1011.github.io
+# Date:   07 January 2019
+
 
 from __future__ import absolute_import, division, print_function
 
+import json
 import os.path as osp
 
 import click
-import cv2
+import joblib
 import numpy as np
 import torch
 import torch.nn as nn
@@ -23,7 +25,31 @@ from tqdm import tqdm
 
 from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
-from libs.utils.loss import CrossEntropyLoss2d
+from libs.utils import CrossEntropyLoss2d, DenseCRF, PolynomialLR, scores
+
+
+def get_device(cuda):
+    cuda = cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
+    if cuda:
+        current_device = torch.cuda.current_device()
+        print("Device:", torch.cuda.get_device_name(current_device))
+    else:
+        print("Device: CPU")
+    return device
+
+
+def setup_model(model_path, CONFIG, train=True):
+    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    if train:
+        model.load_state_dict(state_dict, strict=False)  # to skip ASPP
+        model = nn.DataParallel(model)
+    else:
+        model.load_state_dict(state_dict)
+        model = nn.DataParallel(model)
+        model.eval()
+    return model
 
 
 def get_params(model, key):
@@ -48,29 +74,25 @@ def get_params(model, key):
                     yield m[1].bias
 
 
-def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter, max_iter, power):
-    if iter % lr_decay_iter or iter > max_iter:
-        return None
-    new_lr = init_lr * (1 - float(iter) / max_iter) ** power
-    optimizer.param_groups[0]["lr"] = new_lr
-    optimizer.param_groups[1]["lr"] = 10 * new_lr
-    optimizer.param_groups[2]["lr"] = 20 * new_lr
+def resize_labels(labels, shape):
+    labels = labels.unsqueeze(1).float()  # Add channel axis
+    labels = F.interpolate(labels, shape, mode="nearest")
+    labels = labels.squeeze(1).long()
+    return labels
 
 
-@click.command()
-@click.option("-c", "--config", type=str, required=True)
-@click.option("--cuda/--no-cuda", default=True)
-def main(config, cuda):
-    cuda = cuda and torch.cuda.is_available()
-    device = torch.device("cuda" if cuda else "cpu")
+@click.group()
+@click.pass_context
+def main(ctx):
+    print("Mode:", ctx.invoked_subcommand)
 
-    if cuda:
-        current_device = torch.cuda.current_device()
-        print("Running on", torch.cuda.get_device_name(current_device))
-    else:
-        print("Running on CPU")
 
+@main.command()
+@click.option("-c", "--config", type=str, required=True, help="yaml")
+@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
+def train(config, cuda):
     # Configuration
+    device = get_device(cuda)
     CONFIG = Dict(yaml.load(open(config)))
 
     # Dataset 10k or 164k
@@ -95,10 +117,7 @@ def main(config, cuda):
     loader_iter = iter(loader)
 
     # Model
-    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
-    state_dict = torch.load(CONFIG.INIT_MODEL)
-    model.load_state_dict(state_dict, strict=False)  # Skip "aspp" layer
-    model = nn.DataParallel(model)
+    model = setup_model(CONFIG.INIT_MODEL, CONFIG, train=True)
     model.to(device)
 
     # Optimizer
@@ -124,11 +143,19 @@ def main(config, cuda):
         momentum=CONFIG.MOMENTUM,
     )
 
+    # Learning rate scheduler
+    scheduler = PolynomialLR(
+        optimizer=optimizer,
+        step_size=CONFIG.LR_DECAY,
+        iter_max=CONFIG.ITER_MAX,
+        power=CONFIG.POLY_POWER,
+    )
+
     # Loss definition
     criterion = CrossEntropyLoss2d(ignore_index=CONFIG.IGNORE_LABEL)
     criterion.to(device)
 
-    # TensorBoard Logger
+    # TensorBoard logger
     writer = SummaryWriter(CONFIG.LOG_DIR)
     loss_meter = MovingAverageValueMeter(20)
 
@@ -142,21 +169,11 @@ def main(config, cuda):
         dynamic_ncols=True,
     ):
 
-        # Set a learning rate
-        poly_lr_scheduler(
-            optimizer=optimizer,
-            init_lr=CONFIG.LR,
-            iter=iteration - 1,
-            lr_decay_iter=CONFIG.LR_DECAY,
-            max_iter=CONFIG.ITER_MAX,
-            power=CONFIG.POLY_POWER,
-        )
-
         # Clear gradients (ready to accumulate)
         optimizer.zero_grad()
 
         iter_loss = 0
-        for i in range(1, CONFIG.ITER_SIZE + 1):
+        for _ in range(CONFIG.ITER_SIZE):
             try:
                 images, labels = next(loader_iter)
             except:
@@ -164,7 +181,7 @@ def main(config, cuda):
                 images, labels = next(loader_iter)
 
             images = images.to(device)
-            labels = labels.to(device).unsqueeze(1).float()
+            labels = labels.to(device)
 
             # Propagate forward
             logits = model(images)
@@ -173,13 +190,12 @@ def main(config, cuda):
             loss = 0
             for logit in logits:
                 # Resize labels for {100%, 75%, 50%, Max} logits
-                labels_ = F.interpolate(labels, logit.shape[2:], mode="nearest")
-                labels_ = labels_.squeeze(1).long()
-                # Compute crossentropy loss
+                B, C, H, W = logit.shape
+                labels_ = resize_labels(labels, shape=(H, W))
                 loss += criterion(logit, labels_)
 
             # Backpropagate (just compute gradients wrt the loss)
-            loss /= float(CONFIG.ITER_SIZE)
+            loss /= CONFIG.ITER_SIZE
             loss.backward()
 
             iter_loss += float(loss)
@@ -188,6 +204,9 @@ def main(config, cuda):
 
         # Update weights with accumulated gradients
         optimizer.step()
+
+        # Update learning rate
+        scheduler.step(epoch=iteration)
 
         # TensorBoard
         if iteration % CONFIG.ITER_TB == 0:
@@ -210,16 +229,92 @@ def main(config, cuda):
                 osp.join(CONFIG.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
             )
 
-        # Save a model (short term)
-        if iteration % 100 == 0:
-            torch.save(
-                model.module.state_dict(),
-                osp.join(CONFIG.SAVE_DIR, "checkpoint_current.pth"),
-            )
+        torch.save(
+            model.module.state_dict(),
+            osp.join(CONFIG.SAVE_DIR, "checkpoint_current.pth"),
+        )
 
     torch.save(
         model.module.state_dict(), osp.join(CONFIG.SAVE_DIR, "checkpoint_final.pth")
     )
+
+
+@main.command()
+@click.option("-c", "--config", type=str, required=True, help="yaml")
+@click.option("-m", "--model-path", type=str, required=True, help="pth")
+@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
+@click.option("--crf", is_flag=True, help="CRF post processing")
+def test(config, model_path, cuda, crf):
+    # Disable autograd globally
+    torch.set_grad_enabled(False)
+
+    # Setup
+    device = get_device(cuda)
+    CONFIG = Dict(yaml.load(open(config)))
+
+    # Dataset 10k or 164k
+    dataset = get_dataset(CONFIG.DATASET)(
+        root=CONFIG.ROOT,
+        split=CONFIG.SPLIT.VAL,
+        base_size=CONFIG.IMAGE.SIZE.TEST,
+        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        warp=CONFIG.WARP_IMAGE,
+        scale=None,
+        flip=False,
+    )
+
+    # DataLoader
+    loader = torch.utils.data.DataLoader(
+        dataset=dataset,
+        batch_size=CONFIG.BATCH_SIZE.TEST,
+        num_workers=CONFIG.NUM_WORKERS,
+        shuffle=False,
+    )
+
+    # Model
+    model = setup_model(model_path, CONFIG, train=False)
+    model.to(device)
+
+    # CRF post-processor
+    postprocessor = DenseCRF(
+        iter_max=CONFIG.CRF.ITER_MAX,
+        pos_xy_std=CONFIG.CRF.POS_XY_STD,
+        pos_w=CONFIG.CRF.POS_W,
+        bi_xy_std=CONFIG.CRF.BI_XY_STD,
+        bi_rgb_std=CONFIG.CRF.BI_RGB_STD,
+        bi_w=CONFIG.CRF.BI_W,
+    )
+
+    preds, gts = [], []
+    for images, labels in tqdm(
+        loader, total=len(loader), leave=False, dynamic_ncols=True
+    ):
+        # Image
+        images = images.to(device)
+        B, H, W = labels.shape
+
+        # Forward propagation
+        logits = model(images)
+        logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=True)
+        probs = F.softmax(logits, dim=1)
+        probs = probs.data.cpu().numpy()
+
+        # Postprocessing
+        if crf:
+            # images: (B,C,H,W) -> (B,H,W,C)
+            images = images.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
+            probs = joblib.Parallel(n_jobs=-1)(
+                [joblib.delayed(postprocessor)(*pair) for pair in zip(images, probs)]
+            )
+
+        preds += list(np.argmax(probs, axis=1))
+        gts += list(labels.numpy())
+
+    # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
+    score = scores(gts, preds, n_class=CONFIG.N_CLASSES)
+
+    with open(model_path.replace(".pth", ".json"), "w") as f:
+        json.dump(score, f, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
