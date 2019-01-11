@@ -148,9 +148,9 @@ class CocoStuff10k(_CocoStuff):
     """COCO-Stuff 10k dataset"""
 
     def __init__(self, version="1.1", **kwargs):
-        super(CocoStuff10k, self).__init__(**kwargs)
         self.version = version
         self.ignore_label = -1
+        super(CocoStuff10k, self).__init__(**kwargs)
 
     def _set_files(self):
         # Create data list via {train, test, all}.txt
@@ -187,8 +187,8 @@ class CocoStuff164k(_CocoStuff):
     """COCO-Stuff 164k dataset"""
 
     def __init__(self, **kwargs):
-        super(CocoStuff164k, self).__init__(**kwargs)
         self.ignore_label = 255
+        super(CocoStuff164k, self).__init__(**kwargs)
 
     def _set_files(self):
         # Create data list by parsing the "images" folder
@@ -262,7 +262,7 @@ if __name__ == "__main__":
             labels = labels[:, np.newaxis, ...]
             label = make_grid(labels, pad_value=255, **kwargs).numpy()
             label_ = np.transpose(label, (1, 2, 0))[..., 0].astype(np.float32)
-            label = cm.jet_r(label_ / 182.) * 255
+            label = cm.jet_r(label_ / 182.0) * 255
             mask = np.zeros(label.shape[:2])
             label[..., 3][(label_ == 255)] = 0
             label = label.astype(np.uint8)

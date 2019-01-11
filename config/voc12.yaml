@@ -41,3 +41,11 @@ INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_i
 SAVE_DIR: .
 LOG_DIR: runs/voc12
 NUM_WORKERS: 0
+
+CRF:
+    ITER_MAX: 10
+    POS_W: 3
+    POS_XY_STD: 1
+    BI_W: 4
+    BI_XY_STD: 67
+    BI_RGB_STD: 3

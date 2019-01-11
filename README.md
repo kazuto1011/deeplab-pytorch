@@ -4,9 +4,10 @@ PyTorch implementation to train **DeepLab v2** model (ResNet backbone) on **COCO
 DeepLab is one of the CNN architectures for semantic image segmentation.
 COCO-Stuff is a semantic segmentation dataset, which includes 164k images annotated with 171 thing/stuff classes (+ unlabeled).
 This repository aims to reproduce the official score of DeepLab v2 on COCO-Stuff datasets.
-The model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 implemented by Caffe.
-Trained models are provided [here](#pre-trained-models).
+The model can be trained both on [COCO-Stuff 164k](https://github.com/nightrome/cocostuff) and the outdated [COCO-Stuff 10k](https://github.com/nightrome/cocostuff10k), without building the official DeepLab v2 implemented with Caffe.
+[Trained models are provided](#pre-trained-models).
 ResNet-based DeepLab v3/v3+ are also included, although they are not tested.
+[```torch.hub``` is supported](#torchhub).
 
 ## Setup
 
@@ -34,6 +35,7 @@ conda env create --file config/conda_env.yaml
 * scipy
 * matplotlib
 * yaml
+* joblib
 
 ### Datasets
 
@@ -127,7 +129,7 @@ Training, evaluation, and some demos are all through the [```.yaml``` configurat
 
 ```sh
 # Train DeepLab v2 on COCO-Stuff 164k
-python train.py --config config/cocostuff164k.yaml
+python main.py train --config config/cocostuff164k.yaml
 ```
 
 ```sh
@@ -138,7 +140,7 @@ tensorboard --logdir runs
 Default settings:
 
 - All the GPUs visible to the process are used. Please specify the scope with ```CUDA_VISIBLE_DEVICES=```.
-- Stochastic gradient descent (SGD) is used with momentum of 0.9 and initial learning rate of 2.5e-4. Polynomial learning rate decay is employed; the learning rate is multiplied by ```(1-iter/max_iter)**power``` at every 10 iterations.
+- Stochastic gradient descent (SGD) is used with momentum of 0.9 and initial learning rate of 2.5e-4. Polynomial learning rate decay is employed; the learning rate is multiplied by ```(1-iter/iter_max)**power``` at every 10 iterations.
 - Weights are updated 20k iterations for COCO-Stuff 10k and 100k iterations for COCO-Stuff 164k, with a mini-batch of 10. The batch is not processed at once due to high occupancy of video memories, instead, gradients of small batches are aggregated, and weight updating is performed at the end (```batch_size * iter_size = 10```).
 - Input images are initially warped to 513x513, randomly re-scaled by factors ranging from 0.5 to 1.5, zero-padded if needed, and randomly cropped to 321x321 so that the input size is fixed during training (see the example below).
 - The label indices range from 0 to 181 and the model outputs a 182-dim categorical distribution, but only [171 classes](https://github.com/nightrome/cocostuff/blob/master/labels.md) are supervised with COCO-Stuff.
@@ -162,8 +164,8 @@ WARP_IMAGE: False
 
 ```sh
 # Evaluate the final model on COCO-Stuff 164k validation set
-python eval.py --config config/cocostuff164k.yaml \
-               --model-path checkpoint_final.pth
+python main.py test --config config/cocostuff164k.yaml \
+                    --model-path checkpoint_final.pth
 ```
 
 You can run CRF post-processing with a option ```--crf```. See ```--help``` for more details.
@@ -172,9 +174,7 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 
 ### Validation scores
 
-<small>
-
-||Train set|Eval set|CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|Freq. Weighted IoU|
+||Train set|Eval set|CRF?|Pixel Accuracy|Mean Accuracy|Mean IoU|FreqW IoU|
 |:-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 |[**Official (Caffe)**](https://github.com/nightrome/cocostuff10k)|**10k train**|**10k val**|**No**|**65.1%**|**45.5%**|**34.4%**|**50.4%**|
 |**This repo**|**10k train**|**10k val**|**No**|**65.3%**|**45.3%**|**34.4%**|**50.5%**|
@@ -184,29 +184,31 @@ You can run CRF post-processing with a option ```--crf```. See ```--help``` for 
 |This repo|164k train|164k val|No|65.7%|49.7%|37.6%|50.0%|
 |This repo|164k train|164k val|Yes|66.8%|50.1%|38.5%|51.1%|
 
-</small>
-
-### Pre-trained models
+### Models
 
 * [Trained models](https://drive.google.com/drive/folders/1m3wyXvvWy-IvGmdFS_dsQCRXhFNhek8_?usp=sharing)
-* [Scores](https://drive.google.com/drive/folders/1PouglnlwsyHTwdSo_d55WgMgdnxbxmE6?usp=sharing)
+* [Scores (.json)](https://drive.google.com/drive/folders/1PouglnlwsyHTwdSo_d55WgMgdnxbxmE6?usp=sharing)
 
 ## Demo
 
 ### From an image
 
 ```bash
-python demo.py --config config/cocostuff164k.yaml \
-               --model-path <PATH TO MODEL> \
-               --image-path <PATH TO IMAGE>
+python demo.py single --config config/cocostuff164k.yaml \
+                      --model-path <PATH TO MODEL> \
+                      --image-path <PATH TO IMAGE> \
+                      --crf
 ```
 
-### From a web camera
+### From a webcam
+
+A class of mouseovered pixel is shown in terminal
 
 ```bash
-python livedemo.py --config config/cocostuff164k.yaml \
-                   --model-path <PATH TO MODEL> \
-                   --camera-id <CAMERA ID>
+python demo.py live --config config/cocostuff164k.yaml \
+                    --model-path <PATH TO MODEL> \
+                    --camera-id <CAMERA ID> \
+                    --crf
 ```
 
 ### torch.hub
@@ -214,9 +216,7 @@ python livedemo.py --config config/cocostuff164k.yaml \
 ```python
 import torch.hub
 
-model = torch.hub.load(
-    "kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", n_classes=182
-)
+model = torch.hub.load("kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", n_classes=182)
 model.load_state_dict(torch.load("cocostuff164k_iter100k.pth"))
 ```
 
@@ -224,7 +224,7 @@ model.load_state_dict(torch.load("cocostuff164k_iter100k.pth"))
 
 1. [DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915)<br>
 Liang-Chieh Chen, George Papandreou, Iasonas Kokkinos, Kevin Murphy, Alan L. Yuille<br>
-In *arXiv*, 2016.
+IEEE TPAMI, 2018.
 
 2. [COCO-Stuff: Thing and Stuff Classes in Context](https://arxiv.org/abs/1612.03716)<br>
 Holger Caesar, Jasper Uijlings, Vittorio Ferrari<br>

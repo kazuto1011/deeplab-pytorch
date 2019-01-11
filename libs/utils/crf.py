@@ -1,30 +1,42 @@
+#!/usr/bin/env python
+# coding: utf-8
+#
+# Author: Kazuto Nakashima
+# URL:    https://kazuto1011.github.io
+# Date:   09 January 2019
+
+
 import numpy as np
 import pydensecrf.densecrf as dcrf
 import pydensecrf.utils as utils
 
-MAX_ITER = 10
-POS_W = 3
-POS_XY_STD = 1
-Bi_W = 4
-Bi_XY_STD = 67
-Bi_RGB_STD = 3
 
+class DenseCRF(object):
+    def __init__(self, iter_max, pos_w, pos_xy_std, bi_w, bi_xy_std, bi_rgb_std):
+        self.iter_max = iter_max
+        self.pos_w = pos_w
+        self.pos_xy_std = pos_xy_std
+        self.bi_w = bi_w
+        self.bi_xy_std = bi_xy_std
+        self.bi_rgb_std = bi_rgb_std
 
-def dense_crf(img, output_probs):
-    c = output_probs.shape[0]
-    h = output_probs.shape[1]
-    w = output_probs.shape[2]
+    def __call__(self, image, probmap):
+        C, H, W = probmap.shape
 
-    U = utils.unary_from_softmax(output_probs)
-    U = np.ascontiguousarray(U)
+        U = utils.unary_from_softmax(probmap)
+        U = np.ascontiguousarray(U)
 
-    img = np.ascontiguousarray(img)
+        image = np.ascontiguousarray(image)
 
-    d = dcrf.DenseCRF2D(w, h, c)
-    d.setUnaryEnergy(U)
-    d.addPairwiseGaussian(sxy=POS_XY_STD, compat=POS_W)
-    d.addPairwiseBilateral(sxy=Bi_XY_STD, srgb=Bi_RGB_STD, rgbim=img, compat=Bi_W)
+        d = dcrf.DenseCRF2D(W, H, C)
+        d.setUnaryEnergy(U)
+        d.addPairwiseGaussian(sxy=self.pos_xy_std, compat=self.pos_w)
+        d.addPairwiseBilateral(
+            sxy=self.bi_xy_std, srgb=self.bi_rgb_std, rgbim=image, compat=self.bi_w
+        )
 
-    Q = d.inference(MAX_ITER)
-    Q = np.array(Q).reshape((c, h, w))
-    return Q
+        Q = d.inference(self.iter_max)
+        Q = np.array(Q).reshape((C, H, W))
+
+        return Q
+
