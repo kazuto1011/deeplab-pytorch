@@ -15,7 +15,20 @@ def deeplabv2_resnet101(**kwargs):
     from libs.models.deeplabv2 import DeepLabV2
     from libs.models.msc import MSC
 
-    base = DeepLabV2(n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24], **kwargs)
-    model = MSC(scale=base, pyramids=[0.5, 0.75])
+    base = DeepLabV2(n_blocks=[3, 4, 23, 3], atrous_rates=[6, 12, 18, 24], **kwargs)
+    model = MSC(base=base, scales=[0.5, 0.75])
 
     return model
+
+
+if __name__ == "__main__":
+    import torch.hub
+
+    model = torch.hub.load(
+        "kazuto1011/deeplab-pytorch",
+        "deeplabv2_resnet101",
+        n_classes=182,
+        force_reload=True,
+    )
+
+    print(model)

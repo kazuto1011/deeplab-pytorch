@@ -194,6 +194,9 @@ class CocoStuff164k(_CocoStuff):
         # Create data list by parsing the "images" folder
         if self.split in ["train2017", "val2017"]:
             file_list = sorted(glob(osp.join(self.root, "images", self.split, "*.jpg")))
+            assert len(file_list) > 0, "{} has no image".format(
+                osp.join(self.root, "images", self.split)
+            )
             file_list = [f.split("/")[-1].replace(".jpg", "") for f in file_list]
             self.files = file_list
         else:

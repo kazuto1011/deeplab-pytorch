@@ -94,7 +94,7 @@ def translate_layer_name(source):
         target += ".block{}".format(block)
         branch = source[1][6:]
         if branch == "1":
-            target += ".proj"
+            target += ".shortcut"
         elif branch == "2a":
             target += ".reduce"
         elif branch == "2b":
@@ -104,7 +104,7 @@ def translate_layer_name(source):
         return target
 
     source = source.split("_")
-    target = "scale"
+    target = "base"
 
     if "conv1" in source[0]:
         target += ".layer1.conv1.conv"
@@ -122,15 +122,13 @@ def translate_layer_name(source):
         # Skip if coco_init
         if len(source) == 3:
             stage = source[2]
-            target += ".aspp.stages.{}".format(stage)
+            target += ".aspp.{}".format(stage)
 
     return target
 
 
 @click.command()
-@click.option(
-    "--dataset", required=True, type=click.Choice(["voc12", "coco_init", "init"])
-)
+@click.option("-d", "--dataset", required=True, type=click.Choice(["voc12", "init"]))
 def main(dataset):
     WHITELIST = ["kernel_size", "stride", "padding", "dilation", "eps", "momentum"]
     CONFIG = {
@@ -139,15 +137,9 @@ def main(dataset):
             "path_pytorch_model": "data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth",
             "n_classes": 21,
         },
-        "coco_init": {
+        "init": {
             "path_caffe_model": "data/models/deeplab_resnet101/coco_init/init.caffemodel",
             "path_pytorch_model": "data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth",
-            "n_classes": 91,
-        },
-        "init": {
-            # The same as the coco_init parameters
-            "path_caffe_model": "data/models/deeplab_resnet101/init/deeplabv2_resnet101_init.caffemodel",
-            "path_pytorch_model": "data/models/deeplab_resnet101/init/deeplabv2_resnet101_init.pth",
             "n_classes": 91,
         },
     }.get(dataset)
@@ -158,6 +150,8 @@ def main(dataset):
     model.eval()
     own_state = model.state_dict()
 
+    rel_tol = 1e-7
+
     state_dict = OrderedDict()
     for layer_name, layer_dict in params.items():
         for param_name, values in layer_dict.items():
@@ -165,11 +159,23 @@ def main(dataset):
                 attribute = translate_layer_name(layer_name)
                 attribute = eval("model." + attribute + "." + param_name)
                 if isinstance(attribute, tuple):
-                    if attribute[0] != values:
-                        raise ValueError
+                    assert (
+                        attribute[0] == values
+                    ), "Inconsistent values: {}@{}, {}@{}".format(
+                        attribute[0],
+                        translate_layer_name(layer_name) + "." + param_name,
+                        values,
+                        layer_name,
+                    )
                 else:
-                    if abs(attribute - values) > 1e-4:
-                        raise ValueError
+                    assert (
+                        abs(attribute - values) < rel_tol
+                    ), "Inconsistent values: {}@{}, {}@{}".format(
+                        attribute,
+                        translate_layer_name(layer_name) + "." + param_name,
+                        values,
+                        layer_name,
+                    )
                 print(
                     layer_name.ljust(20),
                     "->",
@@ -186,6 +192,17 @@ def main(dataset):
                 state_dict[param_name] = values
                 print(layer_name.ljust(20), "->", param_name, ": Copied!")
 
+    try:
+        print("\033[32mVerify the converted model\033[00m")
+        model.load_state_dict(state_dict)
+    except:
+        import traceback
+
+        traceback.print_exc()
+        print("\033[32mVerify with ignoring ASPP (strict=False)\033[00m")
+        model.load_state_dict(state_dict, strict=False)
+
+    print("Saving to", CONFIG["path_pytorch_model"])
     torch.save(state_dict, CONFIG["path_pytorch_model"])
 
 

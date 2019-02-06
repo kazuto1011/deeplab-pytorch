@@ -28,9 +28,9 @@ def scores(label_trues, label_preds, n_class):
     cls_iu = dict(zip(range(n_class), iu))
 
     return {
-        "Overall Acc": acc,
-        "Mean Acc": acc_cls,
-        "FreqW Acc": fwavacc,
+        "Pixel Accuracy": acc,
+        "Mean Accuracy": acc_cls,
+        "Frequency Weighted IoU": fwavacc,
         "Mean IoU": mean_iu,
         "Class IoU": cls_iu,
     }

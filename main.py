@@ -25,7 +25,7 @@ from tqdm import tqdm
 
 from libs.datasets import get_dataset
 from libs.models import DeepLabV2_ResNet101_MSC
-from libs.utils import CrossEntropyLoss2d, DenseCRF, PolynomialLR, scores
+from libs.utils import DenseCRF, PolynomialLR, scores
 
 
 def get_device(cuda):
@@ -39,8 +39,8 @@ def get_device(cuda):
     return device
 
 
-def setup_model(model_path, CONFIG, train=True):
-    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
+def setup_model(model_path, n_classes, train=True):
+    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
     state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
     if train:
         model.load_state_dict(state_dict, strict=False)  # to skip ASPP
@@ -91,33 +91,36 @@ def main(ctx):
 @click.option("-c", "--config", type=str, required=True, help="yaml")
 @click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
 def train(config, cuda):
+    # Auto-tune cuDNN
+    torch.backends.cudnn.benchmark = True
+
     # Configuration
     device = get_device(cuda)
     CONFIG = Dict(yaml.load(open(config)))
 
     # Dataset 10k or 164k
-    dataset = get_dataset(CONFIG.DATASET)(
-        root=CONFIG.ROOT,
-        split=CONFIG.SPLIT.TRAIN,
-        base_size=513,
-        crop_size=CONFIG.IMAGE.SIZE.TRAIN,
+    dataset = get_dataset(CONFIG.DATASET.NAME)(
+        root=CONFIG.DATASET.ROOT,
+        split=CONFIG.DATASET.SPLIT.TRAIN,
+        base_size=CONFIG.IMAGE.SIZE.TRAIN.BASE,
+        crop_size=CONFIG.IMAGE.SIZE.TRAIN.CROP,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.WARP_IMAGE,
-        scale=(0.5, 0.75, 1.0, 1.25, 1.5),
+        warp=CONFIG.DATASET.WARP_IMAGE,
+        scale=CONFIG.DATASET.SCALES,
         flip=True,
     )
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=CONFIG.BATCH_SIZE.TRAIN,
-        num_workers=CONFIG.NUM_WORKERS,
+        batch_size=CONFIG.SOLVER.BATCH_SIZE.TRAIN,
+        num_workers=CONFIG.DATALOADER.NUM_WORKERS,
         shuffle=True,
     )
     loader_iter = iter(loader)
 
     # Model
-    model = setup_model(CONFIG.INIT_MODEL, CONFIG, train=True)
+    model = setup_model(CONFIG.MODEL.INIT_MODEL, CONFIG.DATASET.N_CLASSES, train=True)
     model.to(device)
 
     # Optimizer
@@ -126,45 +129,46 @@ def train(config, cuda):
         params=[
             {
                 "params": get_params(model.module, key="1x"),
-                "lr": CONFIG.LR,
-                "weight_decay": CONFIG.WEIGHT_DECAY,
+                "lr": CONFIG.SOLVER.LR,
+                "weight_decay": CONFIG.SOLVER.WEIGHT_DECAY,
             },
             {
                 "params": get_params(model.module, key="10x"),
-                "lr": 10 * CONFIG.LR,
-                "weight_decay": CONFIG.WEIGHT_DECAY,
+                "lr": 10 * CONFIG.SOLVER.LR,
+                "weight_decay": CONFIG.SOLVER.WEIGHT_DECAY,
             },
             {
                 "params": get_params(model.module, key="20x"),
-                "lr": 20 * CONFIG.LR,
+                "lr": 20 * CONFIG.SOLVER.LR,
                 "weight_decay": 0.0,
             },
         ],
-        momentum=CONFIG.MOMENTUM,
+        momentum=CONFIG.SOLVER.MOMENTUM,
     )
 
     # Learning rate scheduler
     scheduler = PolynomialLR(
         optimizer=optimizer,
-        step_size=CONFIG.LR_DECAY,
-        iter_max=CONFIG.ITER_MAX,
-        power=CONFIG.POLY_POWER,
+        step_size=CONFIG.SOLVER.LR_DECAY,
+        iter_max=CONFIG.SOLVER.ITER_MAX,
+        power=CONFIG.SOLVER.POLY_POWER,
     )
 
     # Loss definition
-    criterion = CrossEntropyLoss2d(ignore_index=CONFIG.IGNORE_LABEL)
+    criterion = nn.CrossEntropyLoss(ignore_index=CONFIG.DATASET.IGNORE_LABEL)
     criterion.to(device)
 
     # TensorBoard logger
-    writer = SummaryWriter(CONFIG.LOG_DIR)
-    loss_meter = MovingAverageValueMeter(20)
+    writer = SummaryWriter(CONFIG.SOLVER.LOG_DIR)
+    average_loss = MovingAverageValueMeter(CONFIG.SOLVER.AVERAGE_LOSS)
 
+    # Freeze the batch norm pre-trained on COCO
     model.train()
-    model.module.scale.freeze_bn()
+    model.module.base.freeze_bn()
 
     for iteration in tqdm(
-        range(1, CONFIG.ITER_MAX + 1),
-        total=CONFIG.ITER_MAX,
+        range(1, CONFIG.SOLVER.ITER_MAX + 1),
+        total=CONFIG.SOLVER.ITER_MAX,
         leave=False,
         dynamic_ncols=True,
     ):
@@ -172,8 +176,8 @@ def train(config, cuda):
         # Clear gradients (ready to accumulate)
         optimizer.zero_grad()
 
-        iter_loss = 0
-        for _ in range(CONFIG.ITER_SIZE):
+        loss = 0
+        for _ in range(CONFIG.SOLVER.ITER_SIZE):
             try:
                 images, labels = next(loader_iter)
             except:
@@ -187,20 +191,20 @@ def train(config, cuda):
             logits = model(images)
 
             # Loss
-            loss = 0
+            iter_loss = 0
             for logit in logits:
                 # Resize labels for {100%, 75%, 50%, Max} logits
-                B, C, H, W = logit.shape
+                _, _, H, W = logit.shape
                 labels_ = resize_labels(labels, shape=(H, W))
-                loss += criterion(logit, labels_)
+                iter_loss += criterion(logit, labels_)
 
             # Backpropagate (just compute gradients wrt the loss)
-            loss /= CONFIG.ITER_SIZE
-            loss.backward()
+            iter_loss /= CONFIG.SOLVER.ITER_SIZE
+            iter_loss.backward()
 
-            iter_loss += float(loss)
+            loss += float(iter_loss)
 
-        loss_meter.add(iter_loss)
+        average_loss.add(loss)
 
         # Update weights with accumulated gradients
         optimizer.step()
@@ -209,13 +213,14 @@ def train(config, cuda):
         scheduler.step(epoch=iteration)
 
         # TensorBoard
-        if iteration % CONFIG.ITER_TB == 0:
-            writer.add_scalar("train_loss", loss_meter.value()[0], iteration)
+        if iteration % CONFIG.SOLVER.ITER_TB == 0:
+            writer.add_scalar("loss/train", average_loss.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
-                writer.add_scalar("train_lr_group{}".format(i), o["lr"], iteration)
+                writer.add_scalar("lr/group{}".format(i), o["lr"], iteration)
             if False:  # This produces a large log file
                 for name, param in model.named_parameters():
                     name = name.replace(".", "/")
+                    # Weight/gradient distribution
                     writer.add_histogram(name, param, iteration, bins="auto")
                     if param.requires_grad:
                         writer.add_histogram(
@@ -223,19 +228,21 @@ def train(config, cuda):
                         )
 
         # Save a model
-        if iteration % CONFIG.ITER_SAVE == 0:
+        if iteration % CONFIG.SOLVER.ITER_SAVE == 0:
             torch.save(
                 model.module.state_dict(),
-                osp.join(CONFIG.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
+                osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
             )
 
+        # To verify progress separately
         torch.save(
             model.module.state_dict(),
-            osp.join(CONFIG.SAVE_DIR, "checkpoint_current.pth"),
+            osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_current.pth"),
         )
 
     torch.save(
-        model.module.state_dict(), osp.join(CONFIG.SAVE_DIR, "checkpoint_final.pth")
+        model.module.state_dict(),
+        osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_final.pth"),
     )
 
 
@@ -252,13 +259,19 @@ def test(config, model_path, cuda, crf):
     device = get_device(cuda)
     CONFIG = Dict(yaml.load(open(config)))
 
+    # If the image size never change,
+    if CONFIG.DATASET.WARP_IMAGE:
+        # Auto-tune cuDNN
+        torch.backends.cudnn.benchmark = True
+
     # Dataset 10k or 164k
-    dataset = get_dataset(CONFIG.DATASET)(
-        root=CONFIG.ROOT,
-        split=CONFIG.SPLIT.VAL,
+    dataset = get_dataset(CONFIG.DATASET.NAME)(
+        root=CONFIG.DATASET.ROOT,
+        split=CONFIG.DATASET.SPLIT.VAL,
         base_size=CONFIG.IMAGE.SIZE.TEST,
+        crop_size=None,
         mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.WARP_IMAGE,
+        warp=CONFIG.DATASET.WARP_IMAGE,
         scale=None,
         flip=False,
     )
@@ -266,13 +279,13 @@ def test(config, model_path, cuda, crf):
     # DataLoader
     loader = torch.utils.data.DataLoader(
         dataset=dataset,
-        batch_size=CONFIG.BATCH_SIZE.TEST,
-        num_workers=CONFIG.NUM_WORKERS,
+        batch_size=CONFIG.SOLVER.BATCH_SIZE.TEST,
+        num_workers=CONFIG.DATALOADER.NUM_WORKERS,
         shuffle=False,
     )
 
     # Model
-    model = setup_model(model_path, CONFIG, train=False)
+    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, train=False)
     model.to(device)
 
     # CRF post-processor
@@ -291,7 +304,7 @@ def test(config, model_path, cuda, crf):
     ):
         # Image
         images = images.to(device)
-        B, H, W = labels.shape
+        _, H, W = labels.shape
 
         # Forward propagation
         logits = model(images)
@@ -307,11 +320,13 @@ def test(config, model_path, cuda, crf):
                 [joblib.delayed(postprocessor)(*pair) for pair in zip(images, probs)]
             )
 
-        preds += list(np.argmax(probs, axis=1))
+        labelmaps = np.argmax(probs, axis=1)
+
+        preds += list(labelmaps)
         gts += list(labels.numpy())
 
     # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
-    score = scores(gts, preds, n_class=CONFIG.N_CLASSES)
+    score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
 
     with open(model_path.replace(".pth", ".json"), "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)

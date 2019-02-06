@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from .cocostuff import CocoStuff10k, CocoStuff164k
 
 

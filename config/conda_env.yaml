@@ -6,7 +6,7 @@ channels:
 dependencies:
   - pytorch
   - torchvision
-  # - cuda92
+  # - cudatoolkit=10.0
   - h5py
   - scipy
   - matplotlib
