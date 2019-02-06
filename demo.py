@@ -35,7 +35,7 @@ def get_device(cuda):
 
 
 def get_classtable(CONFIG):
-    with open(CONFIG.LABELS) as f:
+    with open(CONFIG.DATASET.LABELS) as f:
         classes = {}
         for label in f:
             label = label.rstrip().split("\t")
@@ -43,8 +43,8 @@ def get_classtable(CONFIG):
     return classes
 
 
-def setup_model(model_path, device, CONFIG):
-    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.N_CLASSES)
+def setup_model(model_path, n_classes, device):
+    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
     state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
     model.load_state_dict(state_dict)
     model.eval()
@@ -127,7 +127,7 @@ def single(config, image_path, model_path, cuda, crf):
     device = get_device(cuda)
     CONFIG = Dict(yaml.load(open(config)))
     classes = get_classtable(CONFIG)
-    model = setup_model(model_path, device, CONFIG)
+    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, device)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
 
     # Inference
@@ -167,12 +167,14 @@ def single(config, image_path, model_path, cuda, crf):
 def live(config, model_path, cuda, crf, camera_id):
     # Disable autograd globally
     torch.set_grad_enabled(False)
+    # Auto-tune cuDNN
+    torch.backends.cudnn.benchmark = True
 
     # Setup
     device = get_device(cuda)
     CONFIG = Dict(yaml.load(open(config)))
     classes = get_classtable(CONFIG)
-    model = setup_model(model_path, device, CONFIG)
+    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, device)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
 
     # UVC camera stream
@@ -181,7 +183,7 @@ def live(config, model_path, cuda, crf, camera_id):
 
     def colorize(labelmap):
         # Assign a unique color to each label
-        labelmap = labelmap.astype(np.float32) / CONFIG.N_CLASSES
+        labelmap = labelmap.astype(np.float32) / CONFIG.DATASET.N_CLASSES
         colormap = cm.jet_r(labelmap)[..., :-1] * 255.0
         return np.uint8(colormap)
 
@@ -191,23 +193,23 @@ def live(config, model_path, cuda, crf, camera_id):
         name = classes[label]
         print(name)
 
-    cv2.namedWindow("Segmentation Result", cv2.WINDOW_AUTOSIZE)
+    window_name = "{} + {}".format(CONFIG.MODEL.NAME, CONFIG.DATASET.NAME)
+    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
     while True:
         ret, frame = cap.read()
         image, raw_image = preprocessing(frame, device, CONFIG)
         labelmap = inference(model, image, raw_image, postprocessor)
-        labels = np.unique(labelmap)
         colormap = colorize(labelmap)
 
         # Register mouse callback function
-        cv2.setMouseCallback("Segmentation Result", mouse_event, labelmap)
+        cv2.setMouseCallback(window_name, mouse_event, labelmap)
 
         # Overlay prediction
         cv2.addWeighted(colormap, 0.5, raw_image, 0.5, 0.0, raw_image)
 
         # Quit by pressing "q" key
-        cv2.imshow("Segmentation Result", raw_image)
+        cv2.imshow(window_name, raw_image)
         if cv2.waitKey(10) == ord("q"):
             break
 

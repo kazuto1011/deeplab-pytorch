@@ -19,11 +19,11 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
     name="caffe.proto",
     package="caffe",
-    syntax="proto2",
     serialized_pb=_b(
         '\n\x0b\x63\x61\x66\x66\x65.proto\x12\x05\x63\x61\x66\x66\x65"\x1c\n\tBlobShape\x12\x0f\n\x03\x64im\x18\x01 \x03(\x03\x42\x02\x10\x01"\xcc\x01\n\tBlobProto\x12\x1f\n\x05shape\x18\x07 \x01(\x0b\x32\x10.caffe.BlobShape\x12\x10\n\x04\x64\x61ta\x18\x05 \x03(\x02\x42\x02\x10\x01\x12\x10\n\x04\x64iff\x18\x06 \x03(\x02\x42\x02\x10\x01\x12\x17\n\x0b\x64ouble_data\x18\x08 \x03(\x01\x42\x02\x10\x01\x12\x17\n\x0b\x64ouble_diff\x18\t \x03(\x01\x42\x02\x10\x01\x12\x0e\n\x03num\x18\x01 \x01(\x05:\x01\x30\x12\x13\n\x08\x63hannels\x18\x02 \x01(\x05:\x01\x30\x12\x11\n\x06height\x18\x03 \x01(\x05:\x01\x30\x12\x10\n\x05width\x18\x04 \x01(\x05:\x01\x30"2\n\x0f\x42lobProtoVector\x12\x1f\n\x05\x62lobs\x18\x01 \x03(\x0b\x32\x10.caffe.BlobProto"\x81\x01\n\x05\x44\x61tum\x12\x10\n\x08\x63hannels\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c\x12\r\n\x05label\x18\x05 \x01(\x05\x12\x12\n\nfloat_data\x18\x06 \x03(\x02\x12\x16\n\x07\x65ncoded\x18\x07 \x01(\x08:\x05\x66\x61lse"\x8a\x02\n\x0f\x46illerParameter\x12\x16\n\x04type\x18\x01 \x01(\t:\x08\x63onstant\x12\x10\n\x05value\x18\x02 \x01(\x02:\x01\x30\x12\x0e\n\x03min\x18\x03 \x01(\x02:\x01\x30\x12\x0e\n\x03max\x18\x04 \x01(\x02:\x01\x31\x12\x0f\n\x04mean\x18\x05 \x01(\x02:\x01\x30\x12\x0e\n\x03std\x18\x06 \x01(\x02:\x01\x31\x12\x12\n\x06sparse\x18\x07 \x01(\x05:\x02-1\x12\x42\n\rvariance_norm\x18\x08 \x01(\x0e\x32#.caffe.FillerParameter.VarianceNorm:\x06\x46\x41N_IN"4\n\x0cVarianceNorm\x12\n\n\x06\x46\x41N_IN\x10\x00\x12\x0b\n\x07\x46\x41N_OUT\x10\x01\x12\x0b\n\x07\x41VERAGE\x10\x02"\x8e\x02\n\x0cNetParameter\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05input\x18\x03 \x03(\t\x12%\n\x0binput_shape\x18\x08 \x03(\x0b\x32\x10.caffe.BlobShape\x12\x11\n\tinput_dim\x18\x04 \x03(\x05\x12\x1d\n\x0e\x66orce_backward\x18\x05 \x01(\x08:\x05\x66\x61lse\x12\x1e\n\x05state\x18\x06 \x01(\x0b\x32\x0f.caffe.NetState\x12\x19\n\ndebug_info\x18\x07 \x01(\x08:\x05\x66\x61lse\x12$\n\x05layer\x18\x64 \x03(\x0b\x32\x15.caffe.LayerParameter\x12\'\n\x06layers\x18\x02 \x03(\x0b\x32\x17.caffe.V1LayerParameter"\x9c\n\n\x0fSolverParameter\x12\x0b\n\x03net\x18\x18 \x01(\t\x12&\n\tnet_param\x18\x19 \x01(\x0b\x32\x13.caffe.NetParameter\x12\x11\n\ttrain_net\x18\x01 \x01(\t\x12\x10\n\x08test_net\x18\x02 \x03(\t\x12,\n\x0ftrain_net_param\x18\x15 \x01(\x0b\x32\x13.caffe.NetParameter\x12+\n\x0etest_net_param\x18\x16 \x03(\x0b\x32\x13.caffe.NetParameter\x12$\n\x0btrain_state\x18\x1a \x01(\x0b\x32\x0f.caffe.NetState\x12#\n\ntest_state\x18\x1b \x03(\x0b\x32\x0f.caffe.NetState\x12\x11\n\ttest_iter\x18\x03 \x03(\x05\x12\x18\n\rtest_interval\x18\x04 \x01(\x05:\x01\x30\x12 \n\x11test_compute_loss\x18\x13 \x01(\x08:\x05\x66\x61lse\x12!\n\x13test_initialization\x18  \x01(\x08:\x04true\x12\x0f\n\x07\x62\x61se_lr\x18\x05 \x01(\x02\x12\x0f\n\x07\x64isplay\x18\x06 \x01(\x05\x12\x17\n\x0c\x61verage_loss\x18! \x01(\x05:\x01\x31\x12\x10\n\x08max_iter\x18\x07 \x01(\x05\x12\x14\n\titer_size\x18$ \x01(\x05:\x01\x31\x12\x11\n\tlr_policy\x18\x08 \x01(\t\x12\r\n\x05gamma\x18\t \x01(\x02\x12\r\n\x05power\x18\n \x01(\x02\x12\x10\n\x08momentum\x18\x0b \x01(\x02\x12\x14\n\x0cweight_decay\x18\x0c \x01(\x02\x12\x1f\n\x13regularization_type\x18\x1d \x01(\t:\x02L2\x12\x10\n\x08stepsize\x18\r \x01(\x05\x12\x11\n\tstepvalue\x18" \x03(\x05\x12\x1a\n\x0e\x63lip_gradients\x18# \x01(\x02:\x02-1\x12\x13\n\x08snapshot\x18\x0e \x01(\x05:\x01\x30\x12\x17\n\x0fsnapshot_prefix\x18\x0f \x01(\t\x12\x1c\n\rsnapshot_diff\x18\x10 \x01(\x08:\x05\x66\x61lse\x12K\n\x0fsnapshot_format\x18% \x01(\x0e\x32%.caffe.SolverParameter.SnapshotFormat:\x0b\x42INARYPROTO\x12;\n\x0bsolver_mode\x18\x11 \x01(\x0e\x32!.caffe.SolverParameter.SolverMode:\x03GPU\x12\x14\n\tdevice_id\x18\x12 \x01(\x05:\x01\x30\x12\x17\n\x0brandom_seed\x18\x14 \x01(\x03:\x02-1\x12\x11\n\x04type\x18( \x01(\t:\x03SGD\x12\x14\n\x05\x64\x65lta\x18\x1f \x01(\x02:\x05\x31\x65-08\x12\x18\n\tmomentum2\x18\' \x01(\x02:\x05\x30.999\x12\x11\n\trms_decay\x18& \x01(\x02\x12\x19\n\ndebug_info\x18\x17 \x01(\x08:\x05\x66\x61lse\x12"\n\x14snapshot_after_train\x18\x1c \x01(\x08:\x04true\x12;\n\x0bsolver_type\x18\x1e \x01(\x0e\x32!.caffe.SolverParameter.SolverType:\x03SGD"+\n\x0eSnapshotFormat\x12\x08\n\x04HDF5\x10\x00\x12\x0f\n\x0b\x42INARYPROTO\x10\x01"\x1e\n\nSolverMode\x12\x07\n\x03\x43PU\x10\x00\x12\x07\n\x03GPU\x10\x01"U\n\nSolverType\x12\x07\n\x03SGD\x10\x00\x12\x0c\n\x08NESTEROV\x10\x01\x12\x0b\n\x07\x41\x44\x41GRAD\x10\x02\x12\x0b\n\x07RMSPROP\x10\x03\x12\x0c\n\x08\x41\x44\x41\x44\x45LTA\x10\x04\x12\x08\n\x04\x41\x44\x41M\x10\x05"l\n\x0bSolverState\x12\x0c\n\x04iter\x18\x01 \x01(\x05\x12\x13\n\x0blearned_net\x18\x02 \x01(\t\x12!\n\x07history\x18\x03 \x03(\x0b\x32\x10.caffe.BlobProto\x12\x17\n\x0c\x63urrent_step\x18\x04 \x01(\x05:\x01\x30"N\n\x08NetState\x12!\n\x05phase\x18\x01 \x01(\x0e\x32\x0c.caffe.Phase:\x04TEST\x12\x10\n\x05level\x18\x02 \x01(\x05:\x01\x30\x12\r\n\x05stage\x18\x03 \x03(\t"s\n\x0cNetStateRule\x12\x1b\n\x05phase\x18\x01 \x01(\x0e\x32\x0c.caffe.Phase\x12\x11\n\tmin_level\x18\x02 \x01(\x05\x12\x11\n\tmax_level\x18\x03 \x01(\x05\x12\r\n\x05stage\x18\x04 \x03(\t\x12\x11\n\tnot_stage\x18\x05 \x03(\t"\xa3\x01\n\tParamSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x31\n\nshare_mode\x18\x02 \x01(\x0e\x32\x1d.caffe.ParamSpec.DimCheckMode\x12\x12\n\x07lr_mult\x18\x03 \x01(\x02:\x01\x31\x12\x15\n\ndecay_mult\x18\x04 \x01(\x02:\x01\x31"*\n\x0c\x44imCheckMode\x12\n\n\x06STRICT\x10\x00\x12\x0e\n\nPERMISSIVE\x10\x01"\xc4\x16\n\x0eLayerParameter\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0e\n\x06\x62ottom\x18\x03 \x03(\t\x12\x0b\n\x03top\x18\x04 \x03(\t\x12\x1b\n\x05phase\x18\n \x01(\x0e\x32\x0c.caffe.Phase\x12\x13\n\x0bloss_weight\x18\x05 \x03(\x02\x12\x1f\n\x05param\x18\x06 \x03(\x0b\x32\x10.caffe.ParamSpec\x12\x1f\n\x05\x62lobs\x18\x07 \x03(\x0b\x32\x10.caffe.BlobProto\x12\x16\n\x0epropagate_down\x18\x0b \x03(\x08\x12$\n\x07include\x18\x08 \x03(\x0b\x32\x13.caffe.NetStateRule\x12$\n\x07\x65xclude\x18\t \x03(\x0b\x32\x13.caffe.NetStateRule\x12\x37\n\x0ftransform_param\x18\x64 \x01(\x0b\x32\x1e.caffe.TransformationParameter\x12(\n\nloss_param\x18\x65 \x01(\x0b\x32\x14.caffe.LossParameter\x12\x30\n\x0e\x61\x63\x63uracy_param\x18\x66 \x01(\x0b\x32\x18.caffe.AccuracyParameter\x12I\n\x1b\x61\x64\x61ptive_bias_channel_param\x18\x94\x01 \x01(\x0b\x32#.caffe.AdaptiveBiasChannelParameter\x12,\n\x0c\x61rgmax_param\x18g \x01(\x0b\x32\x16.caffe.ArgMaxParameter\x12\x34\n\x10\x62\x61tch_norm_param\x18\x8b\x01 \x01(\x0b\x32\x19.caffe.BatchNormParameter\x12)\n\nbias_param\x18\x8d\x01 \x01(\x0b\x32\x14.caffe.BiasParameter\x12\x38\n\x12\x62ias_channel_param\x18\x95\x01 \x01(\x0b\x32\x1b.caffe.BiasChannelParameter\x12,\n\x0c\x63oncat_param\x18h \x01(\x0b\x32\x16.caffe.ConcatParameter\x12?\n\x16\x63ontrastive_loss_param\x18i \x01(\x0b\x32\x1f.caffe.ContrastiveLossParameter\x12\x36\n\x11\x63onvolution_param\x18j \x01(\x0b\x32\x1b.caffe.ConvolutionParameter\x12(\n\ndata_param\x18k \x01(\x0b\x32\x14.caffe.DataParameter\x12\x32\n\x0f\x64\x65nse_crf_param\x18\x92\x01 \x01(\x0b\x32\x18.caffe.DenseCRFParameter\x12@\n\x16\x64omain_transform_param\x18\x93\x01 \x01(\x0b\x32\x1f.caffe.DomainTransformParameter\x12.\n\rdropout_param\x18l \x01(\x0b\x32\x17.caffe.DropoutParameter\x12\x33\n\x10\x64ummy_data_param\x18m \x01(\x0b\x32\x19.caffe.DummyDataParameter\x12.\n\reltwise_param\x18n \x01(\x0b\x32\x17.caffe.EltwiseParameter\x12\'\n\telu_param\x18\x8c\x01 \x01(\x0b\x32\x13.caffe.ELUParameter\x12+\n\x0b\x65mbed_param\x18\x89\x01 \x01(\x0b\x32\x15.caffe.EmbedParameter\x12&\n\texp_param\x18o \x01(\x0b\x32\x13.caffe.ExpParameter\x12/\n\rflatten_param\x18\x87\x01 \x01(\x0b\x32\x17.caffe.FlattenParameter\x12\x31\n\x0fhdf5_data_param\x18p \x01(\x0b\x32\x18.caffe.HDF5DataParameter\x12\x35\n\x11hdf5_output_param\x18q \x01(\x0b\x32\x1a.caffe.HDF5OutputParameter\x12\x33\n\x10hinge_loss_param\x18r \x01(\x0b\x32\x19.caffe.HingeLossParameter\x12\x33\n\x10image_data_param\x18s \x01(\x0b\x32\x19.caffe.ImageDataParameter\x12\x39\n\x13infogain_loss_param\x18t \x01(\x0b\x32\x1c.caffe.InfogainLossParameter\x12\x39\n\x13inner_product_param\x18u \x01(\x0b\x32\x1c.caffe.InnerProductParameter\x12-\n\x0cinterp_param\x18\x8f\x01 \x01(\x0b\x32\x16.caffe.InterpParameter\x12\'\n\tlog_param\x18\x86\x01 \x01(\x0b\x32\x13.caffe.LogParameter\x12&\n\tlrn_param\x18v \x01(\x0b\x32\x13.caffe.LRNParameter\x12\x30\n\x0emat_read_param\x18\x97\x01 \x01(\x0b\x32\x17.caffe.MatReadParameter\x12\x32\n\x0fmat_write_param\x18\x91\x01 \x01(\x0b\x32\x18.caffe.MatWriteParameter\x12\x35\n\x11memory_data_param\x18w \x01(\x0b\x32\x1a.caffe.MemoryDataParameter\x12&\n\tmvn_param\x18x \x01(\x0b\x32\x13.caffe.MVNParameter\x12.\n\rpooling_param\x18y \x01(\x0b\x32\x17.caffe.PoolingParameter\x12*\n\x0bpower_param\x18z \x01(\x0b\x32\x15.caffe.PowerParameter\x12+\n\x0bprelu_param\x18\x83\x01 \x01(\x0b\x32\x15.caffe.PReLUParameter\x12-\n\x0cpython_param\x18\x82\x01 \x01(\x0b\x32\x16.caffe.PythonParameter\x12\x33\n\x0freduction_param\x18\x88\x01 \x01(\x0b\x32\x19.caffe.ReductionParameter\x12(\n\nrelu_param\x18{ \x01(\x0b\x32\x14.caffe.ReLUParameter\x12/\n\rreshape_param\x18\x85\x01 \x01(\x0b\x32\x17.caffe.ReshapeParameter\x12+\n\x0bscale_param\x18\x8e\x01 \x01(\x0b\x32\x15.caffe.ScaleParameter\x12\x38\n\x12seg_accuracy_param\x18\x90\x01 \x01(\x0b\x32\x1b.caffe.SegAccuracyParameter\x12.\n\rsigmoid_param\x18| \x01(\x0b\x32\x17.caffe.SigmoidParameter\x12.\n\rsoftmax_param\x18} \x01(\x0b\x32\x17.caffe.SoftmaxParameter\x12\'\n\tspp_param\x18\x84\x01 \x01(\x0b\x32\x13.caffe.SPPParameter\x12*\n\x0bslice_param\x18~ \x01(\x0b\x32\x15.caffe.SliceParameter\x12(\n\ntanh_param\x18\x7f \x01(\x0b\x32\x14.caffe.TanHParameter\x12\x33\n\x0fthreshold_param\x18\x80\x01 \x01(\x0b\x32\x19.caffe.ThresholdParameter\x12)\n\ntile_param\x18\x8a\x01 \x01(\x0b\x32\x14.caffe.TileParameter\x12\x38\n\x12unique_label_param\x18\x96\x01 \x01(\x0b\x32\x1b.caffe.UniqueLabelParameter\x12\x36\n\x11window_data_param\x18\x81\x01 \x01(\x0b\x32\x1a.caffe.WindowDataParameter"\xfc\x01\n\x17TransformationParameter\x12\x10\n\x05scale\x18\x01 \x01(\x02:\x01\x31\x12\x15\n\x06mirror\x18\x02 \x01(\x08:\x05\x66\x61lse\x12\x14\n\tcrop_size\x18\x03 \x01(\r:\x01\x30\x12\x11\n\tmean_file\x18\x04 \x01(\t\x12\x12\n\nmean_value\x18\x05 \x03(\x02\x12\x1a\n\x0b\x66orce_color\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\x19\n\nforce_gray\x18\x07 \x01(\x08:\x05\x66\x61lse\x12\x15\n\rscale_factors\x18\x08 \x03(\x02\x12\x15\n\ncrop_width\x18\t \x01(\r:\x01\x30\x12\x16\n\x0b\x63rop_height\x18\n \x01(\r:\x01\x30"\xc2\x01\n\rLossParameter\x12\x14\n\x0cignore_label\x18\x01 \x01(\x05\x12\x44\n\rnormalization\x18\x03 \x01(\x0e\x32&.caffe.LossParameter.NormalizationMode:\x05VALID\x12\x11\n\tnormalize\x18\x02 \x01(\x08"B\n\x11NormalizationMode\x12\x08\n\x04\x46ULL\x10\x00\x12\t\n\x05VALID\x10\x01\x12\x0e\n\nBATCH_SIZE\x10\x02\x12\x08\n\x04NONE\x10\x03"L\n\x11\x41\x63\x63uracyParameter\x12\x10\n\x05top_k\x18\x01 \x01(\r:\x01\x31\x12\x0f\n\x04\x61xis\x18\x02 \x01(\x05:\x01\x31\x12\x14\n\x0cignore_label\x18\x03 \x01(\x05"\xa2\x01\n\x1c\x41\x64\x61ptiveBiasChannelParameter\x12\x13\n\x08num_iter\x18\x01 \x01(\x05:\x01\x31\x12\x17\n\nbg_portion\x18\x02 \x01(\x02:\x03\x30.2\x12\x17\n\nfg_portion\x18\x03 \x01(\x02:\x03\x30.2\x12\x1d\n\x0fsuppress_others\x18\x04 \x01(\x08:\x04true\x12\x1c\n\rmargin_others\x18\x05 \x01(\x02:\x05\x31\x65-05"M\n\x0f\x41rgMaxParameter\x12\x1a\n\x0bout_max_val\x18\x01 \x01(\x08:\x05\x66\x61lse\x12\x10\n\x05top_k\x18\x02 \x01(\r:\x01\x31\x12\x0c\n\x04\x61xis\x18\x03 \x01(\x05"\xd6\x01\n\x14\x42iasChannelParameter\x12\x12\n\x07\x62g_bias\x18\x01 \x01(\x02:\x01\x31\x12\x12\n\x07\x66g_bias\x18\x02 \x01(\x02:\x01\x32\x12\x14\n\x0cignore_label\x18\x03 \x03(\x05\x12@\n\nlabel_type\x18\x04 \x01(\x0e\x32%.caffe.BiasChannelParameter.LabelType:\x05IMAGE\x12\x1b\n\x10\x62\x61\x63kground_label\x18\x06 \x01(\x05:\x01\x30"!\n\tLabelType\x12\t\n\x05IMAGE\x10\x01\x12\t\n\x05PIXEL\x10\x02"9\n\x0f\x43oncatParameter\x12\x0f\n\x04\x61xis\x18\x02 \x01(\x05:\x01\x31\x12\x15\n\nconcat_dim\x18\x01 \x01(\r:\x01\x31"\x8e\x01\n\x12\x42\x61tchNormParameter\x12\x18\n\x10use_global_stats\x18\x01 \x01(\x08\x12&\n\x17moving_average_fraction\x18\x02 \x01(\x02:\x05\x30.999\x12\x12\n\x03\x65ps\x18\x03 \x01(\x02:\x05\x31\x65-05\x12"\n\x13update_global_stats\x18\x04 \x01(\x08:\x05\x66\x61lse"]\n\rBiasParameter\x12\x0f\n\x04\x61xis\x18\x01 \x01(\x05:\x01\x31\x12\x13\n\x08num_axes\x18\x02 \x01(\x05:\x01\x31\x12&\n\x06\x66iller\x18\x03 \x01(\x0b\x32\x16.caffe.FillerParameter"L\n\x18\x43ontrastiveLossParameter\x12\x11\n\x06margin\x18\x01 \x01(\x02:\x01\x31\x12\x1d\n\x0elegacy_version\x18\x02 \x01(\x08:\x05\x66\x61lse"\xfc\x03\n\x14\x43onvolutionParameter\x12\x12\n\nnum_output\x18\x01 \x01(\r\x12\x17\n\tbias_term\x18\x02 \x01(\x08:\x04true\x12\x0b\n\x03pad\x18\x03 \x03(\r\x12\x13\n\x0bkernel_size\x18\x04 \x03(\r\x12\x0e\n\x06stride\x18\x06 \x03(\r\x12\x10\n\x08\x64ilation\x18\x12 \x03(\r\x12\x10\n\x05pad_h\x18\t \x01(\r:\x01\x30\x12\x10\n\x05pad_w\x18\n \x01(\r:\x01\x30\x12\x10\n\x08kernel_h\x18\x0b \x01(\r\x12\x10\n\x08kernel_w\x18\x0c \x01(\r\x12\x10\n\x08stride_h\x18\r \x01(\r\x12\x10\n\x08stride_w\x18\x0e \x01(\r\x12\x10\n\x05group\x18\x05 \x01(\r:\x01\x31\x12-\n\rweight_filler\x18\x07 \x01(\x0b\x32\x16.caffe.FillerParameter\x12+\n\x0b\x62ias_filler\x18\x08 \x01(\x0b\x32\x16.caffe.FillerParameter\x12;\n\x06\x65ngine\x18\x0f \x01(\x0e\x32".caffe.ConvolutionParameter.Engine:\x07\x44\x45\x46\x41ULT\x12\x0f\n\x04\x61xis\x18\x10 \x01(\x05:\x01\x31\x12\x1e\n\x0f\x66orce_nd_im2col\x18\x11 \x01(\x08:\x05\x66\x61lse"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"\xa4\x02\n\rDataParameter\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x12\n\nbatch_size\x18\x04 \x01(\r\x12\x14\n\trand_skip\x18\x07 \x01(\r:\x01\x30\x12\x31\n\x07\x62\x61\x63kend\x18\x08 \x01(\x0e\x32\x17.caffe.DataParameter.DB:\x07LEVELDB\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x11\n\tmean_file\x18\x03 \x01(\t\x12\x14\n\tcrop_size\x18\x05 \x01(\r:\x01\x30\x12\x15\n\x06mirror\x18\x06 \x01(\x08:\x05\x66\x61lse\x12"\n\x13\x66orce_encoded_color\x18\t \x01(\x08:\x05\x66\x61lse\x12\x13\n\x08prefetch\x18\n \x01(\r:\x01\x34"\x1b\n\x02\x44\x42\x12\x0b\n\x07LEVELDB\x10\x00\x12\x08\n\x04LMDB\x10\x01"\xa3\x01\n\x11\x44\x65nseCRFParameter\x12\x14\n\x08max_iter\x18\x01 \x01(\x05:\x02\x31\x30\x12\x12\n\npos_xy_std\x18\x02 \x03(\x02\x12\r\n\x05pos_w\x18\x03 \x03(\x02\x12\x11\n\tbi_xy_std\x18\x04 \x03(\x02\x12\x12\n\nbi_rgb_std\x18\x05 \x03(\x02\x12\x0c\n\x04\x62i_w\x18\x06 \x03(\x02\x12 \n\x12output_probability\x18\x07 \x01(\x08:\x04true"y\n\x18\x44omainTransformParameter\x12\x13\n\x08num_iter\x18\x01 \x01(\x05:\x01\x33\x12\x19\n\rspatial_sigma\x18\x02 \x01(\x02:\x02\x35\x30\x12\x16\n\x0brange_sigma\x18\x03 \x01(\x02:\x01\x35\x12\x15\n\nmin_weight\x18\x04 \x01(\x02:\x01\x30".\n\x10\x44ropoutParameter\x12\x1a\n\rdropout_ratio\x18\x01 \x01(\x02:\x03\x30.5"\xa0\x01\n\x12\x44ummyDataParameter\x12+\n\x0b\x64\x61ta_filler\x18\x01 \x03(\x0b\x32\x16.caffe.FillerParameter\x12\x1f\n\x05shape\x18\x06 \x03(\x0b\x32\x10.caffe.BlobShape\x12\x0b\n\x03num\x18\x02 \x03(\r\x12\x10\n\x08\x63hannels\x18\x03 \x03(\r\x12\x0e\n\x06height\x18\x04 \x03(\r\x12\r\n\x05width\x18\x05 \x03(\r"\xa5\x01\n\x10\x45ltwiseParameter\x12\x39\n\toperation\x18\x01 \x01(\x0e\x32!.caffe.EltwiseParameter.EltwiseOp:\x03SUM\x12\r\n\x05\x63oeff\x18\x02 \x03(\x02\x12\x1e\n\x10stable_prod_grad\x18\x03 \x01(\x08:\x04true"\'\n\tEltwiseOp\x12\x08\n\x04PROD\x10\x00\x12\x07\n\x03SUM\x10\x01\x12\x07\n\x03MAX\x10\x02" \n\x0c\x45LUParameter\x12\x10\n\x05\x61lpha\x18\x01 \x01(\x02:\x01\x31"\xac\x01\n\x0e\x45mbedParameter\x12\x12\n\nnum_output\x18\x01 \x01(\r\x12\x11\n\tinput_dim\x18\x02 \x01(\r\x12\x17\n\tbias_term\x18\x03 \x01(\x08:\x04true\x12-\n\rweight_filler\x18\x04 \x01(\x0b\x32\x16.caffe.FillerParameter\x12+\n\x0b\x62ias_filler\x18\x05 \x01(\x0b\x32\x16.caffe.FillerParameter"D\n\x0c\x45xpParameter\x12\x10\n\x04\x62\x61se\x18\x01 \x01(\x02:\x02-1\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x10\n\x05shift\x18\x03 \x01(\x02:\x01\x30"9\n\x10\x46lattenParameter\x12\x0f\n\x04\x61xis\x18\x01 \x01(\x05:\x01\x31\x12\x14\n\x08\x65nd_axis\x18\x02 \x01(\x05:\x02-1"O\n\x11HDF5DataParameter\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x12\n\nbatch_size\x18\x02 \x01(\r\x12\x16\n\x07shuffle\x18\x03 \x01(\x08:\x05\x66\x61lse"(\n\x13HDF5OutputParameter\x12\x11\n\tfile_name\x18\x01 \x01(\t"^\n\x12HingeLossParameter\x12\x30\n\x04norm\x18\x01 \x01(\x0e\x32\x1e.caffe.HingeLossParameter.Norm:\x02L1"\x16\n\x04Norm\x12\x06\n\x02L1\x10\x01\x12\x06\n\x02L2\x10\x02"\x9f\x03\n\x12ImageDataParameter\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x15\n\nbatch_size\x18\x04 \x01(\r:\x01\x31\x12\x14\n\trand_skip\x18\x07 \x01(\r:\x01\x30\x12\x16\n\x07shuffle\x18\x08 \x01(\x08:\x05\x66\x61lse\x12\x15\n\nnew_height\x18\t \x01(\r:\x01\x30\x12\x14\n\tnew_width\x18\n \x01(\r:\x01\x30\x12\x16\n\x08is_color\x18\x0b \x01(\x08:\x04true\x12\x19\n\x0cignore_label\x18\x0f \x01(\x05:\x03\x32\x35\x35\x12>\n\nlabel_type\x18\x10 \x01(\x0e\x32#.caffe.ImageDataParameter.LabelType:\x05IMAGE\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x11\n\tmean_file\x18\x03 \x01(\t\x12\x14\n\tcrop_size\x18\x05 \x01(\r:\x01\x30\x12\x15\n\x06mirror\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\x15\n\x0broot_folder\x18\x0c \x01(\t:\x00"+\n\tLabelType\x12\x08\n\x04NONE\x10\x00\x12\t\n\x05IMAGE\x10\x01\x12\t\n\x05PIXEL\x10\x02"\'\n\x15InfogainLossParameter\x12\x0e\n\x06source\x18\x01 \x01(\t"\xcb\x01\n\x15InnerProductParameter\x12\x12\n\nnum_output\x18\x01 \x01(\r\x12\x17\n\tbias_term\x18\x02 \x01(\x08:\x04true\x12-\n\rweight_filler\x18\x03 \x01(\x0b\x32\x16.caffe.FillerParameter\x12+\n\x0b\x62ias_filler\x18\x04 \x01(\x0b\x32\x16.caffe.FillerParameter\x12\x0f\n\x04\x61xis\x18\x05 \x01(\x05:\x01\x31\x12\x18\n\ttranspose\x18\x06 \x01(\x08:\x05\x66\x61lse"\x90\x01\n\x0fInterpParameter\x12\x11\n\x06height\x18\x01 \x01(\x05:\x01\x30\x12\x10\n\x05width\x18\x02 \x01(\x05:\x01\x30\x12\x16\n\x0bzoom_factor\x18\x03 \x01(\x05:\x01\x31\x12\x18\n\rshrink_factor\x18\x04 \x01(\x05:\x01\x31\x12\x12\n\x07pad_beg\x18\x05 \x01(\x05:\x01\x30\x12\x12\n\x07pad_end\x18\x06 \x01(\x05:\x01\x30"D\n\x0cLogParameter\x12\x10\n\x04\x62\x61se\x18\x01 \x01(\x02:\x02-1\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x10\n\x05shift\x18\x03 \x01(\x02:\x01\x30"\xb8\x02\n\x0cLRNParameter\x12\x15\n\nlocal_size\x18\x01 \x01(\r:\x01\x35\x12\x10\n\x05\x61lpha\x18\x02 \x01(\x02:\x01\x31\x12\x12\n\x04\x62\x65ta\x18\x03 \x01(\x02:\x04\x30.75\x12\x44\n\x0bnorm_region\x18\x04 \x01(\x0e\x32\x1e.caffe.LRNParameter.NormRegion:\x0f\x41\x43ROSS_CHANNELS\x12\x0c\n\x01k\x18\x05 \x01(\x02:\x01\x31\x12\x33\n\x06\x65ngine\x18\x06 \x01(\x0e\x32\x1a.caffe.LRNParameter.Engine:\x07\x44\x45\x46\x41ULT"5\n\nNormRegion\x12\x13\n\x0f\x41\x43ROSS_CHANNELS\x10\x00\x12\x12\n\x0eWITHIN_CHANNEL\x10\x01"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"]\n\x10MatReadParameter\x12\x0e\n\x06prefix\x18\x01 \x02(\t\x12\x10\n\x06source\x18\x02 \x01(\t:\x00\x12\x10\n\x05strip\x18\x03 \x01(\x05:\x01\x30\x12\x15\n\nbatch_size\x18\x04 \x01(\x05:\x01\x31"Z\n\x11MatWriteParameter\x12\x0e\n\x06prefix\x18\x01 \x02(\t\x12\x10\n\x06source\x18\x02 \x01(\t:\x00\x12\x10\n\x05strip\x18\x03 \x01(\x05:\x01\x30\x12\x11\n\x06period\x18\x04 \x01(\x05:\x01\x31"Z\n\x13MemoryDataParameter\x12\x12\n\nbatch_size\x18\x01 \x01(\r\x12\x10\n\x08\x63hannels\x18\x02 \x01(\r\x12\x0e\n\x06height\x18\x03 \x01(\r\x12\r\n\x05width\x18\x04 \x01(\r"d\n\x0cMVNParameter\x12 \n\x12normalize_variance\x18\x01 \x01(\x08:\x04true\x12\x1e\n\x0f\x61\x63ross_channels\x18\x02 \x01(\x08:\x05\x66\x61lse\x12\x12\n\x03\x65ps\x18\x03 \x01(\x02:\x05\x31\x65-09"\xa2\x03\n\x10PoolingParameter\x12\x35\n\x04pool\x18\x01 \x01(\x0e\x32".caffe.PoolingParameter.PoolMethod:\x03MAX\x12\x0e\n\x03pad\x18\x04 \x01(\r:\x01\x30\x12\x10\n\x05pad_h\x18\t \x01(\r:\x01\x30\x12\x10\n\x05pad_w\x18\n \x01(\r:\x01\x30\x12\x13\n\x0bkernel_size\x18\x02 \x01(\r\x12\x10\n\x08kernel_h\x18\x05 \x01(\r\x12\x10\n\x08kernel_w\x18\x06 \x01(\r\x12\x11\n\x06stride\x18\x03 \x01(\r:\x01\x31\x12\x10\n\x08stride_h\x18\x07 \x01(\r\x12\x10\n\x08stride_w\x18\x08 \x01(\r\x12\x37\n\x06\x65ngine\x18\x0b \x01(\x0e\x32\x1e.caffe.PoolingParameter.Engine:\x07\x44\x45\x46\x41ULT\x12\x1d\n\x0eglobal_pooling\x18\x0c \x01(\x08:\x05\x66\x61lse".\n\nPoolMethod\x12\x07\n\x03MAX\x10\x00\x12\x07\n\x03\x41VE\x10\x01\x12\x0e\n\nSTOCHASTIC\x10\x02"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"F\n\x0ePowerParameter\x12\x10\n\x05power\x18\x01 \x01(\x02:\x01\x31\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x10\n\x05shift\x18\x03 \x01(\x02:\x01\x30"g\n\x0fPythonParameter\x12\x0e\n\x06module\x18\x01 \x01(\t\x12\r\n\x05layer\x18\x02 \x01(\t\x12\x13\n\tparam_str\x18\x03 \x01(\t:\x00\x12 \n\x11share_in_parallel\x18\x04 \x01(\x08:\x05\x66\x61lse"\xad\x01\n\x12ReductionParameter\x12=\n\toperation\x18\x01 \x01(\x0e\x32%.caffe.ReductionParameter.ReductionOp:\x03SUM\x12\x0f\n\x04\x61xis\x18\x02 \x01(\x05:\x01\x30\x12\x10\n\x05\x63oeff\x18\x03 \x01(\x02:\x01\x31"5\n\x0bReductionOp\x12\x07\n\x03SUM\x10\x01\x12\x08\n\x04\x41SUM\x10\x02\x12\t\n\x05SUMSQ\x10\x03\x12\x08\n\x04MEAN\x10\x04"\x8d\x01\n\rReLUParameter\x12\x19\n\x0enegative_slope\x18\x01 \x01(\x02:\x01\x30\x12\x34\n\x06\x65ngine\x18\x02 \x01(\x0e\x32\x1b.caffe.ReLUParameter.Engine:\x07\x44\x45\x46\x41ULT"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"Z\n\x10ReshapeParameter\x12\x1f\n\x05shape\x18\x01 \x01(\x0b\x32\x10.caffe.BlobShape\x12\x0f\n\x04\x61xis\x18\x02 \x01(\x05:\x01\x30\x12\x14\n\x08num_axes\x18\x03 \x01(\x05:\x02-1"\xa5\x01\n\x0eScaleParameter\x12\x0f\n\x04\x61xis\x18\x01 \x01(\x05:\x01\x31\x12\x13\n\x08num_axes\x18\x02 \x01(\x05:\x01\x31\x12&\n\x06\x66iller\x18\x03 \x01(\x0b\x32\x16.caffe.FillerParameter\x12\x18\n\tbias_term\x18\x04 \x01(\x08:\x05\x66\x61lse\x12+\n\x0b\x62ias_filler\x18\x05 \x01(\x0b\x32\x16.caffe.FillerParameter"\xd2\x01\n\x14SegAccuracyParameter\x12I\n\x06metric\x18\x01 \x01(\x0e\x32*.caffe.SegAccuracyParameter.AccuracyMetric:\rPixelAccuracy\x12\x14\n\x0cignore_label\x18\x02 \x03(\x05\x12\x13\n\x05reset\x18\x03 \x01(\x08:\x04true"D\n\x0e\x41\x63\x63uracyMetric\x12\x11\n\rPixelAccuracy\x10\x00\x12\x11\n\rClassAccuracy\x10\x01\x12\x0c\n\x08PixelIOU\x10\x02"x\n\x10SigmoidParameter\x12\x37\n\x06\x65ngine\x18\x01 \x01(\x0e\x32\x1e.caffe.SigmoidParameter.Engine:\x07\x44\x45\x46\x41ULT"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"L\n\x0eSliceParameter\x12\x0f\n\x04\x61xis\x18\x03 \x01(\x05:\x01\x31\x12\x13\n\x0bslice_point\x18\x02 \x03(\r\x12\x14\n\tslice_dim\x18\x01 \x01(\r:\x01\x31"\x89\x01\n\x10SoftmaxParameter\x12\x37\n\x06\x65ngine\x18\x01 \x01(\x0e\x32\x1e.caffe.SoftmaxParameter.Engine:\x07\x44\x45\x46\x41ULT\x12\x0f\n\x04\x61xis\x18\x02 \x01(\x05:\x01\x31"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"r\n\rTanHParameter\x12\x34\n\x06\x65ngine\x18\x01 \x01(\x0e\x32\x1b.caffe.TanHParameter.Engine:\x07\x44\x45\x46\x41ULT"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"/\n\rTileParameter\x12\x0f\n\x04\x61xis\x18\x01 \x01(\x05:\x01\x31\x12\r\n\x05tiles\x18\x02 \x01(\x05"*\n\x12ThresholdParameter\x12\x14\n\tthreshold\x18\x01 \x01(\x02:\x01\x30"U\n\x14UniqueLabelParameter\x12\x12\n\nmax_labels\x18\x01 \x02(\x05\x12\x14\n\x0cignore_label\x18\x02 \x03(\x05\x12\x13\n\x0b\x66orce_label\x18\x03 \x03(\x02"\xc1\x02\n\x13WindowDataParameter\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x10\n\x05scale\x18\x02 \x01(\x02:\x01\x31\x12\x11\n\tmean_file\x18\x03 \x01(\t\x12\x12\n\nbatch_size\x18\x04 \x01(\r\x12\x14\n\tcrop_size\x18\x05 \x01(\r:\x01\x30\x12\x15\n\x06mirror\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\x19\n\x0c\x66g_threshold\x18\x07 \x01(\x02:\x03\x30.5\x12\x19\n\x0c\x62g_threshold\x18\x08 \x01(\x02:\x03\x30.5\x12\x19\n\x0b\x66g_fraction\x18\t \x01(\x02:\x04\x30.25\x12\x16\n\x0b\x63ontext_pad\x18\n \x01(\r:\x01\x30\x12\x17\n\tcrop_mode\x18\x0b \x01(\t:\x04warp\x12\x1b\n\x0c\x63\x61\x63he_images\x18\x0c \x01(\x08:\x05\x66\x61lse\x12\x15\n\x0broot_folder\x18\r \x01(\t:\x00"\xeb\x01\n\x0cSPPParameter\x12\x16\n\x0epyramid_height\x18\x01 \x01(\r\x12\x31\n\x04pool\x18\x02 \x01(\x0e\x32\x1e.caffe.SPPParameter.PoolMethod:\x03MAX\x12\x33\n\x06\x65ngine\x18\x06 \x01(\x0e\x32\x1a.caffe.SPPParameter.Engine:\x07\x44\x45\x46\x41ULT".\n\nPoolMethod\x12\x07\n\x03MAX\x10\x00\x12\x07\n\x03\x41VE\x10\x01\x12\x0e\n\nSTOCHASTIC\x10\x02"+\n\x06\x45ngine\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05\x43\x41\x46\x46\x45\x10\x01\x12\t\n\x05\x43UDNN\x10\x02"\xe0\x13\n\x10V1LayerParameter\x12\x0e\n\x06\x62ottom\x18\x02 \x03(\t\x12\x0b\n\x03top\x18\x03 \x03(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12$\n\x07include\x18  \x03(\x0b\x32\x13.caffe.NetStateRule\x12$\n\x07\x65xclude\x18! \x03(\x0b\x32\x13.caffe.NetStateRule\x12/\n\x04type\x18\x05 \x01(\x0e\x32!.caffe.V1LayerParameter.LayerType\x12\x1f\n\x05\x62lobs\x18\x06 \x03(\x0b\x32\x10.caffe.BlobProto\x12\x0e\n\x05param\x18\xe9\x07 \x03(\t\x12>\n\x0f\x62lob_share_mode\x18\xea\x07 \x03(\x0e\x32$.caffe.V1LayerParameter.DimCheckMode\x12\x10\n\x08\x62lobs_lr\x18\x07 \x03(\x02\x12\x14\n\x0cweight_decay\x18\x08 \x03(\x02\x12\x13\n\x0bloss_weight\x18# \x03(\x02\x12\x30\n\x0e\x61\x63\x63uracy_param\x18\x1b \x01(\x0b\x32\x18.caffe.AccuracyParameter\x12,\n\x0c\x61rgmax_param\x18\x17 \x01(\x0b\x32\x16.caffe.ArgMaxParameter\x12,\n\x0c\x63oncat_param\x18\t \x01(\x0b\x32\x16.caffe.ConcatParameter\x12?\n\x16\x63ontrastive_loss_param\x18( \x01(\x0b\x32\x1f.caffe.ContrastiveLossParameter\x12\x36\n\x11\x63onvolution_param\x18\n \x01(\x0b\x32\x1b.caffe.ConvolutionParameter\x12(\n\ndata_param\x18\x0b \x01(\x0b\x32\x14.caffe.DataParameter\x12.\n\rdropout_param\x18\x0c \x01(\x0b\x32\x17.caffe.DropoutParameter\x12\x33\n\x10\x64ummy_data_param\x18\x1a \x01(\x0b\x32\x19.caffe.DummyDataParameter\x12.\n\reltwise_param\x18\x18 \x01(\x0b\x32\x17.caffe.EltwiseParameter\x12&\n\texp_param\x18) \x01(\x0b\x32\x13.caffe.ExpParameter\x12\x31\n\x0fhdf5_data_param\x18\r \x01(\x0b\x32\x18.caffe.HDF5DataParameter\x12\x35\n\x11hdf5_output_param\x18\x0e \x01(\x0b\x32\x1a.caffe.HDF5OutputParameter\x12\x33\n\x10hinge_loss_param\x18\x1d \x01(\x0b\x32\x19.caffe.HingeLossParameter\x12\x33\n\x10image_data_param\x18\x0f \x01(\x0b\x32\x19.caffe.ImageDataParameter\x12\x39\n\x13infogain_loss_param\x18\x10 \x01(\x0b\x32\x1c.caffe.InfogainLossParameter\x12\x39\n\x13inner_product_param\x18\x11 \x01(\x0b\x32\x1c.caffe.InnerProductParameter\x12&\n\tlrn_param\x18\x12 \x01(\x0b\x32\x13.caffe.LRNParameter\x12\x35\n\x11memory_data_param\x18\x16 \x01(\x0b\x32\x1a.caffe.MemoryDataParameter\x12&\n\tmvn_param\x18" \x01(\x0b\x32\x13.caffe.MVNParameter\x12.\n\rpooling_param\x18\x13 \x01(\x0b\x32\x17.caffe.PoolingParameter\x12*\n\x0bpower_param\x18\x15 \x01(\x0b\x32\x15.caffe.PowerParameter\x12(\n\nrelu_param\x18\x1e \x01(\x0b\x32\x14.caffe.ReLUParameter\x12.\n\rsigmoid_param\x18& \x01(\x0b\x32\x17.caffe.SigmoidParameter\x12.\n\rsoftmax_param\x18\' \x01(\x0b\x32\x17.caffe.SoftmaxParameter\x12*\n\x0bslice_param\x18\x1f \x01(\x0b\x32\x15.caffe.SliceParameter\x12(\n\ntanh_param\x18% \x01(\x0b\x32\x14.caffe.TanHParameter\x12\x32\n\x0fthreshold_param\x18\x19 \x01(\x0b\x32\x19.caffe.ThresholdParameter\x12\x35\n\x11window_data_param\x18\x14 \x01(\x0b\x32\x1a.caffe.WindowDataParameter\x12\x37\n\x0ftransform_param\x18$ \x01(\x0b\x32\x1e.caffe.TransformationParameter\x12(\n\nloss_param\x18* \x01(\x0b\x32\x14.caffe.LossParameter\x12&\n\x05layer\x18\x01 \x01(\x0b\x32\x17.caffe.V0LayerParameter"\xd8\x04\n\tLayerType\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06\x41\x42SVAL\x10#\x12\x0c\n\x08\x41\x43\x43URACY\x10\x01\x12\n\n\x06\x41RGMAX\x10\x1e\x12\x08\n\x04\x42NLL\x10\x02\x12\n\n\x06\x43ONCAT\x10\x03\x12\x14\n\x10\x43ONTRASTIVE_LOSS\x10%\x12\x0f\n\x0b\x43ONVOLUTION\x10\x04\x12\x08\n\x04\x44\x41TA\x10\x05\x12\x11\n\rDECONVOLUTION\x10\'\x12\x0b\n\x07\x44ROPOUT\x10\x06\x12\x0e\n\nDUMMY_DATA\x10 \x12\x12\n\x0e\x45UCLIDEAN_LOSS\x10\x07\x12\x0b\n\x07\x45LTWISE\x10\x19\x12\x07\n\x03\x45XP\x10&\x12\x0b\n\x07\x46LATTEN\x10\x08\x12\r\n\tHDF5_DATA\x10\t\x12\x0f\n\x0bHDF5_OUTPUT\x10\n\x12\x0e\n\nHINGE_LOSS\x10\x1c\x12\n\n\x06IM2COL\x10\x0b\x12\x0e\n\nIMAGE_DATA\x10\x0c\x12\x11\n\rINFOGAIN_LOSS\x10\r\x12\x11\n\rINNER_PRODUCT\x10\x0e\x12\x07\n\x03LRN\x10\x0f\x12\x0f\n\x0bMEMORY_DATA\x10\x1d\x12\x1d\n\x19MULTINOMIAL_LOGISTIC_LOSS\x10\x10\x12\x07\n\x03MVN\x10"\x12\x0b\n\x07POOLING\x10\x11\x12\t\n\x05POWER\x10\x1a\x12\x08\n\x04RELU\x10\x12\x12\x0b\n\x07SIGMOID\x10\x13\x12\x1e\n\x1aSIGMOID_CROSS_ENTROPY_LOSS\x10\x1b\x12\x0b\n\x07SILENCE\x10$\x12\x0b\n\x07SOFTMAX\x10\x14\x12\x10\n\x0cSOFTMAX_LOSS\x10\x15\x12\t\n\x05SPLIT\x10\x16\x12\t\n\x05SLICE\x10!\x12\x08\n\x04TANH\x10\x17\x12\x0f\n\x0bWINDOW_DATA\x10\x18\x12\r\n\tTHRESHOLD\x10\x1f"*\n\x0c\x44imCheckMode\x12\n\n\x06STRICT\x10\x00\x12\x0e\n\nPERMISSIVE\x10\x01"\xfd\x07\n\x10V0LayerParameter\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x12\n\nnum_output\x18\x03 \x01(\r\x12\x16\n\x08\x62iasterm\x18\x04 \x01(\x08:\x04true\x12-\n\rweight_filler\x18\x05 \x01(\x0b\x32\x16.caffe.FillerParameter\x12+\n\x0b\x62ias_filler\x18\x06 \x01(\x0b\x32\x16.caffe.FillerParameter\x12\x0e\n\x03pad\x18\x07 \x01(\r:\x01\x30\x12\x12\n\nkernelsize\x18\x08 \x01(\r\x12\x10\n\x05group\x18\t \x01(\r:\x01\x31\x12\x11\n\x06stride\x18\n \x01(\r:\x01\x31\x12\x35\n\x04pool\x18\x0b \x01(\x0e\x32".caffe.V0LayerParameter.PoolMethod:\x03MAX\x12\x1a\n\rdropout_ratio\x18\x0c \x01(\x02:\x03\x30.5\x12\x15\n\nlocal_size\x18\r \x01(\r:\x01\x35\x12\x10\n\x05\x61lpha\x18\x0e \x01(\x02:\x01\x31\x12\x12\n\x04\x62\x65ta\x18\x0f \x01(\x02:\x04\x30.75\x12\x0c\n\x01k\x18\x16 \x01(\x02:\x01\x31\x12\x0e\n\x06source\x18\x10 \x01(\t\x12\x10\n\x05scale\x18\x11 \x01(\x02:\x01\x31\x12\x10\n\x08meanfile\x18\x12 \x01(\t\x12\x11\n\tbatchsize\x18\x13 \x01(\r\x12\x13\n\x08\x63ropsize\x18\x14 \x01(\r:\x01\x30\x12\x15\n\x06mirror\x18\x15 \x01(\x08:\x05\x66\x61lse\x12\x1f\n\x05\x62lobs\x18\x32 \x03(\x0b\x32\x10.caffe.BlobProto\x12\x10\n\x08\x62lobs_lr\x18\x33 \x03(\x02\x12\x14\n\x0cweight_decay\x18\x34 \x03(\x02\x12\x14\n\trand_skip\x18\x35 \x01(\r:\x01\x30\x12\x1d\n\x10\x64\x65t_fg_threshold\x18\x36 \x01(\x02:\x03\x30.5\x12\x1d\n\x10\x64\x65t_bg_threshold\x18\x37 \x01(\x02:\x03\x30.5\x12\x1d\n\x0f\x64\x65t_fg_fraction\x18\x38 \x01(\x02:\x04\x30.25\x12\x1a\n\x0f\x64\x65t_context_pad\x18: \x01(\r:\x01\x30\x12\x1b\n\rdet_crop_mode\x18; \x01(\t:\x04warp\x12\x12\n\x07new_num\x18< \x01(\x05:\x01\x30\x12\x17\n\x0cnew_channels\x18= \x01(\x05:\x01\x30\x12\x15\n\nnew_height\x18> \x01(\x05:\x01\x30\x12\x14\n\tnew_width\x18? \x01(\x05:\x01\x30\x12\x1d\n\x0eshuffle_images\x18@ \x01(\x08:\x05\x66\x61lse\x12\x15\n\nconcat_dim\x18\x41 \x01(\r:\x01\x31\x12\x36\n\x11hdf5_output_param\x18\xe9\x07 \x01(\x0b\x32\x1a.caffe.HDF5OutputParameter".\n\nPoolMethod\x12\x07\n\x03MAX\x10\x00\x12\x07\n\x03\x41VE\x10\x01\x12\x0e\n\nSTOCHASTIC\x10\x02"W\n\x0ePReLUParameter\x12&\n\x06\x66iller\x18\x01 \x01(\x0b\x32\x16.caffe.FillerParameter\x12\x1d\n\x0e\x63hannel_shared\x18\x02 \x01(\x08:\x05\x66\x61lse*\x1c\n\x05Phase\x12\t\n\x05TRAIN\x10\x00\x12\x08\n\x04TEST\x10\x01'
     ),
 )
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 _PHASE = _descriptor.EnumDescriptor(
     name="Phase",
@@ -807,7 +807,6 @@ _BLOBSHAPE = _descriptor.Descriptor(
             options=_descriptor._ParseOptions(
                 descriptor_pb2.FieldOptions(), _b("\020\001")
             ),
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -815,7 +814,6 @@ _BLOBSHAPE = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=22,
@@ -846,7 +844,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="data",
@@ -866,7 +863,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             options=_descriptor._ParseOptions(
                 descriptor_pb2.FieldOptions(), _b("\020\001")
             ),
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="diff",
@@ -886,7 +882,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             options=_descriptor._ParseOptions(
                 descriptor_pb2.FieldOptions(), _b("\020\001")
             ),
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="double_data",
@@ -906,7 +901,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             options=_descriptor._ParseOptions(
                 descriptor_pb2.FieldOptions(), _b("\020\001")
             ),
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="double_diff",
@@ -926,7 +920,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             options=_descriptor._ParseOptions(
                 descriptor_pb2.FieldOptions(), _b("\020\001")
             ),
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num",
@@ -944,7 +937,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="channels",
@@ -962,7 +954,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="height",
@@ -980,7 +971,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="width",
@@ -998,7 +988,6 @@ _BLOBPROTO = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -1006,7 +995,6 @@ _BLOBPROTO = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=53,
@@ -1037,7 +1025,6 @@ _BLOBPROTOVECTOR = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -1045,7 +1032,6 @@ _BLOBPROTOVECTOR = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=259,
@@ -1076,7 +1062,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="height",
@@ -1094,7 +1079,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="width",
@@ -1112,7 +1096,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="data",
@@ -1130,7 +1113,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="label",
@@ -1148,7 +1130,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="float_data",
@@ -1166,7 +1147,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="encoded",
@@ -1184,7 +1164,6 @@ _DATUM = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -1192,7 +1171,6 @@ _DATUM = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=312,
@@ -1223,7 +1201,6 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="value",
@@ -1234,14 +1211,13 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="min",
@@ -1252,14 +1228,13 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="max",
@@ -1270,14 +1245,13 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean",
@@ -1288,14 +1262,13 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="std",
@@ -1306,14 +1279,13 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="sparse",
@@ -1331,7 +1303,6 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="variance_norm",
@@ -1349,7 +1320,6 @@ _FILLERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -1357,7 +1327,6 @@ _FILLERPARAMETER = _descriptor.Descriptor(
     enum_types=[_FILLERPARAMETER_VARIANCENORM],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=444,
@@ -1388,7 +1357,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="input",
@@ -1406,7 +1374,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="input_shape",
@@ -1424,7 +1391,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="input_dim",
@@ -1442,7 +1408,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_backward",
@@ -1460,7 +1425,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="state",
@@ -1478,7 +1442,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="debug_info",
@@ -1496,7 +1459,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="layer",
@@ -1514,7 +1476,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="layers",
@@ -1532,7 +1493,6 @@ _NETPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -1540,7 +1500,6 @@ _NETPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=713,
@@ -1571,7 +1530,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="net_param",
@@ -1589,7 +1547,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="train_net",
@@ -1607,7 +1564,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_net",
@@ -1625,7 +1581,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="train_net_param",
@@ -1643,7 +1598,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_net_param",
@@ -1661,7 +1615,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="train_state",
@@ -1679,7 +1632,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_state",
@@ -1697,7 +1649,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_iter",
@@ -1715,7 +1666,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_interval",
@@ -1733,7 +1683,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_compute_loss",
@@ -1751,7 +1700,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="test_initialization",
@@ -1769,7 +1717,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="base_lr",
@@ -1780,14 +1727,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="display",
@@ -1805,7 +1751,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="average_loss",
@@ -1823,7 +1768,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="max_iter",
@@ -1841,7 +1785,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="iter_size",
@@ -1859,7 +1802,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="lr_policy",
@@ -1877,7 +1819,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="gamma",
@@ -1888,14 +1829,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="power",
@@ -1906,14 +1846,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="momentum",
@@ -1924,14 +1863,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_decay",
@@ -1942,14 +1880,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="regularization_type",
@@ -1967,7 +1904,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stepsize",
@@ -1985,7 +1921,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stepvalue",
@@ -2003,7 +1938,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="clip_gradients",
@@ -2014,14 +1948,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(-1),
+            default_value=-1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="snapshot",
@@ -2039,7 +1972,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="snapshot_prefix",
@@ -2057,7 +1989,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="snapshot_diff",
@@ -2075,7 +2006,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="snapshot_format",
@@ -2093,7 +2023,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="solver_mode",
@@ -2111,7 +2040,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="device_id",
@@ -2129,7 +2057,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="random_seed",
@@ -2147,7 +2074,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="type",
@@ -2165,7 +2091,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="delta",
@@ -2176,14 +2101,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1e-08),
+            default_value=1e-08,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="momentum2",
@@ -2194,14 +2118,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.999),
+            default_value=0.999,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="rms_decay",
@@ -2212,14 +2135,13 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=False,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="debug_info",
@@ -2237,7 +2159,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="snapshot_after_train",
@@ -2255,7 +2176,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="solver_type",
@@ -2273,7 +2193,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -2285,7 +2204,6 @@ _SOLVERPARAMETER = _descriptor.Descriptor(
     ],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=986,
@@ -2316,7 +2234,6 @@ _SOLVERSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="learned_net",
@@ -2334,7 +2251,6 @@ _SOLVERSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="history",
@@ -2352,7 +2268,6 @@ _SOLVERSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="current_step",
@@ -2370,7 +2285,6 @@ _SOLVERSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -2378,7 +2292,6 @@ _SOLVERSTATE = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=2296,
@@ -2409,7 +2322,6 @@ _NETSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="level",
@@ -2427,7 +2339,6 @@ _NETSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stage",
@@ -2445,7 +2356,6 @@ _NETSTATE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -2453,7 +2363,6 @@ _NETSTATE = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=2406,
@@ -2484,7 +2393,6 @@ _NETSTATERULE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="min_level",
@@ -2502,7 +2410,6 @@ _NETSTATERULE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="max_level",
@@ -2520,7 +2427,6 @@ _NETSTATERULE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stage",
@@ -2538,7 +2444,6 @@ _NETSTATERULE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="not_stage",
@@ -2556,7 +2461,6 @@ _NETSTATERULE = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -2564,7 +2468,6 @@ _NETSTATERULE = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=2486,
@@ -2595,7 +2498,6 @@ _PARAMSPEC = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="share_mode",
@@ -2613,7 +2515,6 @@ _PARAMSPEC = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="lr_mult",
@@ -2624,14 +2525,13 @@ _PARAMSPEC = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="decay_mult",
@@ -2642,14 +2542,13 @@ _PARAMSPEC = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -2657,7 +2556,6 @@ _PARAMSPEC = _descriptor.Descriptor(
     enum_types=[_PARAMSPEC_DIMCHECKMODE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=2604,
@@ -2688,7 +2586,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="type",
@@ -2706,7 +2603,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bottom",
@@ -2724,7 +2620,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="top",
@@ -2742,7 +2637,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="phase",
@@ -2760,7 +2654,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="loss_weight",
@@ -2778,7 +2671,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="param",
@@ -2796,7 +2688,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blobs",
@@ -2814,7 +2705,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="propagate_down",
@@ -2832,7 +2722,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="include",
@@ -2850,7 +2739,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="exclude",
@@ -2868,7 +2756,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="transform_param",
@@ -2886,7 +2773,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="loss_param",
@@ -2904,7 +2790,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="accuracy_param",
@@ -2922,7 +2807,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="adaptive_bias_channel_param",
@@ -2940,7 +2824,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="argmax_param",
@@ -2958,7 +2841,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_norm_param",
@@ -2976,7 +2858,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_param",
@@ -2994,7 +2875,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_channel_param",
@@ -3012,7 +2892,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="concat_param",
@@ -3030,7 +2909,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="contrastive_loss_param",
@@ -3048,7 +2926,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="convolution_param",
@@ -3066,7 +2943,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="data_param",
@@ -3084,7 +2960,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dense_crf_param",
@@ -3102,7 +2977,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="domain_transform_param",
@@ -3120,7 +2994,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dropout_param",
@@ -3138,7 +3011,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dummy_data_param",
@@ -3156,7 +3028,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="eltwise_param",
@@ -3174,7 +3045,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="elu_param",
@@ -3192,7 +3062,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="embed_param",
@@ -3210,7 +3079,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="exp_param",
@@ -3228,7 +3096,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="flatten_param",
@@ -3246,7 +3113,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hdf5_data_param",
@@ -3264,7 +3130,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hdf5_output_param",
@@ -3282,7 +3147,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hinge_loss_param",
@@ -3300,7 +3164,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="image_data_param",
@@ -3318,7 +3181,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="infogain_loss_param",
@@ -3336,7 +3198,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="inner_product_param",
@@ -3354,7 +3215,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="interp_param",
@@ -3372,7 +3232,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="log_param",
@@ -3390,7 +3249,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="lrn_param",
@@ -3408,7 +3266,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mat_read_param",
@@ -3426,7 +3283,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mat_write_param",
@@ -3444,7 +3300,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="memory_data_param",
@@ -3462,7 +3317,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mvn_param",
@@ -3480,7 +3334,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pooling_param",
@@ -3498,7 +3351,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="power_param",
@@ -3516,7 +3368,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="prelu_param",
@@ -3534,7 +3385,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="python_param",
@@ -3552,7 +3402,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="reduction_param",
@@ -3570,7 +3419,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="relu_param",
@@ -3588,7 +3436,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="reshape_param",
@@ -3606,7 +3453,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale_param",
@@ -3624,7 +3470,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="seg_accuracy_param",
@@ -3642,7 +3487,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="sigmoid_param",
@@ -3660,7 +3504,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="softmax_param",
@@ -3678,7 +3521,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="spp_param",
@@ -3696,7 +3538,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="slice_param",
@@ -3714,7 +3555,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="tanh_param",
@@ -3732,7 +3572,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="threshold_param",
@@ -3750,7 +3589,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="tile_param",
@@ -3768,7 +3606,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="unique_label_param",
@@ -3786,7 +3623,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="window_data_param",
@@ -3804,7 +3640,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -3812,7 +3647,6 @@ _LAYERPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=2770,
@@ -3836,14 +3670,13 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mirror",
@@ -3861,7 +3694,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_size",
@@ -3879,7 +3711,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean_file",
@@ -3897,7 +3728,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean_value",
@@ -3915,7 +3745,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_color",
@@ -3933,7 +3762,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_gray",
@@ -3951,7 +3779,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale_factors",
@@ -3969,7 +3796,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_width",
@@ -3987,7 +3813,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_height",
@@ -4005,7 +3830,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4013,7 +3837,6 @@ _TRANSFORMATIONPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=5657,
@@ -4044,7 +3867,6 @@ _LOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="normalization",
@@ -4062,7 +3884,6 @@ _LOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="normalize",
@@ -4080,7 +3901,6 @@ _LOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4088,7 +3908,6 @@ _LOSSPARAMETER = _descriptor.Descriptor(
     enum_types=[_LOSSPARAMETER_NORMALIZATIONMODE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=5912,
@@ -4119,7 +3938,6 @@ _ACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -4137,7 +3955,6 @@ _ACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="ignore_label",
@@ -4155,7 +3972,6 @@ _ACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4163,7 +3979,6 @@ _ACCURACYPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6108,
@@ -4194,7 +4009,6 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bg_portion",
@@ -4205,14 +4019,13 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.2),
+            default_value=0.2,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="fg_portion",
@@ -4223,14 +4036,13 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.2),
+            default_value=0.2,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="suppress_others",
@@ -4248,7 +4060,6 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="margin_others",
@@ -4259,14 +4070,13 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1e-05),
+            default_value=1e-05,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4274,7 +4084,6 @@ _ADAPTIVEBIASCHANNELPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6187,
@@ -4305,7 +4114,6 @@ _ARGMAXPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="top_k",
@@ -4323,7 +4131,6 @@ _ARGMAXPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -4341,7 +4148,6 @@ _ARGMAXPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4349,7 +4155,6 @@ _ARGMAXPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6351,
@@ -4373,14 +4178,13 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="fg_bias",
@@ -4391,14 +4195,13 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(2),
+            default_value=2,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="ignore_label",
@@ -4416,7 +4219,6 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="label_type",
@@ -4434,7 +4236,6 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="background_label",
@@ -4452,7 +4253,6 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4460,7 +4260,6 @@ _BIASCHANNELPARAMETER = _descriptor.Descriptor(
     enum_types=[_BIASCHANNELPARAMETER_LABELTYPE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6431,
@@ -4491,7 +4290,6 @@ _CONCATPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="concat_dim",
@@ -4509,7 +4307,6 @@ _CONCATPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4517,7 +4314,6 @@ _CONCATPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6647,
@@ -4548,7 +4344,6 @@ _BATCHNORMPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="moving_average_fraction",
@@ -4559,14 +4354,13 @@ _BATCHNORMPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.999),
+            default_value=0.999,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="eps",
@@ -4577,14 +4371,13 @@ _BATCHNORMPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1e-05),
+            default_value=1e-05,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="update_global_stats",
@@ -4602,7 +4395,6 @@ _BATCHNORMPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4610,7 +4402,6 @@ _BATCHNORMPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6707,
@@ -4641,7 +4432,6 @@ _BIASPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num_axes",
@@ -4659,7 +4449,6 @@ _BIASPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="filler",
@@ -4677,7 +4466,6 @@ _BIASPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4685,7 +4473,6 @@ _BIASPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6851,
@@ -4709,14 +4496,13 @@ _CONTRASTIVELOSSPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="legacy_version",
@@ -4734,7 +4520,6 @@ _CONTRASTIVELOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -4742,7 +4527,6 @@ _CONTRASTIVELOSSPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=6946,
@@ -4773,7 +4557,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_term",
@@ -4791,7 +4574,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad",
@@ -4809,7 +4591,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_size",
@@ -4827,7 +4608,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride",
@@ -4845,7 +4625,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dilation",
@@ -4863,7 +4642,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_h",
@@ -4881,7 +4659,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_w",
@@ -4899,7 +4676,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_h",
@@ -4917,7 +4693,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_w",
@@ -4935,7 +4710,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride_h",
@@ -4953,7 +4727,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride_w",
@@ -4971,7 +4744,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="group",
@@ -4989,7 +4761,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_filler",
@@ -5007,7 +4778,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_filler",
@@ -5025,7 +4795,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="engine",
@@ -5043,7 +4812,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -5061,7 +4829,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_nd_im2col",
@@ -5079,7 +4846,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5087,7 +4853,6 @@ _CONVOLUTIONPARAMETER = _descriptor.Descriptor(
     enum_types=[_CONVOLUTIONPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=7025,
@@ -5118,7 +4883,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_size",
@@ -5136,7 +4900,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="rand_skip",
@@ -5154,7 +4917,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="backend",
@@ -5172,7 +4934,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -5183,14 +4944,13 @@ _DATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean_file",
@@ -5208,7 +4968,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_size",
@@ -5226,7 +4985,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mirror",
@@ -5244,7 +5002,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_encoded_color",
@@ -5262,7 +5019,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="prefetch",
@@ -5280,7 +5036,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5288,7 +5043,6 @@ _DATAPARAMETER = _descriptor.Descriptor(
     enum_types=[_DATAPARAMETER_DB],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=7536,
@@ -5319,7 +5073,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pos_xy_std",
@@ -5337,7 +5090,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pos_w",
@@ -5355,7 +5107,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bi_xy_std",
@@ -5373,7 +5124,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bi_rgb_std",
@@ -5391,7 +5141,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bi_w",
@@ -5409,7 +5158,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="output_probability",
@@ -5427,7 +5175,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5435,7 +5182,6 @@ _DENSECRFPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=7831,
@@ -5466,7 +5212,6 @@ _DOMAINTRANSFORMPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="spatial_sigma",
@@ -5477,14 +5222,13 @@ _DOMAINTRANSFORMPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(50),
+            default_value=50,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="range_sigma",
@@ -5495,14 +5239,13 @@ _DOMAINTRANSFORMPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(5),
+            default_value=5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="min_weight",
@@ -5513,14 +5256,13 @@ _DOMAINTRANSFORMPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5528,7 +5270,6 @@ _DOMAINTRANSFORMPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=7996,
@@ -5552,14 +5293,13 @@ _DROPOUTPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -5567,7 +5307,6 @@ _DROPOUTPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8119,
@@ -5598,7 +5337,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shape",
@@ -5616,7 +5354,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num",
@@ -5634,7 +5371,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="channels",
@@ -5652,7 +5388,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="height",
@@ -5670,7 +5405,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="width",
@@ -5688,7 +5422,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5696,7 +5429,6 @@ _DUMMYDATAPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8168,
@@ -5727,7 +5459,6 @@ _ELTWISEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="coeff",
@@ -5745,7 +5476,6 @@ _ELTWISEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stable_prod_grad",
@@ -5763,7 +5493,6 @@ _ELTWISEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5771,7 +5500,6 @@ _ELTWISEPARAMETER = _descriptor.Descriptor(
     enum_types=[_ELTWISEPARAMETER_ELTWISEOP],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8331,
@@ -5795,14 +5523,13 @@ _ELUPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -5810,7 +5537,6 @@ _ELUPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8498,
@@ -5841,7 +5567,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="input_dim",
@@ -5859,7 +5584,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_term",
@@ -5877,7 +5601,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_filler",
@@ -5895,7 +5618,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_filler",
@@ -5913,7 +5635,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5921,7 +5642,6 @@ _EMBEDPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8533,
@@ -5945,14 +5665,13 @@ _EXPPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(-1),
+            default_value=-1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -5963,14 +5682,13 @@ _EXPPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shift",
@@ -5981,14 +5699,13 @@ _EXPPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -5996,7 +5713,6 @@ _EXPPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8707,
@@ -6027,7 +5743,6 @@ _FLATTENPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="end_axis",
@@ -6045,7 +5760,6 @@ _FLATTENPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6053,7 +5767,6 @@ _FLATTENPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8777,
@@ -6084,7 +5797,6 @@ _HDF5DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_size",
@@ -6102,7 +5814,6 @@ _HDF5DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shuffle",
@@ -6120,7 +5831,6 @@ _HDF5DATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6128,7 +5838,6 @@ _HDF5DATAPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8836,
@@ -6159,7 +5868,6 @@ _HDF5OUTPUTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -6167,7 +5875,6 @@ _HDF5OUTPUTPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8917,
@@ -6198,7 +5905,6 @@ _HINGELOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -6206,7 +5912,6 @@ _HINGELOSSPARAMETER = _descriptor.Descriptor(
     enum_types=[_HINGELOSSPARAMETER_NORM],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=8959,
@@ -6237,7 +5942,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_size",
@@ -6255,7 +5959,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="rand_skip",
@@ -6273,7 +5976,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shuffle",
@@ -6291,7 +5993,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_height",
@@ -6309,7 +6010,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_width",
@@ -6327,7 +6027,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="is_color",
@@ -6345,7 +6044,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="ignore_label",
@@ -6363,7 +6061,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="label_type",
@@ -6381,7 +6078,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -6392,14 +6088,13 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean_file",
@@ -6417,7 +6112,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_size",
@@ -6435,7 +6129,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mirror",
@@ -6453,7 +6146,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="root_folder",
@@ -6471,7 +6163,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6479,7 +6170,6 @@ _IMAGEDATAPARAMETER = _descriptor.Descriptor(
     enum_types=[_IMAGEDATAPARAMETER_LABELTYPE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9056,
@@ -6510,7 +6200,6 @@ _INFOGAINLOSSPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -6518,7 +6207,6 @@ _INFOGAINLOSSPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9473,
@@ -6549,7 +6237,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_term",
@@ -6567,7 +6254,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_filler",
@@ -6585,7 +6271,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_filler",
@@ -6603,7 +6288,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -6621,7 +6305,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="transpose",
@@ -6639,7 +6322,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6647,7 +6329,6 @@ _INNERPRODUCTPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9515,
@@ -6678,7 +6359,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="width",
@@ -6696,7 +6376,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="zoom_factor",
@@ -6714,7 +6393,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shrink_factor",
@@ -6732,7 +6410,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_beg",
@@ -6750,7 +6427,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_end",
@@ -6768,7 +6444,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6776,7 +6451,6 @@ _INTERPPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9721,
@@ -6800,14 +6474,13 @@ _LOGPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(-1),
+            default_value=-1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -6818,14 +6491,13 @@ _LOGPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shift",
@@ -6836,14 +6508,13 @@ _LOGPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6851,7 +6522,6 @@ _LOGPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9867,
@@ -6882,7 +6552,6 @@ _LRNPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="alpha",
@@ -6893,14 +6562,13 @@ _LRNPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="beta",
@@ -6911,14 +6579,13 @@ _LRNPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.75),
+            default_value=0.75,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="norm_region",
@@ -6936,7 +6603,6 @@ _LRNPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="k",
@@ -6947,14 +6613,13 @@ _LRNPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="engine",
@@ -6972,7 +6637,6 @@ _LRNPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -6980,7 +6644,6 @@ _LRNPARAMETER = _descriptor.Descriptor(
     enum_types=[_LRNPARAMETER_NORMREGION, _LRNPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=9938,
@@ -7011,7 +6674,6 @@ _MATREADPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="source",
@@ -7029,7 +6691,6 @@ _MATREADPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="strip",
@@ -7047,7 +6708,6 @@ _MATREADPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_size",
@@ -7065,7 +6725,6 @@ _MATREADPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7073,7 +6732,6 @@ _MATREADPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=10252,
@@ -7104,7 +6762,6 @@ _MATWRITEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="source",
@@ -7122,7 +6779,6 @@ _MATWRITEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="strip",
@@ -7140,7 +6796,6 @@ _MATWRITEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="period",
@@ -7158,7 +6813,6 @@ _MATWRITEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7166,7 +6820,6 @@ _MATWRITEPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=10347,
@@ -7197,7 +6850,6 @@ _MEMORYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="channels",
@@ -7215,7 +6867,6 @@ _MEMORYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="height",
@@ -7233,7 +6884,6 @@ _MEMORYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="width",
@@ -7251,7 +6901,6 @@ _MEMORYDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7259,7 +6908,6 @@ _MEMORYDATAPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=10439,
@@ -7290,7 +6938,6 @@ _MVNPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="across_channels",
@@ -7308,7 +6955,6 @@ _MVNPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="eps",
@@ -7319,14 +6965,13 @@ _MVNPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1e-09),
+            default_value=1e-09,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7334,7 +6979,6 @@ _MVNPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=10531,
@@ -7365,7 +7009,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad",
@@ -7383,7 +7026,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_h",
@@ -7401,7 +7043,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad_w",
@@ -7419,7 +7060,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_size",
@@ -7437,7 +7077,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_h",
@@ -7455,7 +7094,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernel_w",
@@ -7473,7 +7111,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride",
@@ -7491,7 +7128,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride_h",
@@ -7509,7 +7145,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride_w",
@@ -7527,7 +7162,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="engine",
@@ -7545,7 +7179,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="global_pooling",
@@ -7563,7 +7196,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7571,7 +7203,6 @@ _POOLINGPARAMETER = _descriptor.Descriptor(
     enum_types=[_POOLINGPARAMETER_POOLMETHOD, _POOLINGPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=10634,
@@ -7595,14 +7226,13 @@ _POWERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -7613,14 +7243,13 @@ _POWERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shift",
@@ -7631,14 +7260,13 @@ _POWERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7646,7 +7274,6 @@ _POWERPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11054,
@@ -7677,7 +7304,6 @@ _PYTHONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="layer",
@@ -7695,7 +7321,6 @@ _PYTHONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="param_str",
@@ -7713,7 +7338,6 @@ _PYTHONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="share_in_parallel",
@@ -7731,7 +7355,6 @@ _PYTHONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7739,7 +7362,6 @@ _PYTHONPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11126,
@@ -7770,7 +7392,6 @@ _REDUCTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -7788,7 +7409,6 @@ _REDUCTIONPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="coeff",
@@ -7799,14 +7419,13 @@ _REDUCTIONPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7814,7 +7433,6 @@ _REDUCTIONPARAMETER = _descriptor.Descriptor(
     enum_types=[_REDUCTIONPARAMETER_REDUCTIONOP],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11232,
@@ -7838,14 +7456,13 @@ _RELUPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="engine",
@@ -7863,7 +7480,6 @@ _RELUPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7871,7 +7487,6 @@ _RELUPARAMETER = _descriptor.Descriptor(
     enum_types=[_RELUPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11408,
@@ -7902,7 +7517,6 @@ _RESHAPEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -7920,7 +7534,6 @@ _RESHAPEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num_axes",
@@ -7938,7 +7551,6 @@ _RESHAPEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -7946,7 +7558,6 @@ _RESHAPEPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11551,
@@ -7977,7 +7588,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num_axes",
@@ -7995,7 +7605,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="filler",
@@ -8013,7 +7622,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_term",
@@ -8031,7 +7639,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_filler",
@@ -8049,7 +7656,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8057,7 +7663,6 @@ _SCALEPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11644,
@@ -8088,7 +7693,6 @@ _SEGACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="ignore_label",
@@ -8106,7 +7710,6 @@ _SEGACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="reset",
@@ -8124,7 +7727,6 @@ _SEGACCURACYPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8132,7 +7734,6 @@ _SEGACCURACYPARAMETER = _descriptor.Descriptor(
     enum_types=[_SEGACCURACYPARAMETER_ACCURACYMETRIC],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=11812,
@@ -8163,7 +7764,6 @@ _SIGMOIDPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -8171,7 +7771,6 @@ _SIGMOIDPARAMETER = _descriptor.Descriptor(
     enum_types=[_SIGMOIDPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12024,
@@ -8202,7 +7801,6 @@ _SLICEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="slice_point",
@@ -8220,7 +7818,6 @@ _SLICEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="slice_dim",
@@ -8238,7 +7835,6 @@ _SLICEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8246,7 +7842,6 @@ _SLICEPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12146,
@@ -8277,7 +7872,6 @@ _SOFTMAXPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="axis",
@@ -8295,7 +7889,6 @@ _SOFTMAXPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8303,7 +7896,6 @@ _SOFTMAXPARAMETER = _descriptor.Descriptor(
     enum_types=[_SOFTMAXPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12225,
@@ -8334,7 +7926,6 @@ _TANHPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -8342,7 +7933,6 @@ _TANHPARAMETER = _descriptor.Descriptor(
     enum_types=[_TANHPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12364,
@@ -8373,7 +7963,6 @@ _TILEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="tiles",
@@ -8391,7 +7980,6 @@ _TILEPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8399,7 +7987,6 @@ _TILEPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12480,
@@ -8423,14 +8010,13 @@ _THRESHOLDPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0),
+            default_value=0,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         )
     ],
     extensions=[],
@@ -8438,7 +8024,6 @@ _THRESHOLDPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12529,
@@ -8469,7 +8054,6 @@ _UNIQUELABELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="ignore_label",
@@ -8487,7 +8071,6 @@ _UNIQUELABELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="force_label",
@@ -8505,7 +8088,6 @@ _UNIQUELABELPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8513,7 +8095,6 @@ _UNIQUELABELPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12573,
@@ -8544,7 +8125,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -8555,14 +8135,13 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mean_file",
@@ -8580,7 +8159,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batch_size",
@@ -8598,7 +8176,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_size",
@@ -8616,7 +8193,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mirror",
@@ -8634,7 +8210,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="fg_threshold",
@@ -8645,14 +8220,13 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bg_threshold",
@@ -8663,14 +8237,13 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="fg_fraction",
@@ -8681,14 +8254,13 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.25),
+            default_value=0.25,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="context_pad",
@@ -8706,7 +8278,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="crop_mode",
@@ -8724,7 +8295,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="cache_images",
@@ -8742,7 +8312,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="root_folder",
@@ -8760,7 +8329,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8768,7 +8336,6 @@ _WINDOWDATAPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12661,
@@ -8799,7 +8366,6 @@ _SPPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pool",
@@ -8817,7 +8383,6 @@ _SPPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="engine",
@@ -8835,7 +8400,6 @@ _SPPPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -8843,7 +8407,6 @@ _SPPPARAMETER = _descriptor.Descriptor(
     enum_types=[_SPPPARAMETER_POOLMETHOD, _SPPPARAMETER_ENGINE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=12985,
@@ -8874,7 +8437,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="top",
@@ -8892,7 +8454,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="name",
@@ -8910,7 +8471,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="include",
@@ -8928,7 +8488,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="exclude",
@@ -8946,7 +8505,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="type",
@@ -8964,7 +8522,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blobs",
@@ -8982,7 +8539,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="param",
@@ -9000,7 +8556,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blob_share_mode",
@@ -9018,7 +8573,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blobs_lr",
@@ -9036,7 +8590,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_decay",
@@ -9054,7 +8607,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="loss_weight",
@@ -9072,7 +8624,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="accuracy_param",
@@ -9090,7 +8641,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="argmax_param",
@@ -9108,7 +8658,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="concat_param",
@@ -9126,7 +8675,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="contrastive_loss_param",
@@ -9144,7 +8692,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="convolution_param",
@@ -9162,7 +8709,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="data_param",
@@ -9180,7 +8726,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dropout_param",
@@ -9198,7 +8743,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dummy_data_param",
@@ -9216,7 +8760,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="eltwise_param",
@@ -9234,7 +8777,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="exp_param",
@@ -9252,7 +8794,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hdf5_data_param",
@@ -9270,7 +8811,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hdf5_output_param",
@@ -9288,7 +8828,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hinge_loss_param",
@@ -9306,7 +8845,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="image_data_param",
@@ -9324,7 +8862,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="infogain_loss_param",
@@ -9342,7 +8879,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="inner_product_param",
@@ -9360,7 +8896,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="lrn_param",
@@ -9378,7 +8913,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="memory_data_param",
@@ -9396,7 +8930,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mvn_param",
@@ -9414,7 +8947,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pooling_param",
@@ -9432,7 +8964,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="power_param",
@@ -9450,7 +8981,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="relu_param",
@@ -9468,7 +8998,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="sigmoid_param",
@@ -9486,7 +9015,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="softmax_param",
@@ -9504,7 +9032,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="slice_param",
@@ -9522,7 +9049,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="tanh_param",
@@ -9540,7 +9066,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="threshold_param",
@@ -9558,7 +9083,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="window_data_param",
@@ -9576,7 +9100,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="transform_param",
@@ -9594,7 +9117,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="loss_param",
@@ -9612,7 +9134,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="layer",
@@ -9630,7 +9151,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -9638,7 +9158,6 @@ _V1LAYERPARAMETER = _descriptor.Descriptor(
     enum_types=[_V1LAYERPARAMETER_LAYERTYPE, _V1LAYERPARAMETER_DIMCHECKMODE],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=13223,
@@ -9669,7 +9188,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="type",
@@ -9687,7 +9205,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="num_output",
@@ -9705,7 +9222,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="biasterm",
@@ -9723,7 +9239,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_filler",
@@ -9741,7 +9256,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="bias_filler",
@@ -9759,7 +9273,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pad",
@@ -9777,7 +9290,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="kernelsize",
@@ -9795,7 +9307,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="group",
@@ -9813,7 +9324,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="stride",
@@ -9831,7 +9341,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="pool",
@@ -9849,7 +9358,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="dropout_ratio",
@@ -9860,14 +9368,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="local_size",
@@ -9885,7 +9392,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="alpha",
@@ -9896,14 +9402,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="beta",
@@ -9914,14 +9419,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.75),
+            default_value=0.75,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="k",
@@ -9932,14 +9436,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="source",
@@ -9957,7 +9460,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="scale",
@@ -9968,14 +9470,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(1),
+            default_value=1,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="meanfile",
@@ -9993,7 +9494,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="batchsize",
@@ -10011,7 +9511,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="cropsize",
@@ -10029,7 +9528,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="mirror",
@@ -10047,7 +9545,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blobs",
@@ -10065,7 +9562,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="blobs_lr",
@@ -10083,7 +9579,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="weight_decay",
@@ -10101,7 +9596,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="rand_skip",
@@ -10119,7 +9613,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="det_fg_threshold",
@@ -10130,14 +9623,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="det_bg_threshold",
@@ -10148,14 +9640,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.5),
+            default_value=0.5,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="det_fg_fraction",
@@ -10166,14 +9657,13 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             cpp_type=6,
             label=1,
             has_default_value=True,
-            default_value=float(0.25),
+            default_value=0.25,
             message_type=None,
             enum_type=None,
             containing_type=None,
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="det_context_pad",
@@ -10191,7 +9681,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="det_crop_mode",
@@ -10209,7 +9698,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_num",
@@ -10227,7 +9715,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_channels",
@@ -10245,7 +9732,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_height",
@@ -10263,7 +9749,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="new_width",
@@ -10281,7 +9766,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="shuffle_images",
@@ -10299,7 +9783,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="concat_dim",
@@ -10317,7 +9800,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="hdf5_output_param",
@@ -10335,7 +9817,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -10343,7 +9824,6 @@ _V0LAYERPARAMETER = _descriptor.Descriptor(
     enum_types=[_V0LAYERPARAMETER_POOLMETHOD],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=15754,
@@ -10374,7 +9854,6 @@ _PRELUPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
         _descriptor.FieldDescriptor(
             name="channel_shared",
@@ -10392,7 +9871,6 @@ _PRELUPARAMETER = _descriptor.Descriptor(
             is_extension=False,
             extension_scope=None,
             options=None,
-            file=DESCRIPTOR,
         ),
     ],
     extensions=[],
@@ -10400,7 +9878,6 @@ _PRELUPARAMETER = _descriptor.Descriptor(
     enum_types=[],
     options=None,
     is_extendable=False,
-    syntax="proto2",
     extension_ranges=[],
     oneofs=[],
     serialized_start=16777,
@@ -10704,7 +10181,6 @@ DESCRIPTOR.message_types_by_name["V1LayerParameter"] = _V1LAYERPARAMETER
 DESCRIPTOR.message_types_by_name["V0LayerParameter"] = _V0LAYERPARAMETER
 DESCRIPTOR.message_types_by_name["PReLUParameter"] = _PRELUPARAMETER
 DESCRIPTOR.enum_types_by_name["Phase"] = _PHASE
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 BlobShape = _reflection.GeneratedProtocolMessageType(
     "BlobShape",

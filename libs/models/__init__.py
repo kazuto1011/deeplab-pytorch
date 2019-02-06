@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from .resnet import *
 from .deeplabv2 import *
 from .deeplabv3 import *
@@ -23,57 +24,57 @@ def init_weights(model):
 
 def DeepLabV2_ResNet101_MSC(n_classes):
     return MSC(
-        scale=DeepLabV2(
-            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]
+        base=DeepLabV2(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], atrous_rates=[6, 12, 18, 24]
         ),
-        pyramids=[0.5, 0.75],
+        scales=[0.5, 0.75],
     )
 
 
 def DeepLabV2S_ResNet101_MSC(n_classes):
     return MSC(
-        scale=DeepLabV2(
-            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[3, 6, 9, 12]
+        base=DeepLabV2(
+            n_classes=n_classes, n_blocks=[3, 4, 23, 3], atrous_rates=[3, 6, 9, 12]
         ),
-        pyramids=[0.5, 0.75],
+        scales=[0.5, 0.75],
     )
 
 
 def DeepLabV3_ResNet101_MSC(n_classes, output_stride):
     if output_stride == 16:
-        pyramids = [6, 12, 18]
+        atrous_rates = [6, 12, 18]
     elif output_stride == 8:
-        pyramids = [12, 24, 36]
+        atrous_rates = [12, 24, 36]
     else:
         NotImplementedError
 
     return MSC(
-        scale=DeepLabV3(
+        base=DeepLabV3(
             n_classes=n_classes,
             n_blocks=[3, 4, 23, 3],
-            pyramids=pyramids,
-            grids=[1, 2, 4],
+            atrous_rates=atrous_rates,
+            multi_grids=[1, 2, 4],
             output_stride=output_stride,
         ),
-        pyramids=[0.5, 0.75],
+        scales=[0.5, 0.75],
     )
 
 
 def DeepLabV3Plus_ResNet101_MSC(n_classes, output_stride):
     if output_stride == 16:
-        pyramids = [6, 12, 18]
+        atrous_rates = [6, 12, 18]
     elif output_stride == 8:
-        pyramids = [12, 24, 36]
+        atrous_rates = [12, 24, 36]
     else:
         NotImplementedError
 
     return MSC(
-        scale=DeepLabV3Plus(
+        base=DeepLabV3Plus(
             n_classes=n_classes,
             n_blocks=[3, 4, 23, 3],
-            pyramids=pyramids,
-            grids=[1, 2, 4],
+            atrous_rates=atrous_rates,
+            multi_grids=[1, 2, 4],
             output_stride=output_stride,
         ),
-        pyramids=[0.5, 0.75],
+        scales=[0.5, 0.75],
     )
