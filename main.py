@@ -19,12 +19,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import yaml
 from addict import Dict
+from PIL import Image
 from tensorboardX import SummaryWriter
 from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.models import DeepLabV2_ResNet101_MSC
+from libs.models import *
 from libs.utils import DenseCRF, PolynomialLR, scores
 
 
@@ -37,19 +38,6 @@ def get_device(cuda):
     else:
         print("Device: CPU")
     return device
-
-
-def setup_model(model_path, n_classes, train=True):
-    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
-    if train:
-        model.load_state_dict(state_dict, strict=False)  # to skip ASPP
-        model = nn.DataParallel(model)
-    else:
-        model.load_state_dict(state_dict)
-        model = nn.DataParallel(model)
-        model.eval()
-    return model
 
 
 def get_params(model, key):
@@ -74,11 +62,20 @@ def get_params(model, key):
                     yield m[1].bias
 
 
-def resize_labels(labels, shape):
-    labels = labels.unsqueeze(1).float()  # Add channel axis
-    labels = F.interpolate(labels, shape, mode="nearest")
-    labels = labels.squeeze(1).long()
-    return labels
+def resize_labels(labels, size):
+    """
+    Downsample labels for 0.5x and 0.75x logits by nearest interpolation.
+    Other nearest methods result in misaligned labels.
+    -> F.interpolate(labels, shape, mode='nearest')
+    -> cv2.resize(labels, shape, interpolation=cv2.INTER_NEAREST)
+    """
+    new_labels = []
+    for label in labels:
+        label = label.float().numpy()
+        label = Image.fromarray(label).resize(size, resample=Image.NEAREST)
+        new_labels.append(np.asarray(label))
+    new_labels = torch.LongTensor(new_labels)
+    return new_labels
 
 
 @click.group()
@@ -87,28 +84,30 @@ def main(ctx):
     print("Mode:", ctx.invoked_subcommand)
 
 
-@main.command()
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-def train(config, cuda):
+@main.command(help="Training")
+@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
+@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
+def train(config_path, cuda):
     # Auto-tune cuDNN
     torch.backends.cudnn.benchmark = True
 
     # Configuration
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
+    CONFIG = Dict(yaml.load(open(config_path)))
 
     # Dataset 10k or 164k
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.TRAIN,
-        base_size=CONFIG.IMAGE.SIZE.TRAIN.BASE,
-        crop_size=CONFIG.IMAGE.SIZE.TRAIN.CROP,
-        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.DATASET.WARP_IMAGE,
-        scale=CONFIG.DATASET.SCALES,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=True,
+        base_size=CONFIG.IMAGE.SIZE.BASE,
+        crop_size=CONFIG.IMAGE.SIZE.TRAIN,
+        scales=CONFIG.DATASET.SCALES,
         flip=True,
     )
+    print(dataset)
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
@@ -120,7 +119,10 @@ def train(config, cuda):
     loader_iter = iter(loader)
 
     # Model
-    model = setup_model(CONFIG.MODEL.INIT_MODEL, CONFIG.DATASET.N_CLASSES, train=True)
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(CONFIG.MODEL.INIT_MODEL)
+    model.base.load_state_dict(state_dict, strict=False)  # to skip ASPP
+    model = nn.DataParallel(model)
     model.to(device)
 
     # Optimizer
@@ -169,7 +171,6 @@ def train(config, cuda):
     for iteration in tqdm(
         range(1, CONFIG.SOLVER.ITER_MAX + 1),
         total=CONFIG.SOLVER.ITER_MAX,
-        leave=False,
         dynamic_ncols=True,
     ):
 
@@ -184,21 +185,18 @@ def train(config, cuda):
                 loader_iter = iter(loader)
                 images, labels = next(loader_iter)
 
-            images = images.to(device)
-            labels = labels.to(device)
-
             # Propagate forward
-            logits = model(images)
+            logits = model(images.to(device))
 
             # Loss
             iter_loss = 0
             for logit in logits:
                 # Resize labels for {100%, 75%, 50%, Max} logits
                 _, _, H, W = logit.shape
-                labels_ = resize_labels(labels, shape=(H, W))
-                iter_loss += criterion(logit, labels_)
+                labels_ = resize_labels(labels, size=(H, W))
+                iter_loss += criterion(logit, labels_.to(device))
 
-            # Backpropagate (just compute gradients wrt the loss)
+            # Propagate backward (just compute gradients wrt the loss)
             iter_loss /= CONFIG.SOLVER.ITER_SIZE
             iter_loss.backward()
 
@@ -234,47 +232,33 @@ def train(config, cuda):
                 osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
             )
 
-        # To verify progress separately
-        torch.save(
-            model.module.state_dict(),
-            osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_current.pth"),
-        )
-
     torch.save(
         model.module.state_dict(),
         osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_final.pth"),
     )
 
 
-@main.command()
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("-m", "--model-path", type=str, required=True, help="pth")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post processing")
-def test(config, model_path, cuda, crf):
+@main.command(help="Evaluation on val set")
+@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
+@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
+@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
+def test(config_path, model_path, cuda):
     # Disable autograd globally
     torch.set_grad_enabled(False)
 
     # Setup
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
-
-    # If the image size never change,
-    if CONFIG.DATASET.WARP_IMAGE:
-        # Auto-tune cuDNN
-        torch.backends.cudnn.benchmark = True
+    CONFIG = Dict(yaml.load(open(config_path)))
 
     # Dataset 10k or 164k
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.VAL,
-        base_size=CONFIG.IMAGE.SIZE.TEST,
-        crop_size=None,
-        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.DATASET.WARP_IMAGE,
-        scale=None,
-        flip=False,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=False,
     )
+    print(dataset)
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
@@ -285,8 +269,74 @@ def test(config, model_path, cuda, crf):
     )
 
     # Model
-    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, train=False)
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    model = nn.DataParallel(model)
+    model.eval()
     model.to(device)
+
+    all_logits = []
+    preds, gts = [], []
+    for images, gt_labels in tqdm(loader, total=len(loader), dynamic_ncols=True):
+        # Image
+        images = images.to(device)
+
+        # Forward propagation
+        logits = model(images)
+        all_logits += [l.cpu().numpy() for l in logits]
+
+        _, H, W = gt_labels.shape
+        logits = F.interpolate(logits, size=(H, W), mode="bilinear")
+        probs = F.softmax(logits, dim=1)
+        labels = torch.argmax(probs, dim=1)
+
+        preds += list(labels.cpu().numpy())
+        gts += list(gt_labels.numpy())
+
+    # Save logit maps
+    filename = osp.join(CONFIG.MODEL.RESULT_DIR, "logits.npy")
+    joblib.dump(all_logits, filename, compress=True)
+    print("Saved:", filename)
+
+    # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
+    score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
+
+    filename = model_path.replace(".pth", ".json")
+    with open(filename, "w") as f:
+        json.dump(score, f, indent=4, sort_keys=True)
+    print("Saved:", filename)
+
+
+@main.command(help="CRF post-processing (run test in advance)")
+@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
+@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
+def crf(config_path, model_path):
+    # Disable autograd globally
+    torch.set_grad_enabled(False)
+
+    # Setup
+    CONFIG = Dict(yaml.load(open(config_path)))
+    BATCH_SIZE = 12
+
+    # Dataset 10k or 164k
+    dataset = get_dataset(CONFIG.DATASET.NAME)(
+        root=CONFIG.DATASET.ROOT,
+        split=CONFIG.DATASET.SPLIT.VAL,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=False,
+    )
+    print(dataset)
+
+    # DataLoader
+    loader = torch.utils.data.DataLoader(
+        dataset=dataset,
+        batch_size=BATCH_SIZE,
+        collate_fn=lambda x: zip(*x),  # avoid to be Tensor
+        num_workers=CONFIG.DATALOADER.NUM_WORKERS,
+        shuffle=False,
+    )
 
     # CRF post-processor
     postprocessor = DenseCRF(
@@ -298,38 +348,47 @@ def test(config, model_path, cuda, crf):
         bi_w=CONFIG.CRF.BI_W,
     )
 
+    def process_logit(logit, image):
+        _, H, W = image.shape
+        logit = torch.FloatTensor(logit)[None, ...]
+        logit = F.interpolate(logit, size=(H, W), mode="bilinear")
+        prob = F.softmax(logit, dim=1)[0].numpy()
+        image = image.astype(np.uint8).transpose(1, 2, 0)
+        prob = postprocessor(image, prob)
+        label = np.argmax(prob, axis=0)
+        return label
+
+    # Load pre-computed logits
+    filename = osp.join(CONFIG.MODEL.RESULT_DIR, "logits.npy")
+    if osp.isfile(filename):
+        logits_list = joblib.load(filename)
+    else:
+        print(
+            "Run first: python main.py test -c {} -m {}".format(config_path, model_path)
+        )
+
     preds, gts = [], []
-    for images, labels in tqdm(
-        loader, total=len(loader), leave=False, dynamic_ncols=True
+    for i, (images, gt_labels) in tqdm(
+        enumerate(loader), total=len(loader), dynamic_ncols=True
     ):
-        # Image
-        images = images.to(device)
-        _, H, W = labels.shape
+        logits = logits_list[i * BATCH_SIZE : (i + 1) * BATCH_SIZE]
+        assert len(logits) == len(images), "Different numbers of samples"
 
         # Forward propagation
-        logits = model(images)
-        logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=True)
-        probs = F.softmax(logits, dim=1)
-        probs = probs.data.cpu().numpy()
+        labels = joblib.Parallel(n_jobs=-1)(
+            [joblib.delayed(process_logit)(*pair) for pair in zip(logits, images)]
+        )
 
-        # Postprocessing
-        if crf:
-            # images: (B,C,H,W) -> (B,H,W,C)
-            images = images.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
-            probs = joblib.Parallel(n_jobs=-1)(
-                [joblib.delayed(postprocessor)(*pair) for pair in zip(images, probs)]
-            )
-
-        labelmaps = np.argmax(probs, axis=1)
-
-        preds += list(labelmaps)
-        gts += list(labels.numpy())
+        preds += list(labels)
+        gts += list(gt_labels)
 
     # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
     score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
 
-    with open(model_path.replace(".pth", ".json"), "w") as f:
+    filename = model_path.replace(".pth", "_crf.json")
+    with open(filename, "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
+    print("Saved:", filename)
 
 
 if __name__ == "__main__":

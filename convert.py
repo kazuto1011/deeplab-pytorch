@@ -8,14 +8,16 @@
 from __future__ import absolute_import, division, print_function
 
 import re
-from collections import OrderedDict
+import traceback
+from collections import Counter, OrderedDict
 
 import click
 import numpy as np
 import torch
+from addict import Dict
 
 from libs import caffe_pb2
-from libs.models import DeepLabV2_ResNet101_MSC
+from libs.models import DeepLabV2_ResNet101_COCO, DeepLabV2_ResNet101_MSC
 
 
 def parse_caffemodel(model_path):
@@ -25,17 +27,23 @@ def parse_caffemodel(model_path):
 
     # Check trainable layers
     print(
-        *set([(layer.type, len(layer.blobs)) for layer in caffemodel.layer]), sep="\n"
+        *Counter(
+            [(layer.type, len(layer.blobs)) for layer in caffemodel.layer]
+        ).most_common(),
+        sep="\n",
     )
 
     params = OrderedDict()
     previous_layer_type = None
     for layer in caffemodel.layer:
-        print("{} ({}): {}".format(layer.name, layer.type, len(layer.blobs)))
-
         # Skip the shared branch
         if "res075" in layer.name or "res05" in layer.name:
             continue
+
+        print(
+            "\033[34m[Caffe]\033[00m",
+            "{} ({}): {}".format(layer.name, layer.type, len(layer.blobs)),
+        )
 
         # Convolution or Dilated Convolution
         if "Convolution" in layer.type:
@@ -58,6 +66,12 @@ def parse_caffemodel(model_path):
                 params[layer.name]["dilation"] = layer.convolution_param.dilation[0]
             else:
                 params[layer.name]["dilation"] = 1
+        # Fully-connected
+        elif "InnerProduct" in layer.type:
+            params[layer.name] = {}
+            params[layer.name]["weight"] = np.array(layer.blobs[0].data)
+            if len(layer.blobs) == 2:
+                params[layer.name]["bias"] = np.array(layer.blobs[1].data)
         # Batch Normalization
         elif "BatchNorm" in layer.type:
             params[layer.name] = {}
@@ -77,6 +91,11 @@ def parse_caffemodel(model_path):
             assert previous_layer_type == "BatchNorm"
             params[batch_norm_layer]["weight"] = list(layer.blobs[0].data)
             params[batch_norm_layer]["bias"] = list(layer.blobs[1].data)
+        elif "Pooling" in layer.type:
+            params[layer.name] = {}
+            params[layer.name]["kernel_size"] = layer.pooling_param.kernel_size
+            params[layer.name]["stride"] = layer.pooling_param.stride
+            params[layer.name]["padding"] = layer.pooling_param.pad
 
         previous_layer_type = layer.type
 
@@ -84,9 +103,9 @@ def parse_caffemodel(model_path):
 
 
 # Hard coded translater
-def translate_layer_name(source):
+def translate_layer_name(source, target="base"):
     def layer_block_branch(source, target):
-        target += ".layer{}".format(source[0][0])
+        target += "layer{}".format(source[0][0])
         if len(source[0][1:]) == 1:
             block = {"a": 1, "b": 2, "c": 3}.get(source[0][1:])
         else:
@@ -104,12 +123,19 @@ def translate_layer_name(source):
         return target
 
     source = source.split("_")
-    target = "base"
 
-    if "conv1" in source[0]:
-        target += ".layer1.conv1.conv"
+    if "pool" in source[0]:
+        target += "layer1.pool"
+    elif "fc" in source[0]:
+        if len(source) == 3:
+            stage = source[2]
+            target += "aspp.{}".format(stage)
+        else:
+            target += "_".join(source)
+    elif "conv1" in source[0]:
+        target += "layer1.conv1.conv"
     elif "conv1" in source[1]:
-        target += ".layer1.conv1.bn"
+        target += "layer1.conv1.bn"
     elif "res" in source[0]:
         source[0] = source[0].replace("res", "")
         target = layer_block_branch(source, target)
@@ -118,92 +144,100 @@ def translate_layer_name(source):
         source[0] = source[0].replace("bn", "")
         target = layer_block_branch(source, target)
         target += ".bn"
-    elif "fc" in source[0]:
-        # Skip if coco_init
-        if len(source) == 3:
-            stage = source[2]
-            target += ".aspp.{}".format(stage)
 
     return target
 
 
 @click.command()
-@click.option("-d", "--dataset", required=True, type=click.Choice(["voc12", "init"]))
+@click.option(
+    "-d", "--dataset", type=click.Choice(["voc12", "coco", "imagenet"], required=True)
+)
 def main(dataset):
     WHITELIST = ["kernel_size", "stride", "padding", "dilation", "eps", "momentum"]
-    CONFIG = {
-        "voc12": {
-            "path_caffe_model": "data/models/deeplab_resnet101/voc12/train2_iter_20000.caffemodel",
-            "path_pytorch_model": "data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth",
-            "n_classes": 21,
-        },
-        "init": {
-            "path_caffe_model": "data/models/deeplab_resnet101/coco_init/init.caffemodel",
-            "path_pytorch_model": "data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth",
-            "n_classes": 91,
-        },
-    }.get(dataset)
+    CONFIG = Dict(
+        {
+            "voc12": {
+                # For loading the provided VOC 2012 caffemodel
+                "PATH_CAFFE_MODEL": "data/models/deeplab_resnet101/voc12/train2_iter_20000.caffemodel",
+                "PATH_PYTORCH_MODEL": "data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth",
+                "N_CLASSES": 21,
+                "MODEL": "DeepLabV2_ResNet101_MSC",
+                "HEAD": "base.",
+            },
+            "coco": {
+                # For loading the provided initial weights pre-trained on COCO
+                "PATH_CAFFE_MODEL": "data/models/deeplab_resnet101/coco_init/init.caffemodel",
+                "PATH_PYTORCH_MODEL": "data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth",
+                "N_CLASSES": 91,
+                "MODEL": "DeepLabV2_ResNet101_COCO",
+                "HEAD": "",
+            },
+        }.get(dataset)
+    )
 
-    params = parse_caffemodel(CONFIG["path_caffe_model"])
+    params = parse_caffemodel(CONFIG.PATH_CAFFE_MODEL)
 
-    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG["n_classes"])
+    model = eval(CONFIG.MODEL)(n_classes=CONFIG.N_CLASSES)
     model.eval()
-    own_state = model.state_dict()
+    reference_state_dict = model.state_dict()
 
     rel_tol = 1e-7
 
-    state_dict = OrderedDict()
-    for layer_name, layer_dict in params.items():
-        for param_name, values in layer_dict.items():
-            if param_name in WHITELIST and dataset != "coco_init" and dataset != "init":
-                attribute = translate_layer_name(layer_name)
-                attribute = eval("model." + attribute + "." + param_name)
-                if isinstance(attribute, tuple):
-                    assert (
-                        attribute[0] == values
-                    ), "Inconsistent values: {}@{}, {}@{}".format(
-                        attribute[0],
-                        translate_layer_name(layer_name) + "." + param_name,
-                        values,
-                        layer_name,
+    converted_state_dict = OrderedDict()
+    for caffe_layer, caffe_layer_dict in params.items():
+        for param_name, caffe_values in caffe_layer_dict.items():
+            pytorch_layer = translate_layer_name(caffe_layer, CONFIG.HEAD)
+            if pytorch_layer:
+                pytorch_param = pytorch_layer + "." + param_name
+
+                # Parameter check
+                if param_name in WHITELIST:
+                    pytorch_values = eval("model." + pytorch_param)
+                    if isinstance(pytorch_values, tuple):
+                        assert (
+                            pytorch_values[0] == caffe_values
+                        ), "Inconsistent values: {} @{} (Caffe), {} @{} (PyTorch)".format(
+                            caffe_values,
+                            caffe_layer + "/" + param_name,
+                            pytorch_values,
+                            pytorch_param,
+                        )
+                    else:
+                        assert (
+                            abs(pytorch_values - caffe_values) < rel_tol
+                        ), "Inconsistent values: {} @{} (Caffe), {} @{} (PyTorch)".format(
+                            caffe_values,
+                            caffe_layer + "/" + param_name,
+                            pytorch_values,
+                            pytorch_param,
+                        )
+                    print(
+                        "\033[34m[Passed!]\033[00m",
+                        (caffe_layer + "/" + param_name).ljust(30),
+                        "->",
+                        pytorch_param,
                     )
-                else:
-                    assert (
-                        abs(attribute - values) < rel_tol
-                    ), "Inconsistent values: {}@{}, {}@{}".format(
-                        attribute,
-                        translate_layer_name(layer_name) + "." + param_name,
-                        values,
-                        layer_name,
+                    continue
+
+                # Weight conversion
+                if pytorch_param in reference_state_dict:
+                    caffe_values = torch.FloatTensor(caffe_values)
+                    caffe_values = caffe_values.view_as(
+                        reference_state_dict[pytorch_param]
                     )
-                print(
-                    layer_name.ljust(20),
-                    "->",
-                    param_name,
-                    attribute,
-                    values,
-                    ": Checked!",
-                )
-                continue
-            param_name = translate_layer_name(layer_name) + "." + param_name
-            if param_name in own_state:
-                values = torch.FloatTensor(values)
-                values = values.view_as(own_state[param_name])
-                state_dict[param_name] = values
-                print(layer_name.ljust(20), "->", param_name, ": Copied!")
+                    converted_state_dict[pytorch_param] = caffe_values
+                    print(
+                        "\033[32m[Copied!]\033[00m",
+                        (caffe_layer + "/" + param_name).ljust(30),
+                        "->",
+                        pytorch_param,
+                    )
 
-    try:
-        print("\033[32mVerify the converted model\033[00m")
-        model.load_state_dict(state_dict)
-    except:
-        import traceback
+    print("\033[32mVerify the converted model\033[00m")
+    model.load_state_dict(converted_state_dict)
 
-        traceback.print_exc()
-        print("\033[32mVerify with ignoring ASPP (strict=False)\033[00m")
-        model.load_state_dict(state_dict, strict=False)
-
-    print("Saving to", CONFIG["path_pytorch_model"])
-    torch.save(state_dict, CONFIG["path_pytorch_model"])
+    print('Saving to "{}"'.format(CONFIG.PATH_PYTORCH_MODEL))
+    torch.save(converted_state_dict, CONFIG.PATH_PYTORCH_MODEL)
 
 
 if __name__ == "__main__":

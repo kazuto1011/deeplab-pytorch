@@ -15,13 +15,15 @@ from .resnet import _ConvBnReLU, _ResLayer, _Stem
 
 
 class _ASPP(nn.Module):
-    """Atrous Spatial Pyramid Pooling with image pool"""
+    """
+    Atrous spatial pyramid pooling with image-level pooling
+    """
 
     def __init__(self, n_in, n_out, rates):
         super(_ASPP, self).__init__()
         self.stages = nn.Module()
         self.stages.add_module("c0", _ConvBnReLU(n_in, n_out, 1, 1, 0, 1))
-        for i, rate in enumerate(zip(rates)):
+        for i, rate in enumerate(rates):
             self.stages.add_module(
                 "c{}".format(i + 1),
                 _ConvBnReLU(n_in, n_out, 3, 1, padding=rate, dilation=rate),
@@ -37,7 +39,7 @@ class _ASPP(nn.Module):
 
     def forward(self, x):
         h = self.imagepool(x)
-        h = [F.interpolate(h, size=x.shape[2:], mode="bilinear", align_corners=True)]
+        h = [F.interpolate(h, size=x.shape[2:], mode="bilinear")]
         for stage in self.stages.children():
             h += [stage(x)]
         h = torch.cat(h, dim=1)
@@ -45,7 +47,9 @@ class _ASPP(nn.Module):
 
 
 class DeepLabV3(nn.Sequential):
-    """DeepLab v3"""
+    """
+    DeepLab v3
+    """
 
     def __init__(self, n_classes, n_blocks, atrous_rates, multi_grids, output_stride):
         super(DeepLabV3, self).__init__()

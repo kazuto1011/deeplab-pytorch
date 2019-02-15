@@ -16,7 +16,9 @@ from .resnet import _ConvBnReLU, _ResLayer, _Stem
 
 
 class DeepLabV3Plus(nn.Module):
-    """DeepLab v3+"""
+    """
+    DeepLab v3+
+    """
 
     def __init__(self, n_classes, n_blocks, atrous_rates, multi_grids, output_stride):
         super(DeepLabV3Plus, self).__init__()
@@ -60,10 +62,10 @@ class DeepLabV3Plus(nn.Module):
         h = self.layer5(h)
         h = self.aspp(h)
         h = self.fc1(h)
-        h = F.interpolate(h, size=h_.shape[2:], mode="bilinear", align_corners=True)
+        h = F.interpolate(h, size=h_.shape[2:], mode="bilinear")
         h = torch.cat((h, h_), dim=1)
         h = self.fc2(h)
-        h = F.interpolate(h, size=x.shape[2:], mode="bilinear", align_corners=True)
+        h = F.interpolate(h, size=x.shape[2:], mode="bilinear")
         return h
 
 
@@ -73,7 +75,7 @@ if __name__ == "__main__":
         n_blocks=[3, 4, 23, 3],
         atrous_rates=[6, 12, 18],
         multi_grids=[1, 2, 4],
-        output_stride=8,
+        output_stride=16,
     )
     model.eval()
     image = torch.randn(1, 3, 513, 513)
