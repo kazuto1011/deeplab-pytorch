@@ -1,0 +1,26 @@
+name: deeplab-pytorch
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  # - clang # For MacOS
+  # - clangxx # For MacOS
+  - click
+  - cudatoolkit=10.0
+  - cython
+  - matplotlib
+  - pytorch
+  - pyyaml
+  - scipy
+  - torchvision
+  - tqdm
+  - pip:
+    - addict
+    - black
+    - joblib
+    - opencv-python
+    - pydensecrf
+    - tensorboardX
+    - tensorflow
+    - torchnet

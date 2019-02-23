@@ -1,0 +1,58 @@
+EXP:
+    ID: cocostuff10k
+    OUTPUT_DIR: data
+
+DATASET:
+    NAME: cocostuff10k
+    ROOT: /media/kazuto1011/Extra/cocostuff/cocostuff-10k-v1.1
+    LABELS: ./data/datasets/cocostuff/labels.txt
+    N_CLASSES: 182
+    IGNORE_LABEL: 255
+    SCALES: [0.5, 0.75, 1.0, 1.25, 1.5]
+    SPLIT:
+        TRAIN: train
+        VAL: test
+        TEST:
+
+DATALOADER:
+    NUM_WORKERS: 0
+
+IMAGE:
+    MEAN:
+        R: 122.675
+        G: 116.669
+        B: 104.008
+    SIZE:
+        BASE:
+        TRAIN: 321
+        TEST: 513
+
+MODEL:
+    NAME: DeepLabV2_ResNet101_MSC
+    N_BLOCKS: [3, 4, 23, 3]
+    ATROUS_RATES: [6, 12, 18, 24]
+    INIT_MODEL: data/models/coco/deeplabv1_resnet101/caffemodel/deeplabv1_resnet101-coco.pth
+
+SOLVER:
+    BATCH_SIZE:
+        TRAIN: 5
+        TEST: 5
+    ITER_MAX: 20000
+    ITER_SIZE: 2
+    ITER_SAVE: 5000
+    ITER_TB: 100
+    LR_DECAY: 10
+    LR: 2.5e-4
+    MOMENTUM: 0.9
+    OPTIMIZER: sgd
+    POLY_POWER: 0.9
+    WEIGHT_DECAY: 5.0e-4
+    AVERAGE_LOSS: 20
+
+CRF:
+    ITER_MAX: 10
+    POS_W: 3
+    POS_XY_STD: 1
+    BI_W: 4
+    BI_XY_STD: 67
+    BI_RGB_STD: 3

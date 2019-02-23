@@ -5,7 +5,7 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-19
 
-from collections import OrderedDict
+from __future__ import absolute_import, print_function
 
 import torch
 import torch.nn as nn
@@ -15,11 +15,13 @@ from .resnet import _ConvBnReLU, _ResLayer, _Stem
 
 
 class _ASPP(nn.Module):
-    """Atrous Spatial Pyramid Pooling"""
+    """
+    Atrous spatial pyramid pooling (ASPP)
+    """
 
     def __init__(self, in_ch, out_ch, rates):
         super(_ASPP, self).__init__()
-        for i, rate in enumerate(zip(rates)):
+        for i, rate in enumerate(rates):
             self.add_module(
                 "c{}".format(i),
                 nn.Conv2d(in_ch, out_ch, 3, 1, padding=rate, dilation=rate, bias=True),
@@ -34,7 +36,10 @@ class _ASPP(nn.Module):
 
 
 class DeepLabV2(nn.Sequential):
-    """DeepLab v2 (OS=8)"""
+    """
+    DeepLab v2: Dilated ResNet + ASPP
+    Output stride is fixed at 8
+    """
 
     def __init__(self, n_classes, n_blocks, atrous_rates):
         super(DeepLabV2, self).__init__()

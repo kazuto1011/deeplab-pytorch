@@ -1,0 +1,6 @@
+*.pth
+*.pth.tar
+*.caffemodel
+*.npy
+*.prototxt
+*.zip

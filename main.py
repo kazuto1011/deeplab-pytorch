@@ -5,11 +5,11 @@
 # URL:    https://kazuto1011.github.io
 # Date:   07 January 2019
 
-
 from __future__ import absolute_import, division, print_function
 
 import json
-import os.path as osp
+import multiprocessing
+import os
 
 import click
 import joblib
@@ -19,37 +19,31 @@ import torch.nn as nn
 import torch.nn.functional as F
 import yaml
 from addict import Dict
+from PIL import Image
 from tensorboardX import SummaryWriter
 from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.models import DeepLabV2_ResNet101_MSC
+from libs.models import *
 from libs.utils import DenseCRF, PolynomialLR, scores
+
+
+def makedirs(dirs):
+    if not os.path.exists(dirs):
+        os.makedirs(dirs)
 
 
 def get_device(cuda):
     cuda = cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
     if cuda:
-        current_device = torch.cuda.current_device()
-        print("Device:", torch.cuda.get_device_name(current_device))
+        print("Device:")
+        for i in range(torch.cuda.device_count()):
+            print("    {}:".format(i), torch.cuda.get_device_name(i))
     else:
         print("Device: CPU")
     return device
-
-
-def setup_model(model_path, n_classes, train=True):
-    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
-    if train:
-        model.load_state_dict(state_dict, strict=False)  # to skip ASPP
-        model = nn.DataParallel(model)
-    else:
-        model.load_state_dict(state_dict)
-        model = nn.DataParallel(model)
-        model.eval()
-    return model
 
 
 def get_params(model, key):
@@ -74,41 +68,65 @@ def get_params(model, key):
                     yield m[1].bias
 
 
-def resize_labels(labels, shape):
-    labels = labels.unsqueeze(1).float()  # Add channel axis
-    labels = F.interpolate(labels, shape, mode="nearest")
-    labels = labels.squeeze(1).long()
-    return labels
+def resize_labels(labels, size):
+    """
+    Downsample labels for 0.5x and 0.75x logits by nearest interpolation.
+    Other nearest methods result in misaligned labels.
+    -> F.interpolate(labels, shape, mode='nearest')
+    -> cv2.resize(labels, shape, interpolation=cv2.INTER_NEAREST)
+    """
+    new_labels = []
+    for label in labels:
+        label = label.float().numpy()
+        label = Image.fromarray(label).resize(size, resample=Image.NEAREST)
+        new_labels.append(np.asarray(label))
+    new_labels = torch.LongTensor(new_labels)
+    return new_labels
 
 
 @click.group()
 @click.pass_context
 def main(ctx):
+    """
+    Training and evaluation
+    """
     print("Mode:", ctx.invoked_subcommand)
 
 
 @main.command()
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-def train(config, cuda):
-    # Auto-tune cuDNN
-    torch.backends.cudnn.benchmark = True
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+def train(config_path, cuda):
+    """
+    Training DeepLab by v2 protocol
+    """
 
     # Configuration
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
+    torch.backends.cudnn.benchmark = True
 
-    # Dataset 10k or 164k
+    # Dataset
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.TRAIN,
-        base_size=CONFIG.IMAGE.SIZE.TRAIN.BASE,
-        crop_size=CONFIG.IMAGE.SIZE.TRAIN.CROP,
-        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.DATASET.WARP_IMAGE,
-        scale=CONFIG.DATASET.SCALES,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=True,
+        base_size=CONFIG.IMAGE.SIZE.BASE,
+        crop_size=CONFIG.IMAGE.SIZE.TRAIN,
+        scales=CONFIG.DATASET.SCALES,
         flip=True,
     )
+    print(dataset)
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
@@ -119,9 +137,26 @@ def train(config, cuda):
     )
     loader_iter = iter(loader)
 
-    # Model
-    model = setup_model(CONFIG.MODEL.INIT_MODEL, CONFIG.DATASET.N_CLASSES, train=True)
+    # Model check
+    print("Model:", CONFIG.MODEL.NAME)
+    assert (
+        CONFIG.MODEL.NAME == "DeepLabV2_ResNet101_MSC"
+    ), 'Currently support only "DeepLabV2_ResNet101_MSC"'
+
+    # Model setup
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(CONFIG.MODEL.INIT_MODEL)
+    print("    Init:", CONFIG.MODEL.INIT_MODEL)
+    for m in model.base.state_dict().keys():
+        if m not in state_dict.keys():
+            print("    Skip init:", m)
+    model.base.load_state_dict(state_dict, strict=False)  # to skip ASPP
+    model = nn.DataParallel(model)
     model.to(device)
+
+    # Loss definition
+    criterion = nn.CrossEntropyLoss(ignore_index=CONFIG.DATASET.IGNORE_LABEL)
+    criterion.to(device)
 
     # Optimizer
     optimizer = torch.optim.SGD(
@@ -154,13 +189,20 @@ def train(config, cuda):
         power=CONFIG.SOLVER.POLY_POWER,
     )
 
-    # Loss definition
-    criterion = nn.CrossEntropyLoss(ignore_index=CONFIG.DATASET.IGNORE_LABEL)
-    criterion.to(device)
-
-    # TensorBoard logger
-    writer = SummaryWriter(CONFIG.SOLVER.LOG_DIR)
+    # Setup loss logger
+    writer = SummaryWriter(os.path.join(CONFIG.EXP.OUTPUT_DIR, "logs", CONFIG.EXP.ID))
     average_loss = MovingAverageValueMeter(CONFIG.SOLVER.AVERAGE_LOSS)
+
+    # Path to save models
+    checkpoint_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "models",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.TRAIN,
+    )
+    makedirs(checkpoint_dir)
+    print("Checkpoint dst:", checkpoint_dir)
 
     # Freeze the batch norm pre-trained on COCO
     model.train()
@@ -169,7 +211,6 @@ def train(config, cuda):
     for iteration in tqdm(
         range(1, CONFIG.SOLVER.ITER_MAX + 1),
         total=CONFIG.SOLVER.ITER_MAX,
-        leave=False,
         dynamic_ncols=True,
     ):
 
@@ -179,26 +220,23 @@ def train(config, cuda):
         loss = 0
         for _ in range(CONFIG.SOLVER.ITER_SIZE):
             try:
-                images, labels = next(loader_iter)
+                _, images, labels = next(loader_iter)
             except:
                 loader_iter = iter(loader)
-                images, labels = next(loader_iter)
-
-            images = images.to(device)
-            labels = labels.to(device)
+                _, images, labels = next(loader_iter)
 
             # Propagate forward
-            logits = model(images)
+            logits = model(images.to(device))
 
             # Loss
             iter_loss = 0
             for logit in logits:
                 # Resize labels for {100%, 75%, 50%, Max} logits
                 _, _, H, W = logit.shape
-                labels_ = resize_labels(labels, shape=(H, W))
-                iter_loss += criterion(logit, labels_)
+                labels_ = resize_labels(labels, size=(H, W))
+                iter_loss += criterion(logit, labels_.to(device))
 
-            # Backpropagate (just compute gradients wrt the loss)
+            # Propagate backward (just compute gradients wrt the loss)
             iter_loss /= CONFIG.SOLVER.ITER_SIZE
             iter_loss.backward()
 
@@ -216,9 +254,16 @@ def train(config, cuda):
         if iteration % CONFIG.SOLVER.ITER_TB == 0:
             writer.add_scalar("loss/train", average_loss.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
-                writer.add_scalar("lr/group{}".format(i), o["lr"], iteration)
-            if False:  # This produces a large log file
-                for name, param in model.named_parameters():
+                writer.add_scalar("lr/group_{}".format(i), o["lr"], iteration)
+            for i in range(torch.cuda.device_count()):
+                writer.add_scalar(
+                    "gpu/device_{}/memory_cached".format(i),
+                    torch.cuda.memory_cached(i) / 1024 ** 3,
+                    iteration,
+                )
+
+            if False:
+                for name, param in model.module.base.named_parameters():
                     name = name.replace(".", "/")
                     # Weight/gradient distribution
                     writer.add_histogram(name, param, iteration, bins="auto")
@@ -231,50 +276,51 @@ def train(config, cuda):
         if iteration % CONFIG.SOLVER.ITER_SAVE == 0:
             torch.save(
                 model.module.state_dict(),
-                osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
+                os.path.join(checkpoint_dir, "checkpoint_{}.pth".format(iteration)),
             )
 
-        # To verify progress separately
-        torch.save(
-            model.module.state_dict(),
-            osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_current.pth"),
-        )
-
     torch.save(
-        model.module.state_dict(),
-        osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_final.pth"),
+        model.module.state_dict(), os.path.join(checkpoint_dir, "checkpoint_final.pth")
     )
 
 
 @main.command()
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("-m", "--model-path", type=str, required=True, help="pth")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post processing")
-def test(config, model_path, cuda, crf):
-    # Disable autograd globally
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+def test(config_path, model_path, cuda):
+    """
+    Evaluation on validation set
+    """
+
+    # Configuration
+    CONFIG = Dict(yaml.load(config_path))
+    device = get_device(cuda)
     torch.set_grad_enabled(False)
 
-    # Setup
-    device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
-
-    # If the image size never change,
-    if CONFIG.DATASET.WARP_IMAGE:
-        # Auto-tune cuDNN
-        torch.backends.cudnn.benchmark = True
-
-    # Dataset 10k or 164k
+    # Dataset
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.VAL,
-        base_size=CONFIG.IMAGE.SIZE.TEST,
-        crop_size=None,
-        mean=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
-        warp=CONFIG.DATASET.WARP_IMAGE,
-        scale=None,
-        flip=False,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=False,
     )
+    print(dataset)
 
     # DataLoader
     loader = torch.utils.data.DataLoader(
@@ -285,8 +331,105 @@ def test(config, model_path, cuda, crf):
     )
 
     # Model
-    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, train=False)
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    model = nn.DataParallel(model)
+    model.eval()
     model.to(device)
+
+    # Path to save logits
+    logit_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "features",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+        "logit",
+    )
+    makedirs(logit_dir)
+    print("Logit dst:", logit_dir)
+
+    # Path to save scores
+    save_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "scores",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+    )
+    makedirs(save_dir)
+    save_path = os.path.join(save_dir, "scores.json")
+    print("Score dst:", save_path)
+
+    preds, gts = [], []
+    for image_ids, images, gt_labels in tqdm(
+        loader, total=len(loader), dynamic_ncols=True
+    ):
+        # Image
+        images = images.to(device)
+
+        # Forward propagation
+        logits = model(images)
+
+        # Save on disk for CRF post-processing
+        for image_id, logit in zip(image_ids, logits):
+            filename = os.path.join(logit_dir, image_id + ".npy")
+            np.save(filename, logit.cpu().numpy())
+
+        # Pixel-wise labeling
+        _, H, W = gt_labels.shape
+        logits = F.interpolate(
+            logits, size=(H, W), mode="bilinear", align_corners=False
+        )
+        probs = F.softmax(logits, dim=1)
+        labels = torch.argmax(probs, dim=1)
+
+        preds += list(labels.cpu().numpy())
+        gts += list(gt_labels.numpy())
+
+    # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
+    score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
+
+    with open(save_path, "w") as f:
+        json.dump(score, f, indent=4, sort_keys=True)
+
+
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-j",
+    "--n-jobs",
+    type=int,
+    default=multiprocessing.cpu_count(),
+    show_default=True,
+    help="Number of parallel jobs",
+)
+def crf(config_path, n_jobs):
+    """
+    CRF post-processing on pre-computed logits
+    """
+
+    # Configuration
+    CONFIG = Dict(yaml.load(config_path))
+    torch.set_grad_enabled(False)
+    print("# jobs:", n_jobs)
+
+    # Dataset
+    dataset = get_dataset(CONFIG.DATASET.NAME)(
+        root=CONFIG.DATASET.ROOT,
+        split=CONFIG.DATASET.SPLIT.VAL,
+        ignore_label=CONFIG.DATASET.IGNORE_LABEL,
+        mean_bgr=(CONFIG.IMAGE.MEAN.B, CONFIG.IMAGE.MEAN.G, CONFIG.IMAGE.MEAN.R),
+        augment=False,
+    )
+    print(dataset)
 
     # CRF post-processor
     postprocessor = DenseCRF(
@@ -298,37 +441,61 @@ def test(config, model_path, cuda, crf):
         bi_w=CONFIG.CRF.BI_W,
     )
 
-    preds, gts = [], []
-    for images, labels in tqdm(
-        loader, total=len(loader), leave=False, dynamic_ncols=True
-    ):
-        # Image
-        images = images.to(device)
-        _, H, W = labels.shape
+    # Path to logit files
+    logit_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "features",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+        "logit",
+    )
+    print("Logit src:", logit_dir)
+    if not os.path.isdir(logit_dir):
+        print("Logit not found, run first: python main.py test [OPTIONS]")
+        quit()
 
-        # Forward propagation
-        logits = model(images)
-        logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=True)
-        probs = F.softmax(logits, dim=1)
-        probs = probs.data.cpu().numpy()
+    # Path to save scores
+    save_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "scores",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+    )
+    makedirs(save_dir)
+    save_path = os.path.join(save_dir, "scores_crf.json")
+    print("Score dst:", save_path)
 
-        # Postprocessing
-        if crf:
-            # images: (B,C,H,W) -> (B,H,W,C)
-            images = images.data.cpu().numpy().astype(np.uint8).transpose(0, 2, 3, 1)
-            probs = joblib.Parallel(n_jobs=-1)(
-                [joblib.delayed(postprocessor)(*pair) for pair in zip(images, probs)]
-            )
+    # Process per sample
+    def process(i):
+        image_id, image, gt_label = dataset.__getitem__(i)
 
-        labelmaps = np.argmax(probs, axis=1)
+        filename = os.path.join(logit_dir, image_id + ".npy")
+        logit = np.load(filename)
 
-        preds += list(labelmaps)
-        gts += list(labels.numpy())
+        _, H, W = image.shape
+        logit = torch.FloatTensor(logit)[None, ...]
+        logit = F.interpolate(logit, size=(H, W), mode="bilinear", align_corners=False)
+        prob = F.softmax(logit, dim=1)[0].numpy()
+
+        image = image.astype(np.uint8).transpose(1, 2, 0)
+        prob = postprocessor(image, prob)
+        label = np.argmax(prob, axis=0)
+
+        return label, gt_label
+
+    # CRF in multi-process
+    results = joblib.Parallel(n_jobs=n_jobs, verbose=10, pre_dispatch="all")(
+        [joblib.delayed(process)(i) for i in range(len(dataset))]
+    )
+
+    preds, gts = zip(*results)
 
     # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
     score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
 
-    with open(model_path.replace(".pth", ".json"), "w") as f:
+    with open(save_path, "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
 
 

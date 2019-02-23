@@ -1,0 +1,58 @@
+EXP:
+    ID: coco
+    OUTPUT_DIR: data
+
+DATASET:
+    NAME: coco
+    ROOT:
+    LABELS: ./data/datasets/coco/labels.txt
+    N_CLASSES: 91
+    IGNORE_LABEL:
+    SCALES:
+    SPLIT:
+        TRAIN:
+        VAL:
+        TEST:
+
+DATALOADER:
+    NUM_WORKERS: 0
+
+IMAGE:
+    MEAN:
+        R: 122.675
+        G: 116.669
+        B: 104.008
+    SIZE:
+        BASE:
+        TRAIN:
+        TEST: 513
+
+MODEL:
+    NAME: DeepLabV1_ResNet101
+    N_BLOCKS: [3, 4, 23, 3]
+    ATROUS_RATES:
+    INIT_MODEL:
+
+SOLVER:
+    BATCH_SIZE:
+        TRAIN: 5
+        TEST: 1
+    ITER_MAX: 100000
+    ITER_SIZE: 2
+    ITER_SAVE: 5000
+    ITER_TB: 100
+    LR_DECAY: 10
+    LR: 2.5e-4
+    MOMENTUM: 0.9
+    OPTIMIZER: sgd
+    POLY_POWER: 0.9
+    WEIGHT_DECAY: 5.0e-4
+    AVERAGE_LOSS: 20
+
+CRF:
+    ITER_MAX: 10
+    POS_W: 3
+    POS_XY_STD: 1
+    BI_W: 4
+    BI_XY_STD: 67
+    BI_RGB_STD: 3

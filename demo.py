@@ -19,7 +19,7 @@ import torch.nn.functional as F
 import yaml
 from addict import Dict
 
-from libs.models import DeepLabV2_ResNet101_MSC
+from libs.models import *
 from libs.utils import DenseCRF
 
 
@@ -41,15 +41,6 @@ def get_classtable(CONFIG):
             label = label.rstrip().split("\t")
             classes[int(label[0])] = label[1].split(",")[0]
     return classes
-
-
-def setup_model(model_path, n_classes, device):
-    model = DeepLabV2_ResNet101_MSC(n_classes=n_classes)
-    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
-    model.load_state_dict(state_dict)
-    model.eval()
-    model.to(device)
-    return model
 
 
 def setup_postprocessor(CONFIG):
@@ -89,19 +80,18 @@ def preprocessing(image, device, CONFIG):
 
 
 def inference(model, image, raw_image=None, postprocessor=None):
-    B, C, H, W = image.shape
+    _, _, H, W = image.shape
 
     # Image -> Probability map
     logits = model(image)
-    logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=True)
-    probs = F.softmax(logits, dim=1)
-    probs = probs.data.cpu().numpy()[0]
+    logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=False)
+    probs = F.softmax(logits, dim=1)[0]
+    probs = probs.cpu().numpy()
 
     # Refine the prob map with CRF
     if postprocessor and raw_image is not None:
         probs = postprocessor(raw_image, probs)
 
-    # Pixel-wise argmax
     labelmap = np.argmax(probs, axis=0)
 
     return labelmap
@@ -110,25 +100,58 @@ def inference(model, image, raw_image=None, postprocessor=None):
 @click.group()
 @click.pass_context
 def main(ctx):
+    """
+    Demo with a trained model
+    """
+
     print("Mode:", ctx.invoked_subcommand)
 
 
-@main.command(help="Inference from a single image")
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("-i", "--image-path", type=str, required=True)
-@click.option("-m", "--model-path", type=str, required=True, help="pth")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post processing")
-def single(config, image_path, model_path, cuda, crf):
-    # Disable autograd globally
-    torch.set_grad_enabled(False)
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "-i",
+    "--image-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="Image to be processed",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+@click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
+def single(config_path, model_path, image_path, cuda, crf):
+    """
+    Inference from a single image
+    """
 
     # Setup
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
+    torch.set_grad_enabled(False)
+
     classes = get_classtable(CONFIG)
-    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, device)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
+
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    model.eval()
+    model.to(device)
+    print("Model:", CONFIG.MODEL.NAME)
 
     # Inference
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
@@ -158,24 +181,46 @@ def single(config, image_path, model_path, cuda, crf):
     plt.show()
 
 
-@main.command(help="Inference from camera stream")
-@click.option("-c", "--config", type=str, required=True, help="yaml")
-@click.option("-m", "--model-path", type=str, required=True, help="pth")
-@click.option("--cuda/--no-cuda", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post processing")
-@click.option("--camera-id", type=int, default=0)
-def live(config, model_path, cuda, crf, camera_id):
-    # Disable autograd globally
-    torch.set_grad_enabled(False)
-    # Auto-tune cuDNN
-    torch.backends.cudnn.benchmark = True
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+@click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
+@click.option("--camera-id", type=int, default=0, show_default=True, help="Device ID")
+def live(config_path, model_path, cuda, crf, camera_id):
+    """
+    Inference from camera stream
+    """
 
     # Setup
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config)))
+    torch.set_grad_enabled(False)
+    torch.backends.cudnn.benchmark = True
+
     classes = get_classtable(CONFIG)
-    model = setup_model(model_path, CONFIG.DATASET.N_CLASSES, device)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
+
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    model.eval()
+    model.to(device)
+    print("Model:", CONFIG.MODEL.NAME)
 
     # UVC camera stream
     cap = cv2.VideoCapture(camera_id)
@@ -197,7 +242,7 @@ def live(config, model_path, cuda, crf, camera_id):
     cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
     while True:
-        ret, frame = cap.read()
+        _, frame = cap.read()
         image, raw_image = preprocessing(frame, device, CONFIG)
         labelmap = inference(model, image, raw_image, postprocessor)
         colormap = colorize(labelmap)
