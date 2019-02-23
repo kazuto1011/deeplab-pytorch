@@ -52,7 +52,7 @@ class CocoStuff10k(_BaseDataset):
             image = cv2.resize(image, (513, 513), interpolation=cv2.INTER_LINEAR)
             label = Image.fromarray(label).resize((513, 513), resample=Image.NEAREST)
             label = np.asarray(label)
-        return image, label
+        return image_id, image, label
 
 
 class CocoStuff164k(_BaseDataset):
@@ -81,7 +81,7 @@ class CocoStuff164k(_BaseDataset):
         # Load an image and label
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         label = cv2.imread(label_path, cv2.IMREAD_GRAYSCALE)
-        return image, label
+        return image_id, image, label
 
 
 def get_parent_class(value, dictionary):
@@ -124,10 +124,9 @@ if __name__ == "__main__":
 
     loader = data.DataLoader(dataset, batch_size=batch_size)
 
-    for i, (images, labels) in tqdm(
+    for i, (image_ids, images, labels) in tqdm(
         enumerate(loader), total=np.ceil(len(dataset) / batch_size), leave=False
     ):
-
         if i == 0:
             mean = torch.tensor((104.008, 116.669, 122.675))[None, :, None, None]
             images += mean.expand_as(images)

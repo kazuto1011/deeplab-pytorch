@@ -5,6 +5,8 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2018-03-26
 
+from __future__ import absolute_import, print_function
+
 from collections import OrderedDict
 
 import torch
@@ -16,7 +18,7 @@ from .resnet import _ConvBnReLU, _ResLayer, _Stem
 
 class _ASPP(nn.Module):
     """
-    Atrous spatial pyramid pooling with image-level pooling
+    Atrous spatial pyramid pooling with image-level feature
     """
 
     def __init__(self, n_in, n_out, rates):
@@ -39,7 +41,7 @@ class _ASPP(nn.Module):
 
     def forward(self, x):
         h = self.imagepool(x)
-        h = [F.interpolate(h, size=x.shape[2:], mode="bilinear")]
+        h = [F.interpolate(h, size=x.shape[2:], mode="bilinear", align_corners=False)]
         for stage in self.stages.children():
             h += [stage(x)]
         h = torch.cat(h, dim=1)
@@ -48,7 +50,7 @@ class _ASPP(nn.Module):
 
 class DeepLabV3(nn.Sequential):
     """
-    DeepLab v3
+    DeepLab v3: Dilated ResNet with multi-grid + improved ASPP
     """
 
     def __init__(self, n_classes, n_blocks, atrous_rates, multi_grids, output_stride):

@@ -5,6 +5,8 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2018-03-26
 
+from __future__ import absolute_import, print_function
+
 from collections import OrderedDict
 
 import torch
@@ -17,7 +19,7 @@ from .resnet import _ConvBnReLU, _ResLayer, _Stem
 
 class DeepLabV3Plus(nn.Module):
     """
-    DeepLab v3+
+    DeepLab v3+: Dilated ResNet with multi-grid + improved ASPP + decoder
     """
 
     def __init__(self, n_classes, n_blocks, atrous_rates, multi_grids, output_stride):
@@ -62,10 +64,10 @@ class DeepLabV3Plus(nn.Module):
         h = self.layer5(h)
         h = self.aspp(h)
         h = self.fc1(h)
-        h = F.interpolate(h, size=h_.shape[2:], mode="bilinear")
+        h = F.interpolate(h, size=h_.shape[2:], mode="bilinear", align_corners=False)
         h = torch.cat((h, h_), dim=1)
         h = self.fc2(h)
-        h = F.interpolate(h, size=x.shape[2:], mode="bilinear")
+        h = F.interpolate(h, size=x.shape[2:], mode="bilinear", align_corners=False)
         return h
 
 

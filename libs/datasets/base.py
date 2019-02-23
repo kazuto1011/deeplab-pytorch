@@ -103,21 +103,21 @@ class _BaseDataset(data.Dataset):
         return image, label
 
     def __getitem__(self, index):
-        image, label = self._load_data(index)
+        image_id, image, label = self._load_data(index)
         if self.augment:
             image, label = self._augmentation(image, label)
         # Mean subtraction
         image -= self.mean_bgr
         # HWC -> CHW
         image = image.transpose(2, 0, 1)
-        return image.astype(np.float32), label.astype(np.int64)
+        return image_id, image.astype(np.float32), label.astype(np.int64)
 
     def __len__(self):
         return len(self.files)
 
     def __repr__(self):
-        fmt_str = "Dataset " + self.__class__.__name__ + "\n"
-        fmt_str += "    Number of datapoints: {}\n".format(self.__len__())
+        fmt_str = "Dataset: " + self.__class__.__name__ + "\n"
+        fmt_str += "    # data: {}\n".format(self.__len__())
         fmt_str += "    Split: {}\n".format(self.split)
-        fmt_str += "    Root Location: {}\n".format(self.root)
+        fmt_str += "    Root: {}".format(self.root)
         return fmt_str

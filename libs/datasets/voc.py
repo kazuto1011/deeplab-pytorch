@@ -49,7 +49,7 @@ class VOC(_BaseDataset):
         # Load an image
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         label = np.asarray(Image.open(label_path), dtype=np.int32)
-        return image, label
+        return image_id, image, label
 
 
 class VOCAug(_BaseDataset):
@@ -64,14 +64,7 @@ class VOCAug(_BaseDataset):
     def _set_files(self):
         self.root = osp.join(self.root, "VOC{}".format(self.year))
 
-        if self.split in [
-            "train",
-            "train_aug",
-            "trainval",
-            "trainval_aug",
-            "val",
-            "test",
-        ]:
+        if self.split in ["train", "train_aug", "trainval", "trainval_aug", "val"]:
             file_list = osp.join(
                 self.root, "ImageSets/SegmentationAug", self.split + ".txt"
             )
@@ -83,12 +76,13 @@ class VOCAug(_BaseDataset):
 
     def _load_data(self, index):
         # Set paths
+        image_id = self.files[index].split("/")[-1].split(".")[0]
         image_path = osp.join(self.root, self.files[index][1:])
         label_path = osp.join(self.root, self.labels[index][1:])
         # Load an image
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         label = np.asarray(Image.open(label_path), dtype=np.int32)
-        return image, label
+        return image_id, image, label
 
 
 if __name__ == "__main__":
@@ -119,7 +113,7 @@ if __name__ == "__main__":
 
     loader = data.DataLoader(dataset, batch_size=batch_size)
 
-    for i, (images, labels) in tqdm(
+    for i, (image_ids, images, labels) in tqdm(
         enumerate(loader), total=np.ceil(len(dataset) / batch_size), leave=False
     ):
         if i == 0:

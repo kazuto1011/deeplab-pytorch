@@ -12,14 +12,14 @@ COCO-Stuff 164k is the latest version and recommended.
 1. Run the script below to download the dataset (20GB+).
 
 ```sh
-./scripts/setup_cocostuff164k.sh <PATH TO DOWNLOAD>
+$ bash ./scripts/setup_cocostuff164k.sh [PATH TO DOWNLOAD]
 ```
 
-2. Set the path to the dataset in ```config/cocostuff164k.yaml```.
+2. Set the path to the dataset in ```configs/cocostuff164k.yaml```.
 
 ```yaml
 DATASET: cocostuff164k
-ROOT: # <- Write here
+    ROOT: # <- Write here
 ...
 ```
 
@@ -49,14 +49,14 @@ ROOT: # <- Write here
 1. Run the script below to download the dataset (2GB).
 
 ```sh
-./scripts/setup_cocostuff10k.sh <PATH TO DOWNLOAD>
+$ bash ./scripts/setup_cocostuff10k.sh [PATH TO DOWNLOAD]
 ```
 
-2. Set the path to the dataset in ```config/cocostuff10k.yaml```.
+2. Set the path to the dataset in ```configs/cocostuff10k.yaml```.
 
 ```yaml
 DATASET: cocostuff10k
-ROOT: # <- Write here
+    ROOT: # <- Write here
 ...
 ```
 

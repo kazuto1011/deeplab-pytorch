@@ -5,11 +5,11 @@
 # URL:    https://kazuto1011.github.io
 # Date:   07 January 2019
 
-
 from __future__ import absolute_import, division, print_function
 
 import json
-import os.path as osp
+import multiprocessing
+import os
 
 import click
 import joblib
@@ -29,12 +29,18 @@ from libs.models import *
 from libs.utils import DenseCRF, PolynomialLR, scores
 
 
+def makedirs(dirs):
+    if not os.path.exists(dirs):
+        os.makedirs(dirs)
+
+
 def get_device(cuda):
     cuda = cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
     if cuda:
-        current_device = torch.cuda.current_device()
-        print("Device:", torch.cuda.get_device_name(current_device))
+        print("Device:")
+        for i in range(torch.cuda.device_count()):
+            print("    {}:".format(i), torch.cuda.get_device_name(i))
     else:
         print("Device: CPU")
     return device
@@ -81,21 +87,34 @@ def resize_labels(labels, size):
 @click.group()
 @click.pass_context
 def main(ctx):
+    """
+    Training and evaluation
+    """
     print("Mode:", ctx.invoked_subcommand)
 
 
-@main.command(help="Training")
-@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
-@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
 def train(config_path, cuda):
-    # Auto-tune cuDNN
-    torch.backends.cudnn.benchmark = True
+    """
+    Training DeepLab by v2 protocol
+    """
 
     # Configuration
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config_path)))
+    torch.backends.cudnn.benchmark = True
 
-    # Dataset 10k or 164k
+    # Dataset
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.TRAIN,
@@ -118,12 +137,26 @@ def train(config_path, cuda):
     )
     loader_iter = iter(loader)
 
-    # Model
+    # Model check
+    print("Model:", CONFIG.MODEL.NAME)
+    assert (
+        CONFIG.MODEL.NAME == "DeepLabV2_ResNet101_MSC"
+    ), 'Currently support only "DeepLabV2_ResNet101_MSC"'
+
+    # Model setup
     model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
     state_dict = torch.load(CONFIG.MODEL.INIT_MODEL)
+    print("    Init:", CONFIG.MODEL.INIT_MODEL)
+    for m in model.base.state_dict().keys():
+        if m not in state_dict.keys():
+            print("    Skip init:", m)
     model.base.load_state_dict(state_dict, strict=False)  # to skip ASPP
     model = nn.DataParallel(model)
     model.to(device)
+
+    # Loss definition
+    criterion = nn.CrossEntropyLoss(ignore_index=CONFIG.DATASET.IGNORE_LABEL)
+    criterion.to(device)
 
     # Optimizer
     optimizer = torch.optim.SGD(
@@ -156,13 +189,20 @@ def train(config_path, cuda):
         power=CONFIG.SOLVER.POLY_POWER,
     )
 
-    # Loss definition
-    criterion = nn.CrossEntropyLoss(ignore_index=CONFIG.DATASET.IGNORE_LABEL)
-    criterion.to(device)
-
-    # TensorBoard logger
-    writer = SummaryWriter(CONFIG.SOLVER.LOG_DIR)
+    # Setup loss logger
+    writer = SummaryWriter(os.path.join(CONFIG.EXP.OUTPUT_DIR, "logs", CONFIG.EXP.ID))
     average_loss = MovingAverageValueMeter(CONFIG.SOLVER.AVERAGE_LOSS)
+
+    # Path to save models
+    checkpoint_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "models",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.TRAIN,
+    )
+    makedirs(checkpoint_dir)
+    print("Checkpoint dst:", checkpoint_dir)
 
     # Freeze the batch norm pre-trained on COCO
     model.train()
@@ -180,10 +220,10 @@ def train(config_path, cuda):
         loss = 0
         for _ in range(CONFIG.SOLVER.ITER_SIZE):
             try:
-                images, labels = next(loader_iter)
+                _, images, labels = next(loader_iter)
             except:
                 loader_iter = iter(loader)
-                images, labels = next(loader_iter)
+                _, images, labels = next(loader_iter)
 
             # Propagate forward
             logits = model(images.to(device))
@@ -214,9 +254,16 @@ def train(config_path, cuda):
         if iteration % CONFIG.SOLVER.ITER_TB == 0:
             writer.add_scalar("loss/train", average_loss.value()[0], iteration)
             for i, o in enumerate(optimizer.param_groups):
-                writer.add_scalar("lr/group{}".format(i), o["lr"], iteration)
-            if False:  # This produces a large log file
-                for name, param in model.named_parameters():
+                writer.add_scalar("lr/group_{}".format(i), o["lr"], iteration)
+            for i in range(torch.cuda.device_count()):
+                writer.add_scalar(
+                    "gpu/device_{}/memory_cached".format(i),
+                    torch.cuda.memory_cached(i) / 1024 ** 3,
+                    iteration,
+                )
+
+            if False:
+                for name, param in model.module.base.named_parameters():
                     name = name.replace(".", "/")
                     # Weight/gradient distribution
                     writer.add_histogram(name, param, iteration, bins="auto")
@@ -229,28 +276,43 @@ def train(config_path, cuda):
         if iteration % CONFIG.SOLVER.ITER_SAVE == 0:
             torch.save(
                 model.module.state_dict(),
-                osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_{}.pth".format(iteration)),
+                os.path.join(checkpoint_dir, "checkpoint_{}.pth".format(iteration)),
             )
 
     torch.save(
-        model.module.state_dict(),
-        osp.join(CONFIG.MODEL.SAVE_DIR, "checkpoint_final.pth"),
+        model.module.state_dict(), os.path.join(checkpoint_dir, "checkpoint_final.pth")
     )
 
 
-@main.command(help="Evaluation on val set")
-@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
-@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
-@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
 def test(config_path, model_path, cuda):
-    # Disable autograd globally
+    """
+    Evaluation on validation set
+    """
+
+    # Configuration
+    CONFIG = Dict(yaml.load(config_path))
+    device = get_device(cuda)
     torch.set_grad_enabled(False)
 
-    # Setup
-    device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config_path)))
-
-    # Dataset 10k or 164k
+    # Dataset
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.VAL,
@@ -276,50 +338,90 @@ def test(config_path, model_path, cuda):
     model.eval()
     model.to(device)
 
-    all_logits = []
+    # Path to save logits
+    logit_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "features",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+        "logit",
+    )
+    makedirs(logit_dir)
+    print("Logit dst:", logit_dir)
+
+    # Path to save scores
+    save_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "scores",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+    )
+    makedirs(save_dir)
+    save_path = os.path.join(save_dir, "scores.json")
+    print("Score dst:", save_path)
+
     preds, gts = [], []
-    for images, gt_labels in tqdm(loader, total=len(loader), dynamic_ncols=True):
+    for image_ids, images, gt_labels in tqdm(
+        loader, total=len(loader), dynamic_ncols=True
+    ):
         # Image
         images = images.to(device)
 
         # Forward propagation
         logits = model(images)
-        all_logits += [l.cpu().numpy() for l in logits]
 
+        # Save on disk for CRF post-processing
+        for image_id, logit in zip(image_ids, logits):
+            filename = os.path.join(logit_dir, image_id + ".npy")
+            np.save(filename, logit.cpu().numpy())
+
+        # Pixel-wise labeling
         _, H, W = gt_labels.shape
-        logits = F.interpolate(logits, size=(H, W), mode="bilinear")
+        logits = F.interpolate(
+            logits, size=(H, W), mode="bilinear", align_corners=False
+        )
         probs = F.softmax(logits, dim=1)
         labels = torch.argmax(probs, dim=1)
 
         preds += list(labels.cpu().numpy())
         gts += list(gt_labels.numpy())
 
-    # Save logit maps
-    filename = osp.join(CONFIG.MODEL.RESULT_DIR, "logits.npy")
-    joblib.dump(all_logits, filename, compress=True)
-    print("Saved:", filename)
-
     # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
     score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
 
-    filename = model_path.replace(".pth", ".json")
-    with open(filename, "w") as f:
+    with open(save_path, "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
-    print("Saved:", filename)
 
 
-@main.command(help="CRF post-processing (run test in advance)")
-@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
-@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
-def crf(config_path, model_path):
-    # Disable autograd globally
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-j",
+    "--n-jobs",
+    type=int,
+    default=multiprocessing.cpu_count(),
+    show_default=True,
+    help="Number of parallel jobs",
+)
+def crf(config_path, n_jobs):
+    """
+    CRF post-processing on pre-computed logits
+    """
+
+    # Configuration
+    CONFIG = Dict(yaml.load(config_path))
     torch.set_grad_enabled(False)
+    print("# jobs:", n_jobs)
 
-    # Setup
-    CONFIG = Dict(yaml.load(open(config_path)))
-    BATCH_SIZE = 12
-
-    # Dataset 10k or 164k
+    # Dataset
     dataset = get_dataset(CONFIG.DATASET.NAME)(
         root=CONFIG.DATASET.ROOT,
         split=CONFIG.DATASET.SPLIT.VAL,
@@ -328,15 +430,6 @@ def crf(config_path, model_path):
         augment=False,
     )
     print(dataset)
-
-    # DataLoader
-    loader = torch.utils.data.DataLoader(
-        dataset=dataset,
-        batch_size=BATCH_SIZE,
-        collate_fn=lambda x: zip(*x),  # avoid to be Tensor
-        num_workers=CONFIG.DATALOADER.NUM_WORKERS,
-        shuffle=False,
-    )
 
     # CRF post-processor
     postprocessor = DenseCRF(
@@ -348,47 +441,62 @@ def crf(config_path, model_path):
         bi_w=CONFIG.CRF.BI_W,
     )
 
-    def process_logit(logit, image):
+    # Path to logit files
+    logit_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "features",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+        "logit",
+    )
+    print("Logit src:", logit_dir)
+    if not os.path.isdir(logit_dir):
+        print("Logit not found, run first: python main.py test [OPTIONS]")
+        quit()
+
+    # Path to save scores
+    save_dir = os.path.join(
+        CONFIG.EXP.OUTPUT_DIR,
+        "scores",
+        CONFIG.EXP.ID,
+        CONFIG.MODEL.NAME.lower(),
+        CONFIG.DATASET.SPLIT.VAL,
+    )
+    makedirs(save_dir)
+    save_path = os.path.join(save_dir, "scores_crf.json")
+    print("Score dst:", save_path)
+
+    # Process per sample
+    def process(i):
+        image_id, image, gt_label = dataset.__getitem__(i)
+
+        filename = os.path.join(logit_dir, image_id + ".npy")
+        logit = np.load(filename)
+
         _, H, W = image.shape
         logit = torch.FloatTensor(logit)[None, ...]
-        logit = F.interpolate(logit, size=(H, W), mode="bilinear")
+        logit = F.interpolate(logit, size=(H, W), mode="bilinear", align_corners=False)
         prob = F.softmax(logit, dim=1)[0].numpy()
+
         image = image.astype(np.uint8).transpose(1, 2, 0)
         prob = postprocessor(image, prob)
         label = np.argmax(prob, axis=0)
-        return label
 
-    # Load pre-computed logits
-    filename = osp.join(CONFIG.MODEL.RESULT_DIR, "logits.npy")
-    if osp.isfile(filename):
-        logits_list = joblib.load(filename)
-    else:
-        print(
-            "Run first: python main.py test -c {} -m {}".format(config_path, model_path)
-        )
+        return label, gt_label
 
-    preds, gts = [], []
-    for i, (images, gt_labels) in tqdm(
-        enumerate(loader), total=len(loader), dynamic_ncols=True
-    ):
-        logits = logits_list[i * BATCH_SIZE : (i + 1) * BATCH_SIZE]
-        assert len(logits) == len(images), "Different numbers of samples"
+    # CRF in multi-process
+    results = joblib.Parallel(n_jobs=n_jobs, verbose=10, pre_dispatch="all")(
+        [joblib.delayed(process)(i) for i in range(len(dataset))]
+    )
 
-        # Forward propagation
-        labels = joblib.Parallel(n_jobs=-1)(
-            [joblib.delayed(process_logit)(*pair) for pair in zip(logits, images)]
-        )
-
-        preds += list(labels)
-        gts += list(gt_labels)
+    preds, gts = zip(*results)
 
     # Pixel Accuracy, Mean Accuracy, Class IoU, Mean IoU, Freq Weighted IoU
     score = scores(gts, preds, n_class=CONFIG.DATASET.N_CLASSES)
 
-    filename = model_path.replace(".pth", "_crf.json")
-    with open(filename, "w") as f:
+    with open(save_path, "w") as f:
         json.dump(score, f, indent=4, sort_keys=True)
-    print("Saved:", filename)
 
 
 if __name__ == "__main__":

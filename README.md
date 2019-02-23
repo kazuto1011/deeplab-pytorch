@@ -1,52 +1,157 @@
 # DeepLab with PyTorch <!-- omit in toc --> 
 
-This is an unofficial **PyTorch** implementation to train **DeepLab v2** [[1](##references)] on **COCO-Stuff** dataset [[2](##references)] and **PASCAL VOC** dataset [[3]()]. The model can be trained without building the official implementation in Caffe. [Pre-trained models are provided](#pre-train-models). ResNet-based DeepLab v3/v3+ models are also included, although they are not tested. [```torch.hub``` is supported](#torchhub).
+This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##references)] with a **ResNet** backbone. **COCO-Stuff** dataset [[2](##references)] and **PASCAL VOC** dataset [[3]()] are supported. The initial weights (`.caffemodel`) officially provided by the authors are can be converted/used without building the Caffe API. DeepLab v3/v3+ models with the identical backbone are also included (although not tested). [```torch.hub``` is supported](#torchhub).
 
-- [Setup](#setup)
-  - [Requirements](#requirements)
-  - [Datasets](#datasets)
-  - [Initial weights](#initial-weights)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [Performance](#performance)
-  - [COCO-Stuff](#coco-stuff)
-  - [PASCAL VOC 2012](#pascal-voc-2012)
-  - [Pretrained models](#pretrained-models)
-- [Demo](#demo)
-  - [Single image](#single-image)
-  - [Webcam](#webcam)
-  - [torch.hub](#torchhub)
-- [Misc](#misc)
-  - [Difference with Caffe version](#difference-with-caffe-version)
-  - [Training batch normalization](#training-batch-normalization)
-- [References](#references)
+## Performance
+
+Pretrained models are provided. Note that the 2D interpolation ways are different from the original, which leads to a bit better results.
+
+### COCO-Stuff
+
+<table>
+    <tr>
+        <th>Train set</th>
+        <th>Eval set</th>
+        <th>CRF?</th>
+        <th>Code</th>
+        <th>Pixel<br>Accuracy</th>
+        <th>Mean<br>Accuracy</th>
+        <th>Mean IoU</th>
+        <th>FreqW IoU</th>
+    </tr>
+    <tr>
+        <td rowspan="3">
+            10k <i>train</i> &dagger;<br>
+            (<a href='https://drive.google.com/file/d/1Cgbl3Q_tHPFPyqfx2hx-9FZYBSbG5Rhy/view?usp=sharing'>Model</a>)
+        </td>
+        <td rowspan="3">10k <i>val</i> &dagger;</td>
+        <td rowspan="2"></td>
+        <td>Original [<a href="#references">2</a>]</td>
+        <td><strong>65.1</strong></td>
+        <td><strong>45.5</strong></td>
+        <td><strong>34.4</strong></td>
+        <td><strong>50.4</strong></td>
+    </tr>
+    <tr>
+        <td>Ours</td>
+        <td><strong>65.8</td>
+        <td><strong>45.7</strong></td>
+        <td><strong>34.8</strong></td>
+        <td><strong>51.2</strong></td>
+    </tr>
+    <tr>
+        <td>&#10003;</td>
+        <td>Ours</td>
+        <td>67.1</td>
+        <td>46.4</td>
+        <td>35.6</td>
+        <td>52.5</td>
+    </tr>
+    <tr>
+        <td rowspan="4">
+            164k <i>train</i><br>
+            (<a href='https://drive.google.com/file/d/18kR928yl9Hz4xxuxnYgg7Hpi36hM8J2d/view?usp=sharing'>Model</a>)
+        </td>
+        <td rowspan="2">10k <i>val</i></td>
+        <td></td>
+        <td>Ours</td>
+        <td>68.4</td>
+        <td>55.6</td>
+        <td>44.2</td>
+        <td>55.1</td>
+    </tr>
+    <tr>
+        <td>&#10003;</td>
+        <td>Ours</td>
+        <td>69.2</td>
+        <td>55.9</td>
+        <td>45.0</td>
+        <td>55.9</td>
+    </tr>
+    <tr>
+        <td rowspan="2">164k <i>val</i></td>
+        <td></td>
+        <td>Ours</td>
+        <td>66.8</td>
+        <td>51.2</td>
+        <td>39.1</td>
+        <td>51.5</td>
+    </tr>
+    <tr>
+        <td>&#10003;</td>
+        <td>Ours</td>
+        <td>67.6</td>
+        <td>51.5</td>
+        <td>39.7</td>
+        <td>52.3</td>
+    </tr>
+</table>
+
+&dagger; Images and labels are pre-warped to square-shape 513x513
+
+### PASCAL VOC 2012
+
+<table>
+    <tr>
+        <th>Train set</th>
+        <th>Eval set</th>
+        <th>CRF?</th>
+        <th>Code</th>
+        <th>Pixel<br>Accuracy</th>
+        <th>Mean<br>Accuracy</th>
+        <th>Mean IoU</th>
+        <th>FreqW IoU</th>
+    </tr>
+    <tr>
+        <td rowspan="4">
+            <i>trainaug</i><br>
+            (<a href='https://drive.google.com/file/d/1FaW2Sp7Jj3eaoyZtbabM1IWZnuScN-u6/view?usp=sharing'>Model</a>)
+        </td>
+        <td rowspan="4"><i>val</i></td>
+        <td rowspan="2"></td>
+        <td>Original [<a href="#references">3</a>]</td>
+        <td>-</td>
+        <td>-</td>
+        <td><strong>76.35</strong></td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Ours</td>
+        <td>94.64</td>
+        <td>86.50</td>
+        <td><strong>76.65</td>
+        <td>90.41</td>
+    </tr>
+    <tr>
+        <td rowspan="2">&#10003;</td>
+        <td>Original [<a href="#references">3</a>]</td>
+        <td>-</td>
+        <td>-</td>
+        <td><strong>77.69</strong></td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Ours</td>
+        <td>95.04</td>
+        <td>86.64</td>
+        <td><strong>77.93</strong></td>
+        <td>91.06</td>
+    </tr>
+</table>
 
 ## Setup
 
 ### Requirements
 
-For Anaconda users:
-
-```sh
-# Please modify CUDA option (default: 10.0)
-conda env create --file config/conda_env.yaml
-```
-
 * Python 2.7+/3.6+
-* [pytorch](https://pytorch.org/) 0.4.1+
-* [torchvision](https://pytorch.org/)
-* [torchnet](https://github.com/pytorch/tnt)
-* [pydensecrf](https://github.com/lucasb-eyer/pydensecrf)
-* [tensorflow](https://www.tensorflow.org/install/) (for tensorboard)
-* [tensorboardX](https://github.com/lanpa/tensorboard-pytorch) 1.0+
-* opencv 3.0.0+
-* tqdm
-* click
-* addict
-* scipy
-* matplotlib
-* yaml
-* joblib
+* Anaconda environement
+
+Then setup from `conda_env.yaml`. Please modify cuda option as needed (default: `cudatoolkit=10.0`)
+
+```console
+$ conda env create -f configs/conda_env.yaml
+$ conda activate deeplab-pytorch
+```
 
 ### Datasets
 
@@ -60,30 +165,35 @@ Setup instruction is provided in each link.
 1. Run the script below to download caffemodel pre-trained on ImageNet and 91-class COCO (1GB+).
 
 ```sh
-./scripts/setup_caffemodels.sh
+$ bash scripts/setup_caffemodels.sh
 ```
 
-2. Convert the caffemodel to pytorch compatible. No need to build the official DeepLab in Caffe!
+2. Convert the caffemodel to pytorch compatible. No need to build the official Caffe API!
 
 ```sh
 # This generates "deeplabv2_resnet101_COCO_init.pth" from "init.caffemodel"
-python convert.py --dataset init
+$ python convert.py --dataset coco
 ```
 
 ## Training
 
-Training, evaluation, and some demos are all through the [YAML configuration files](configs).
+Please see [```./scripts/train_eval.sh```](scripts/train_eval.sh) for example usage.
 
-```sh
-python main.py train --config-path configs/cocostuff164k.yaml
+```
+Usage: main.py train [OPTIONS]
+
+  Training DeepLab by v2 protocol
+
+Options:
+  -c, --config-path FILENAME  Dataset configuration file in YAML  [required]
+  --cuda / --cpu              Enable CUDA if available [default: --cuda]
+  --help                      Show this message and exit.
 ```
 
-* ```-c```, ```--config-path```: YAML file for dataset configuration (required)
-* ```--cuda/--cpu```: Switch GPU/CPU (default: GPU)
+To monitor a loss, lr values, and gpu usage:
 
 ```sh
-# Monitor a cross-entropy loss
-tensorboard --logdir runs
+$ tensorboard --logdir data/logs
 ```
 
 Common settings:
@@ -111,13 +221,13 @@ from 0.5 to 1.5, (2) padded if needed, and (3) randomly cropped to 321x321.
 
 [COCO-Stuff 10k](config/cocostuff10k.yaml):
 - **#Iterations**: Updated 20k iterations.
-- **#Classes**: Same as the 10k version above.
+- **#Classes**: Same as the 164k version above.
 - **Preprocessing**: (1) Input images are initially warped to 513x513 squares, (2) randomly re-scaled by factors ranging from
 0.5 to 1.5, (3) padded if needed, and (4) randomly cropped to 321x321 so that the input size is fixed during training.
 
 [PASCAL VOC 2012](config/voc12.yaml):
 - **#Iterations**: Updated 20k iterations.
-- **#Classes**: 20 foreground objects + background. Index 255 is an unlabeled class to be ignored.
+- **#Classes**: 20 foreground objects + 1 background. Index 255 is an unlabeled class to be ignored.
 - **Preprocessing**: (1) Input images are randomly re-scaled by factors ranging from 0.5 to 1.5, (2) padded if needed, and (3) randomly cropped
 to 321x321.
 
@@ -127,201 +237,76 @@ Processed image vs. label examples in COCO-Stuff:
 
 ## Evaluation
 
-This produces scores (.json) and logits (.npy)
+To compute scores in:
+* Pixel accuracy
+* Mean accuracy
+* Mean IoU
+* Frequency weighted IoU
 
-```bash
-python main.py test \
-    --config-path configs/cocostuff164k.yaml \
-    --model-path data/models/deeplab_resnet101/cocostuff164k/checkpoint_final.pth
 ```
+Usage: main.py test [OPTIONS]
 
-* ```-c```, ```--config-path```: YAML file for dataset configuration (required)
-* ```-m```, ```--model-path```: PyTorch model file (required)
-* ```--cuda/--cpu```: Switch GPU/CPU (default: GPU)
+  Evaluation on validation set
+
+Options:
+  -c, --config-path FILENAME  Dataset configuration file in YAML  [required]
+  -m, --model-path PATH       PyTorch model to be loaded  [required]
+  --cuda / --cpu              Enable CUDA if available [default: --cuda]
+  --help                      Show this message and exit.
+```
 
 To perform CRF post-processing:
 
-```bash
-python main.py crf \
-    --config-path configs/cocostuff164k.yaml \
-    --model-path data/models/deeplab_resnet101/cocostuff164k/checkpoint_final.pth
 ```
+Usage: main.py crf [OPTIONS]
 
-* ```-c```, ```--config-path```: YAML file for dataset configuration (required)
-* ```-m```, ```--model-path```: PyTorch model file (required)
-* ```--cuda/--cpu```: Switch GPU/CPU (default: GPU)
+  CRF post-processing on pre-computed logits
 
-## Performance
-
-***TODO: Add COCO-Stuff 164k results and pretrained models***
-
-### COCO-Stuff
-
-<table>
-    <tr>
-        <th>Train set</th>
-        <th>Eval set</th>
-        <th>CRF?</th>
-        <th>Code</th>
-        <th>Pixel<br>Accuracy</th>
-        <th>Mean<br>Accuracy</th>
-        <th>Mean IoU</th>
-        <th>FreqW IoU</th>
-    </tr>
-    <tr>
-        <td rowspan="3">10k <i>train</i> &dagger;</td>
-        <td rowspan="3">10k <i>val</i> &dagger;</td>
-        <td rowspan="2">No</td>
-        <td>Original [<a href="#references">2</a>]</td>
-        <td><strong>65.1</strong></td>
-        <td><strong>45.5</strong></td>
-        <td><strong>34.4</strong></td>
-        <td><strong>50.4</strong></td>
-    </tr>
-    <tr>
-        <td>Ours</td>
-        <td><strong>65.8</td>
-        <td><strong>45.7</strong></td>
-        <td><strong>34.8</strong></td>
-        <td><strong>51.2</strong></td>
-    </tr>
-    <tr>
-        <td>Yes</td>
-        <td>Ours</td>
-        <td>67.1</td>
-        <td>46.4</td>
-        <td>35.6</td>
-        <td>52.5</td>
-    </tr>
-    <tr>
-        <td rowspan="4">164k <i>train</i></td>
-        <td rowspan="2">10k <i>val</i></td>
-        <td>No</td>
-        <td>Ours</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Yes</td>
-        <td>Ours</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td rowspan="2">164k <i>val</i></td>
-        <td>No</td>
-        <td>Ours</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Yes</td>
-        <td>Ours</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-</table>
-
-&dagger; Images and labels are pre-warped to square-shape 513x513
-
-### PASCAL VOC 2012
-
-<table>
-    <tr>
-        <th>Train set</th>
-        <th>Eval set</th>
-        <th>CRF?</th>
-        <th>Code</th>
-        <th>Pixel<br>Accuracy</th>
-        <th>Mean<br>Accuracy</th>
-        <th>Mean IoU</th>
-        <th>FreqW IoU</th>
-    </tr>
-    <tr>
-        <td rowspan="4"><i>trainaug</i></td>
-        <td rowspan="4"><i>val</i></td>
-        <td rowspan="2">No</td>
-        <td>Original [<a href="#references">3</a>]</td>
-        <td>-</td>
-        <td>-</td>
-        <td><strong>76.35</strong></td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>Ours</td>
-        <td>94.64</td>
-        <td>86.50</td>
-        <td><strong>76.65</td>
-        <td>90.41</td>
-    </tr>
-    <tr>
-        <td rowspan="2">Yes</td>
-        <td>Original [<a href="#references">3</a>]</td>
-        <td>-</td>
-        <td>-</td>
-        <td><strong>77.69</strong></td>
-        <td>-</td>
-    </tr>
-    <tr>
-        <td>Ours</td>
-        <td>95.04</td>
-        <td>86.64</td>
-        <td><strong>77.93</strong></td>
-        <td>91.06</td>
-    </tr>
-</table>
-
-### Pretrained models
-
-* ~~Pretrained models (*.pth)~~
-* ~~Scores (*.json)~~
+Options:
+  -c, --config-path FILENAME  Dataset configuration file in YAML  [required]
+  -j, --n-jobs INTEGER        Number of parallel jobs  [default: # cores]
+  --help                      Show this message and exit.
+```
 
 ## Demo
 
-|           COCO-Stuff 164k           |           COCO-Stuff 10k            |          PASCAL VOC          |         Pretrained COCO          |
-| :---------------------------------: | :---------------------------------: | :--------------------------: | :------------------------------: |
-| ![](docs/examples/cocostuff10k.png) | ![](docs/examples/cocostuff10k.png) | ![](docs/examples/voc12.png) | ![](docs/examples/coco_init.png) |
-
+|           COCO-Stuff 164k            |           COCO-Stuff 10k            |       PASCAL VOC 2012        |         Pretrained COCO          |
+| :----------------------------------: | :---------------------------------: | :--------------------------: | :------------------------------: |
+| ![](docs/examples/cocostuff164k.png) | ![](docs/examples/cocostuff10k.png) | ![](docs/examples/voc12.png) | ![](docs/examples/coco_init.png) |
 
 ### Single image
 
-```bash
-python demo.py single \
-    --config-path configs/cocostuff164k.yaml \
-    --model-path data/models/deeplab_resnet101/cocostuff164k/checkpoint_final.pth \
-    --image-path docs/cat_dog.png \
 ```
+Usage: demo.py single [OPTIONS]
 
-* ```-c```, ```--config-path```: YAML file for dataset configuration (required)
-* ```-m```, ```--model-path```: PyTorch model file (required)
-* ```-i```, ```--image-path```: Image to be processed (required)
-* ```--crf```: CRF post-processing (default: False)
-* ```--cuda/--cpu```: Switch GPU/CPU (default: GPU)
+  Inference from a single image
+
+Options:
+  -c, --config-path FILENAME  Dataset configuration file in YAML  [required]
+  -m, --model-path PATH       PyTorch model to be loaded  [required]
+  -i, --image-path PATH       Image to be processed  [required]
+  --cuda / --cpu              Enable CUDA if available [default: --cuda]
+  --crf                       CRF post-processing  [default: False]
+  --help                      Show this message and exit.
+```
 
 ### Webcam
 
 A class of mouseovered pixel is shown in terminal.
 
-```bash
-python demo.py live \
-    --config-path configs/cocostuff164k.yaml \
-    --model-path data/models/deeplab_resnet101/cocostuff164k/checkpoint_final.pth \
 ```
+Usage: demo.py live [OPTIONS]
 
-* ```-c```, ```--config-path```: YAML file for dataset configuration (required)
-* ```-m```, ```--model-path```: PyTorch model file (required)
-* ```-i```, ```--image-path```: Image to be processed (required)
-* ```--crf```: CRF post-processing (default: False)
-* ```--camera-id```: Camera ID (default: 0)
-* ```--cuda/--cpu```: Switch GPU/CPU (default: GPU)
+  Inference from camera stream
+
+Options:
+  -c, --config-path FILENAME  Dataset configuration file in YAML  [required]
+  -m, --model-path PATH       PyTorch model to be loaded  [required]
+  --cuda / --cpu              Enable CUDA if available [default: --cuda]
+  --crf                       CRF post-processing  [default: False]
+  --camera-id INTEGER         Device ID  [default: 0]
+  --help                      Show this message and exit.
+```
 
 ### torch.hub
 
@@ -331,14 +316,14 @@ Model setup with 3 lines.
 ```python
 import torch.hub
 model = torch.hub.load("kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", n_classes=182)
-model.load_state_dict(torch.load("cocostuff164k_iter100k.pth"))
+model.load_state_dict(torch.load("deeplabv2_resnet101_msc-cocostuff164k-100000.pth"))
 ```
 
 ## Misc
 
 ### Difference with Caffe version
 
-* While the official code employs 1/16 bilinear interpolation (```Interp``` layer) for downsampling a label for only 0.5x input, this codebase does for both 0.5x and 0.75x inputs with nearest interpolation (```PIL.Image.resize```).
+* While the official code employs 1/16 bilinear interpolation (```Interp``` layer) for downsampling a label for only 0.5x input, this codebase does for both 0.5x and 0.75x inputs with nearest interpolation (```PIL.Image.resize```, [related issue](https://github.com/kazuto1011/deeplab-pytorch/issues/51)).
 * Bilinear interpolation on images and logits is performed with the ```align_corners=False```.
 
 ### Training batch normalization

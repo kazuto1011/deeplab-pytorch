@@ -1,7 +1,11 @@
+EXP:
+    ID: cocostuff164k
+    OUTPUT_DIR: data
+
 DATASET:
     NAME: cocostuff164k
     ROOT: /media/kazuto1011/Extra/cocostuff/cocostuff-164k
-    LABELS: ./data/datasets/cocostuff/labels_2.txt
+    LABELS: ./data/datasets/cocostuff/labels.txt
     N_CLASSES: 182
     IGNORE_LABEL: 255
     SCALES: [0.5, 0.75, 1.0, 1.25, 1.5]
@@ -27,9 +31,7 @@ MODEL:
     NAME: DeepLabV2_ResNet101_MSC
     N_BLOCKS: [3, 4, 23, 3]
     ATROUS_RATES: [6, 12, 18, 24]
-    INIT_MODEL: ./data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth
-    SAVE_DIR: ./data/models/deeplab_resnet101/cocostuff164k
-    RESULT_DIR: ./data/results/deeplab_resnet101/cocostuff164k
+    INIT_MODEL: data/models/coco/deeplabv1_resnet101/caffemodel/deeplabv1_resnet101-coco.pth
 
 SOLVER:
     BATCH_SIZE:
@@ -45,7 +47,6 @@ SOLVER:
     OPTIMIZER: sgd
     POLY_POWER: 0.9
     WEIGHT_DECAY: 5.0e-4
-    LOG_DIR: runs/cocostuff164k
     AVERAGE_LOSS: 20
 
 CRF:

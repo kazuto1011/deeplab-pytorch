@@ -5,6 +5,8 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-19
 
+from __future__ import absolute_import, print_function
+
 from collections import OrderedDict
 
 import torch
@@ -115,7 +117,7 @@ class ResNet(nn.Module):
         self.add_module("layer4", _ResLayer(n_blocks[2], 512, 256, 1024, 2, 1))
         self.add_module("layer5", _ResLayer(n_blocks[3], 1024, 512, 2048, 2, 1))
         self.add_module("pool5", nn.AdaptiveAvgPool2d(1))
-        self.add_module("fc1000", nn.Linear(2048, 1000))
+        self.add_module("fc", nn.Linear(2048, n_classes))
 
     def forward(self, x):
         h = self.layer1(x)
@@ -124,7 +126,7 @@ class ResNet(nn.Module):
         h = self.layer4(h)
         h = self.layer5(h)
         h = self.pool5(h)
-        h = self.fc1000(h.view(h.size(0), -1))
+        h = self.fc(h.view(h.size(0), -1))
         return h
 
 

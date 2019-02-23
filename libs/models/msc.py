@@ -27,12 +27,14 @@ class MSC(nn.Module):
         # Original
         logits = self.base(x)
         _, _, H, W = logits.shape
-        interp = lambda l: F.interpolate(l, size=(H, W), mode="bilinear")
+        interp = lambda l: F.interpolate(
+            l, size=(H, W), mode="bilinear", align_corners=False
+        )
 
         # Scaled
         logits_pyramid = []
         for p in self.scales:
-            h = F.interpolate(x, scale_factor=p, mode="bilinear")
+            h = F.interpolate(x, scale_factor=p, mode="bilinear", align_corners=False)
             logits_pyramid.append(self.base(h))
 
         # Pixel-wise max

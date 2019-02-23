@@ -4,21 +4,23 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pytorch
-  - torchvision
-  - cudatoolkit=10.0
-  - scipy
-  - matplotlib
-  - pyyaml
-  - click
-  - tqdm
   # - clang # For MacOS
   # - clangxx # For MacOS
-  - pydensecrf
+  - click
+  - cudatoolkit=10.0
+  - cython
+  - matplotlib
+  - pytorch
+  - pyyaml
+  - scipy
+  - torchvision
+  - tqdm
   - pip:
-    - torchnet==0.0.2
-    - opencv-python==3.4.1.15
-    - tensorboardX==1.2
-    - tensorflow==1.9.0
     - addict
+    - black
     - joblib
+    - opencv-python
+    - pydensecrf
+    - tensorboardX
+    - tensorflow
+    - torchnet

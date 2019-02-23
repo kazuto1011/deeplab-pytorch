@@ -5,7 +5,7 @@
 # URL:      http://kazuto1011.github.io
 # Created:  2017-11-19
 
-from collections import OrderedDict
+from __future__ import absolute_import, print_function
 
 import torch
 import torch.nn as nn
@@ -37,7 +37,7 @@ class _ASPP(nn.Module):
 
 class DeepLabV2(nn.Sequential):
     """
-    DeepLab v2
+    DeepLab v2: Dilated ResNet + ASPP
     Output stride is fixed at 8
     """
 
@@ -54,21 +54,6 @@ class DeepLabV2(nn.Sequential):
         for m in self.modules():
             if isinstance(m, _ConvBnReLU.BATCH_NORM):
                 m.eval()
-
-
-class DeepLabV2_COCO(nn.Sequential):
-    """
-    DeepLab v2 for pre-trained COCO model
-    """
-
-    def __init__(self, n_classes, n_blocks):
-        super(DeepLabV2_COCO, self).__init__()
-        self.add_module("layer1", _Stem())
-        self.add_module("layer2", _ResLayer(n_blocks[0], 64, 64, 256, 1, 1))
-        self.add_module("layer3", _ResLayer(n_blocks[1], 256, 128, 512, 2, 1))
-        self.add_module("layer4", _ResLayer(n_blocks[2], 512, 256, 1024, 1, 2))
-        self.add_module("layer5", _ResLayer(n_blocks[3], 1024, 512, 2048, 1, 4))
-        self.add_module("fc1_coco", nn.Conv2d(2048, n_classes, 1))
 
 
 if __name__ == "__main__":

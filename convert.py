@@ -17,7 +17,7 @@ import torch
 from addict import Dict
 
 from libs import caffe_pb2
-from libs.models import DeepLabV2_ResNet101_COCO, DeepLabV2_ResNet101_MSC
+from libs.models import DeepLabV1_ResNet101, DeepLabV2_ResNet101_MSC
 
 
 def parse_caffemodel(model_path):
@@ -69,9 +69,9 @@ def parse_caffemodel(model_path):
         # Fully-connected
         elif "InnerProduct" in layer.type:
             params[layer.name] = {}
-            params[layer.name]["weight"] = np.array(layer.blobs[0].data)
+            params[layer.name]["weight"] = list(layer.blobs[0].data)
             if len(layer.blobs) == 2:
-                params[layer.name]["bias"] = np.array(layer.blobs[1].data)
+                params[layer.name]["bias"] = list(layer.blobs[1].data)
         # Batch Normalization
         elif "BatchNorm" in layer.type:
             params[layer.name] = {}
@@ -85,6 +85,7 @@ def parse_caffemodel(model_path):
             params[layer.name][
                 "momentum"
             ] = layer.batch_norm_param.moving_average_fraction
+            params[layer.name]["num_batches_tracked"] = np.array(0)
             batch_norm_layer = layer.name
         # Scale
         elif "Scale" in layer.type:
@@ -131,7 +132,7 @@ def translate_layer_name(source, target="base"):
             stage = source[2]
             target += "aspp.{}".format(stage)
         else:
-            target += "_".join(source)
+            target += "fc"
     elif "conv1" in source[0]:
         target += "layer1.conv1.conv"
     elif "conv1" in source[1]:
@@ -150,26 +151,34 @@ def translate_layer_name(source, target="base"):
 
 @click.command()
 @click.option(
-    "-d", "--dataset", type=click.Choice(["voc12", "coco", "imagenet"], required=True)
+    "-d",
+    "--dataset",
+    type=click.Choice(["voc12", "coco"]),
+    required=True,
+    help="Caffemodel",
 )
 def main(dataset):
+    """
+    Convert caffemodels to pytorch models
+    """
+
     WHITELIST = ["kernel_size", "stride", "padding", "dilation", "eps", "momentum"]
     CONFIG = Dict(
         {
             "voc12": {
                 # For loading the provided VOC 2012 caffemodel
-                "PATH_CAFFE_MODEL": "data/models/deeplab_resnet101/voc12/train2_iter_20000.caffemodel",
-                "PATH_PYTORCH_MODEL": "data/models/deeplab_resnet101/voc12/deeplabv2_resnet101_VOC2012.pth",
+                "PATH_CAFFE_MODEL": "data/models/voc12/deeplabv2_resnet101_msc/caffemodel/train2_iter_20000.caffemodel",
+                "PATH_PYTORCH_MODEL": "data/models/voc12/deeplabv2_resnet101_msc/caffemodel/deeplabv2_resnet101_msc-vocaug.pth",
                 "N_CLASSES": 21,
                 "MODEL": "DeepLabV2_ResNet101_MSC",
                 "HEAD": "base.",
             },
             "coco": {
                 # For loading the provided initial weights pre-trained on COCO
-                "PATH_CAFFE_MODEL": "data/models/deeplab_resnet101/coco_init/init.caffemodel",
-                "PATH_PYTORCH_MODEL": "data/models/deeplab_resnet101/coco_init/deeplabv2_resnet101_COCO_init.pth",
+                "PATH_CAFFE_MODEL": "data/models/coco/deeplabv1_resnet101/caffemodel/init.caffemodel",
+                "PATH_PYTORCH_MODEL": "data/models/coco/deeplabv1_resnet101/caffemodel/deeplabv1_resnet101-coco.pth",
                 "N_CLASSES": 91,
-                "MODEL": "DeepLabV2_ResNet101_COCO",
+                "MODEL": "DeepLabV1_ResNet101",
                 "HEAD": "",
             },
         }.get(dataset)
@@ -213,7 +222,7 @@ def main(dataset):
                         )
                     print(
                         "\033[34m[Passed!]\033[00m",
-                        (caffe_layer + "/" + param_name).ljust(30),
+                        (caffe_layer + "/" + param_name).ljust(35),
                         "->",
                         pytorch_param,
                     )
@@ -221,14 +230,14 @@ def main(dataset):
 
                 # Weight conversion
                 if pytorch_param in reference_state_dict:
-                    caffe_values = torch.FloatTensor(caffe_values)
+                    caffe_values = torch.tensor(caffe_values)
                     caffe_values = caffe_values.view_as(
                         reference_state_dict[pytorch_param]
                     )
                     converted_state_dict[pytorch_param] = caffe_values
                     print(
                         "\033[32m[Copied!]\033[00m",
-                        (caffe_layer + "/" + param_name).ljust(30),
+                        (caffe_layer + "/" + param_name).ljust(35),
                         "->",
                         pytorch_param,
                     )

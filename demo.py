@@ -84,15 +84,14 @@ def inference(model, image, raw_image=None, postprocessor=None):
 
     # Image -> Probability map
     logits = model(image)
-    logits = F.interpolate(logits, size=(H, W), mode="bilinear")
-    probs = F.softmax(logits, dim=1)
-    probs = probs.data.cpu().numpy()[0]
+    logits = F.interpolate(logits, size=(H, W), mode="bilinear", align_corners=False)
+    probs = F.softmax(logits, dim=1)[0]
+    probs = probs.cpu().numpy()
 
     # Refine the prob map with CRF
     if postprocessor and raw_image is not None:
         probs = postprocessor(raw_image, probs)
 
-    # Pixel-wise argmax
     labelmap = np.argmax(probs, axis=0)
 
     return labelmap
@@ -101,22 +100,49 @@ def inference(model, image, raw_image=None, postprocessor=None):
 @click.group()
 @click.pass_context
 def main(ctx):
+    """
+    Demo with a trained model
+    """
+
     print("Mode:", ctx.invoked_subcommand)
 
 
-@main.command(help="Inference from a single image")
-@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
-@click.option("-i", "--image-path", type=click.Path(exists=True), required=True)
-@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
-@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post-processing")
-def single(config_path, image_path, model_path, cuda, crf):
-    # Disable autograd globally
-    torch.set_grad_enabled(False)
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "-i",
+    "--image-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="Image to be processed",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+@click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
+def single(config_path, model_path, image_path, cuda, crf):
+    """
+    Inference from a single image
+    """
 
     # Setup
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config_path)))
+    torch.set_grad_enabled(False)
+
     classes = get_classtable(CONFIG)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
 
@@ -125,6 +151,7 @@ def single(config_path, image_path, model_path, cuda, crf):
     model.load_state_dict(state_dict)
     model.eval()
     model.to(device)
+    print("Model:", CONFIG.MODEL.NAME)
 
     # Inference
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
@@ -154,21 +181,37 @@ def single(config_path, image_path, model_path, cuda, crf):
     plt.show()
 
 
-@main.command(help="Inference from camera stream")
-@click.option("-c", "--config-path", type=click.Path(exists=True), required=True)
-@click.option("-m", "--model-path", type=click.Path(exists=True), required=True)
-@click.option("--cuda/--cpu", default=True, help="Switch GPU/CPU")
-@click.option("--crf", is_flag=True, help="CRF post processing")
-@click.option("--camera-id", type=int, default=0)
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+@click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
+@click.option("--camera-id", type=int, default=0, show_default=True, help="Device ID")
 def live(config_path, model_path, cuda, crf, camera_id):
-    # Disable autograd globally
-    torch.set_grad_enabled(False)
-    # Auto-tune cuDNN
-    torch.backends.cudnn.benchmark = True
+    """
+    Inference from camera stream
+    """
 
     # Setup
+    CONFIG = Dict(yaml.load(config_path))
     device = get_device(cuda)
-    CONFIG = Dict(yaml.load(open(config_path)))
+    torch.set_grad_enabled(False)
+    torch.backends.cudnn.benchmark = True
+
     classes = get_classtable(CONFIG)
     postprocessor = setup_postprocessor(CONFIG) if crf else None
 
@@ -177,6 +220,7 @@ def live(config_path, model_path, cuda, crf, camera_id):
     model.load_state_dict(state_dict)
     model.eval()
     model.to(device)
+    print("Model:", CONFIG.MODEL.NAME)
 
     # UVC camera stream
     cap = cv2.VideoCapture(camera_id)
