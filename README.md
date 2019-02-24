@@ -171,7 +171,7 @@ $ bash scripts/setup_caffemodels.sh
 2. Convert the caffemodel to pytorch compatible. No need to build the official Caffe API!
 
 ```sh
-# This generates "deeplabv2_resnet101_COCO_init.pth" from "init.caffemodel"
+# This generates "deeplabv1_resnet101-coco.pth" from "init.caffemodel"
 $ python convert.py --dataset coco
 ```
 
