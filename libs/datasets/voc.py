@@ -42,8 +42,9 @@ class VOC(_BaseDataset):
         else:
             raise ValueError("Invalid split name: {}".format(self.split))
 
-    def _load_data(self, image_id):
+    def _load_data(self, index):
         # Set paths
+        image_id = self.files[index]
         image_path = osp.join(self.root, self.image_dir, image_id + ".jpg")
         label_path = osp.join(self.root, self.label_dir, image_id + ".png")
         # Load an image
