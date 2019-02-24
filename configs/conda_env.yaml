@@ -10,6 +10,7 @@ dependencies:
   - cudatoolkit=10.0
   - cython
   - matplotlib
+  - pydensecrf
   - pytorch
   - pyyaml
   - scipy
@@ -20,7 +21,6 @@ dependencies:
     - black
     - joblib
     - opencv-python
-    - pydensecrf
     - tensorboardX
     - tensorflow
     - torchnet
