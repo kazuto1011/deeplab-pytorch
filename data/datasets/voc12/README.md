@@ -30,6 +30,7 @@ $ bash scripts/setup_voc12.sh [PATH TO DOWNLOAD]
 3. Download official image sets as `ImageSets/SegmentationAug`.
 
 * From https://ucla.app.box.com/s/rd9z2xvwsfpksi7mi08i2xqrj7ab4keb/file/55053033642
+* Or https://github.com/kazuto1011/deeplab-pytorch/files/2945588/list.zip
 
 ```sh
 /VOCdevkit
