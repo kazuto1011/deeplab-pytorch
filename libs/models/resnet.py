@@ -20,6 +20,8 @@ try:
 except:
     _BATCH_NORM = nn.BatchNorm2d
 
+_BOTTLENECK_EXPANSION = 4
+
 
 class _ConvBnReLU(nn.Sequential):
     """
@@ -49,8 +51,9 @@ class _Bottleneck(nn.Module):
     Bottleneck block of MSRA ResNet.
     """
 
-    def __init__(self, in_ch, mid_ch, out_ch, stride, dilation, downsample):
+    def __init__(self, in_ch, out_ch, stride, dilation, downsample):
         super(_Bottleneck, self).__init__()
+        mid_ch = out_ch // _BOTTLENECK_EXPANSION
         self.reduce = _ConvBnReLU(in_ch, mid_ch, 1, stride, 0, 1, True)
         self.conv3x3 = _ConvBnReLU(mid_ch, mid_ch, 3, 1, dilation, dilation, True)
         self.increase = _ConvBnReLU(mid_ch, out_ch, 1, 1, 0, 1, False)
@@ -73,26 +76,25 @@ class _ResLayer(nn.Sequential):
     Residual layer with multi grids
     """
 
-    def __init__(
-        self, n_layers, in_ch, mid_ch, out_ch, stride, dilation, multi_grids=None
-    ):
+    def __init__(self, n_layers, in_ch, out_ch, stride, dilation, multi_grids=None):
         super(_ResLayer, self).__init__()
 
         if multi_grids is None:
             multi_grids = [1 for _ in range(n_layers)]
         else:
-            assert n_layers == len(
-                multi_grids
-            ), "{} values expected, but got: mg={}".format(n_layers, multi_grids)
+            assert n_layers == len(multi_grids)
 
-        self.add_module(
-            "block1",
-            _Bottleneck(in_ch, mid_ch, out_ch, stride, dilation * multi_grids[0], True),
-        )
-        for i, rate in zip(range(2, n_layers + 1), multi_grids[1:]):
+        # Downsampling is only in the first block
+        for i in range(n_layers):
             self.add_module(
-                "block" + str(i),
-                _Bottleneck(out_ch, mid_ch, out_ch, 1, dilation * rate, False),
+                "block{}".format(i + 1),
+                _Bottleneck(
+                    in_ch=(in_ch if i == 0 else out_ch),
+                    out_ch=out_ch,
+                    stride=(stride if i == 0 else 1),
+                    dilation=dilation * multi_grids[i],
+                    downsample=(True if i == 0 else False),
+                ),
             )
 
 
@@ -102,32 +104,29 @@ class _Stem(nn.Sequential):
     Note that the max pooling is different from both MSRA and FAIR ResNet.
     """
 
-    def __init__(self):
+    def __init__(self, out_ch):
         super(_Stem, self).__init__()
-        self.add_module("conv1", _ConvBnReLU(3, 64, 7, 2, 3, 1))
+        self.add_module("conv1", _ConvBnReLU(3, out_ch, 7, 2, 3, 1))
         self.add_module("pool", nn.MaxPool2d(3, 2, 1, ceil_mode=True))
 
 
-class ResNet(nn.Module):
+class _Flatten(nn.Module):
+    def forward(self, x):
+        return x.view(x.size(0), -1)
+
+
+class ResNet(nn.Sequential):
     def __init__(self, n_classes, n_blocks):
         super(ResNet, self).__init__()
-        self.add_module("layer1", _Stem())
-        self.add_module("layer2", _ResLayer(n_blocks[0], 64, 64, 256, 1, 1))
-        self.add_module("layer3", _ResLayer(n_blocks[1], 256, 128, 512, 2, 1))
-        self.add_module("layer4", _ResLayer(n_blocks[2], 512, 256, 1024, 2, 1))
-        self.add_module("layer5", _ResLayer(n_blocks[3], 1024, 512, 2048, 2, 1))
+        ch = [64 * 2 ** p for p in range(6)]
+        self.add_module("layer1", _Stem(ch[0]))
+        self.add_module("layer2", _ResLayer(n_blocks[0], ch[0], ch[2], 1, 1))
+        self.add_module("layer3", _ResLayer(n_blocks[1], ch[2], ch[3], 2, 1))
+        self.add_module("layer4", _ResLayer(n_blocks[2], ch[3], ch[4], 2, 1))
+        self.add_module("layer5", _ResLayer(n_blocks[3], ch[4], ch[5], 2, 1))
         self.add_module("pool5", nn.AdaptiveAvgPool2d(1))
-        self.add_module("fc", nn.Linear(2048, n_classes))
-
-    def forward(self, x):
-        h = self.layer1(x)
-        h = self.layer2(h)
-        h = self.layer3(h)
-        h = self.layer4(h)
-        h = self.layer5(h)
-        h = self.pool5(h)
-        h = self.fc(h.view(h.size(0), -1))
-        return h
+        self.add_module("flatten", _Flatten())
+        self.add_module("fc", nn.Linear(ch[5], n_classes))
 
 
 if __name__ == "__main__":

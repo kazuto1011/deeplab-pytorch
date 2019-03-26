@@ -25,23 +25,24 @@ class DeepLabV3Plus(nn.Module):
     def __init__(self, n_classes, n_blocks, atrous_rates, multi_grids, output_stride):
         super(DeepLabV3Plus, self).__init__()
 
+        # Stride and dilation
         if output_stride == 8:
-            stride = [1, 2, 1, 1]
-            dilation = [1, 1, 2, 2]
+            s = [1, 2, 1, 1]
+            d = [1, 1, 2, 4]
         elif output_stride == 16:
-            stride = [1, 2, 2, 1]
-            dilation = [1, 1, 1, 2]
+            s = [1, 2, 2, 1]
+            d = [1, 1, 1, 2]
 
         # Encoder
-        self.layer1 = _Stem()
-        self.layer2 = _ResLayer(n_blocks[0], 64, 64, 256, stride[0], dilation[0])
-        self.layer3 = _ResLayer(n_blocks[1], 256, 128, 512, stride[1], dilation[1])
-        self.layer4 = _ResLayer(n_blocks[2], 512, 256, 1024, stride[2], dilation[2])
-        self.layer5 = _ResLayer(
-            n_blocks[3], 1024, 512, 2048, stride[3], dilation[3], multi_grids
-        )
-        self.aspp = _ASPP(2048, 256, atrous_rates)
-        self.fc1 = _ConvBnReLU(256 * (len(atrous_rates) + 2), 256, 1, 1, 0, 1)
+        ch = [64 * 2 ** p for p in range(6)]
+        self.layer1 = _Stem(ch[0])
+        self.layer2 = _ResLayer(n_blocks[0], ch[0], ch[2], s[0], d[0])
+        self.layer3 = _ResLayer(n_blocks[1], ch[2], ch[3], s[1], d[1])
+        self.layer4 = _ResLayer(n_blocks[2], ch[3], ch[4], s[2], d[2])
+        self.layer5 = _ResLayer(n_blocks[3], ch[4], ch[5], s[3], d[3], multi_grids)
+        self.aspp = _ASPP(ch[5], 256, atrous_rates)
+        concat_ch = 256 * (len(atrous_rates) + 2)
+        self.add_module("fc1", _ConvBnReLU(concat_ch, 256, 1, 1, 0, 1))
 
         # Decoder
         self.reduce = _ConvBnReLU(256, 48, 1, 1, 0, 1)
