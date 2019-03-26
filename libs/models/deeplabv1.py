@@ -22,11 +22,12 @@ class DeepLabV1(nn.Sequential):
 
     def __init__(self, n_classes, n_blocks):
         super(DeepLabV1, self).__init__()
-        self.add_module("layer1", _Stem())
-        self.add_module("layer2", _ResLayer(n_blocks[0], 64, 64, 256, 1, 1))
-        self.add_module("layer3", _ResLayer(n_blocks[1], 256, 128, 512, 2, 1))
-        self.add_module("layer4", _ResLayer(n_blocks[2], 512, 256, 1024, 1, 2))
-        self.add_module("layer5", _ResLayer(n_blocks[3], 1024, 512, 2048, 1, 4))
+        ch = [64 * 2 ** p for p in range(6)]
+        self.add_module("layer1", _Stem(ch[0]))
+        self.add_module("layer2", _ResLayer(n_blocks[0], ch[0], ch[2], 1, 1))
+        self.add_module("layer3", _ResLayer(n_blocks[1], ch[2], ch[3], 2, 1))
+        self.add_module("layer4", _ResLayer(n_blocks[2], ch[3], ch[4], 1, 2))
+        self.add_module("layer5", _ResLayer(n_blocks[3], ch[4], ch[5], 1, 4))
         self.add_module("fc", nn.Conv2d(2048, n_classes, 1))
 
 
