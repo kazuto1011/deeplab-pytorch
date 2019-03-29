@@ -8,16 +8,16 @@
 from __future__ import print_function
 
 
-def deeplabv2_resnet101(**kwargs):
+def deeplabv2_resnet101(pretrained=False, **kwargs):
     """
     DeepLab v2 model with ResNet-101 backbone
     n_classes (int): the number of classes
     """
 
-    if kwargs["pretrained"]:
+    if pretrained:
         raise NotImplementedError(
             "Please download from "
-            "https://github.com/kazuto1011/deeplab-pytorch/tree/master#pretrained-models"
+            "https://github.com/kazuto1011/deeplab-pytorch/tree/master#performance"
         )
 
     from libs.models.deeplabv2 import DeepLabV2
