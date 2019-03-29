@@ -17,7 +17,7 @@ def deeplabv2_resnet101(pretrained=False, **kwargs):
     if pretrained:
         raise NotImplementedError(
             "Please download from "
-            "https://github.com/kazuto1011/deeplab-pytorch/tree/master#pretrained-models"
+            "https://github.com/kazuto1011/deeplab-pytorch/tree/master#performance"
         )
 
     from libs.models.deeplabv2 import DeepLabV2
