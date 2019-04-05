@@ -100,7 +100,7 @@ class _ResLayer(nn.Sequential):
 
 class _Stem(nn.Sequential):
     """
-    The 1st Residual Layer.
+    The 1st conv layer.
     Note that the max pooling is different from both MSRA and FAIR ResNet.
     """
 
