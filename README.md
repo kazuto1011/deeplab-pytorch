@@ -1,10 +1,10 @@
 # DeepLab with PyTorch <!-- omit in toc --> 
 
-This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##references)] with a **ResNet** backbone. **COCO-Stuff** dataset [[2](##references)] and **PASCAL VOC** dataset [[3]()] are supported. The initial weights (`.caffemodel`) officially provided by the authors are can be converted/used without building the Caffe API. DeepLab v3/v3+ models with the identical backbone are also included (although not tested). [```torch.hub``` is supported](#torchhub).
+This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##references)] with a **ResNet-101** backbone. **COCO-Stuff** dataset [[2](##references)] and **PASCAL VOC** dataset [[3]()] are supported. The initial weights (`.caffemodel`) officially provided by the authors are can be converted/used without building the Caffe API. DeepLab v3/v3+ models with the identical backbone are also included (although not tested). [```torch.hub``` is supported](#torchhub).
 
 ## Performance
 
-Pretrained models are provided. Note that the 2D interpolation ways are different from the original, which leads to a bit better results.
+Pretrained models are provided for each training set. Note that the 2D interpolation ways are different from the original, which leads to a bit better results.
 
 ### COCO-Stuff
 
