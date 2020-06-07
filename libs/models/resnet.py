@@ -40,7 +40,7 @@ class _ConvBnReLU(nn.Sequential):
                 in_ch, out_ch, kernel_size, stride, padding, dilation, bias=False
             ),
         )
-        self.add_module("bn", _BATCH_NORM(out_ch, eps=1e-5, momentum=0.999))
+        self.add_module("bn", _BATCH_NORM(out_ch, eps=1e-5, momentum=1 - 0.999))
 
         if relu:
             self.add_module("relu", nn.ReLU())

@@ -82,9 +82,9 @@ def parse_caffemodel(model_path):
                 np.array(layer.blobs[1].data) / layer.blobs[2].data[0]
             )
             params[layer.name]["eps"] = layer.batch_norm_param.eps
-            params[layer.name][
-                "momentum"
-            ] = layer.batch_norm_param.moving_average_fraction
+            params[layer.name]["momentum"] = (
+                1 - layer.batch_norm_param.moving_average_fraction
+            )
             params[layer.name]["num_batches_tracked"] = np.array(0)
             batch_norm_layer = layer.name
         # Scale
