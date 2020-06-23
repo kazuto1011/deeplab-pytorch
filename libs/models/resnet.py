@@ -60,7 +60,7 @@ class _Bottleneck(nn.Module):
         self.shortcut = (
             _ConvBnReLU(in_ch, out_ch, 1, stride, 0, 1, False)
             if downsample
-            else lambda x: x  # identity
+            else nn.Identity()
         )
 
     def forward(self, x):
@@ -110,11 +110,6 @@ class _Stem(nn.Sequential):
         self.add_module("pool", nn.MaxPool2d(3, 2, 1, ceil_mode=True))
 
 
-class _Flatten(nn.Module):
-    def forward(self, x):
-        return x.view(x.size(0), -1)
-
-
 class ResNet(nn.Sequential):
     def __init__(self, n_classes, n_blocks):
         super(ResNet, self).__init__()
@@ -125,7 +120,7 @@ class ResNet(nn.Sequential):
         self.add_module("layer4", _ResLayer(n_blocks[2], ch[3], ch[4], 2, 1))
         self.add_module("layer5", _ResLayer(n_blocks[3], ch[4], ch[5], 2, 1))
         self.add_module("pool5", nn.AdaptiveAvgPool2d(1))
-        self.add_module("flatten", _Flatten())
+        self.add_module("flatten", nn.Flatten())
         self.add_module("fc", nn.Linear(ch[5], n_classes))
 
 

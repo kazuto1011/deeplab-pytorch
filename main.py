@@ -17,15 +17,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import yaml
-from addict import Dict
+from omegaconf import OmegaConf
 from PIL import Image
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from torchnet.meter import MovingAverageValueMeter
 from tqdm import tqdm
 
 from libs.datasets import get_dataset
-from libs.models import *
+from libs.models import DeepLabV2_ResNet101_MSC
 from libs.utils import DenseCRF, PolynomialLR, scores
 
 
@@ -110,7 +109,7 @@ def train(config_path, cuda):
     """
 
     # Configuration
-    CONFIG = Dict(yaml.load(config_path))
+    CONFIG = OmegaConf.load(config_path)
     device = get_device(cuda)
     torch.backends.cudnn.benchmark = True
 
@@ -144,7 +143,7 @@ def train(config_path, cuda):
     ), 'Currently support only "DeepLabV2_ResNet101_MSC"'
 
     # Model setup
-    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    model = DeepLabV2_ResNet101_MSC(n_classes=CONFIG.DATASET.N_CLASSES)
     state_dict = torch.load(CONFIG.MODEL.INIT_MODEL)
     print("    Init:", CONFIG.MODEL.INIT_MODEL)
     for m in model.base.state_dict().keys():
@@ -236,7 +235,7 @@ def train(config_path, cuda):
                 labels_ = resize_labels(labels, size=(H, W))
                 iter_loss += criterion(logit, labels_.to(device))
 
-            # Propagate backward (just compute gradients wrt the loss)
+            # Propagate backward (just compute gradients)
             iter_loss /= CONFIG.SOLVER.ITER_SIZE
             iter_loss.backward()
 
@@ -308,7 +307,7 @@ def test(config_path, model_path, cuda):
     """
 
     # Configuration
-    CONFIG = Dict(yaml.load(config_path))
+    CONFIG = OmegaConf.load(config_path)
     device = get_device(cuda)
     torch.set_grad_enabled(False)
 
@@ -417,7 +416,7 @@ def crf(config_path, n_jobs):
     """
 
     # Configuration
-    CONFIG = Dict(yaml.load(config_path))
+    CONFIG = OmegaConf.load(config_path)
     torch.set_grad_enabled(False)
     print("# jobs:", n_jobs)
 

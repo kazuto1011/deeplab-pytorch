@@ -16,8 +16,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import yaml
-from addict import Dict
+from omegaconf import OmegaConf
 
 from libs.models import *
 from libs.utils import DenseCRF
@@ -139,7 +138,7 @@ def single(config_path, model_path, image_path, cuda, crf):
     """
 
     # Setup
-    CONFIG = Dict(yaml.load(config_path))
+    CONFIG = OmegaConf.load(config_path)
     device = get_device(cuda)
     torch.set_grad_enabled(False)
 
@@ -207,7 +206,7 @@ def live(config_path, model_path, cuda, crf, camera_id):
     """
 
     # Setup
-    CONFIG = Dict(yaml.load(config_path))
+    CONFIG = OmegaConf.load(config_path)
     device = get_device(cuda)
     torch.set_grad_enabled(False)
     torch.backends.cudnn.benchmark = True
