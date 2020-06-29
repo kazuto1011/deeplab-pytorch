@@ -37,7 +37,7 @@ This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##refere
     </tr>
     <tr>
         <td rowspan="2"><strong>This repo</strong></td>
-        <td rowspan="2"><a href='https://drive.google.com/file/d/1Cgbl3Q_tHPFPyqfx2hx-9FZYBSbG5Rhy/view?usp=sharing'>Download</a></td>
+        <td rowspan="2"><a href="https://github.com/kazuto1011/deeplab-pytorch/releases/download/v1.0/deeplabv2_resnet101_msc-cocostuff10k-20000.pth">Download</a></td>
         <td></td>
         <td><strong>65.8</td>
         <td><strong>45.7</strong></td>
@@ -57,7 +57,7 @@ This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##refere
         </td>
         <td rowspan="2">164k <i>val</i></td>
         <td rowspan="2"><strong>This repo</strong></td>
-        <td rowspan="2"><a href='https://drive.google.com/file/d/18kR928yl9Hz4xxuxnYgg7Hpi36hM8J2d/view?usp=sharing'>Download</a> &Dagger;</td>
+        <td rowspan="2"><a href="https://github.com/kazuto1011/deeplab-pytorch/releases/download/v1.0/deeplabv2_resnet101_msc-cocostuff164k-100000.pth">Download</a> &Dagger;</td>
         <td></td>
         <td>66.8</td>
         <td>51.2</td>
@@ -112,7 +112,7 @@ This is an unofficial **PyTorch** implementation of **DeepLab v2** [[1](##refere
     </tr>
     <tr>
         <td rowspan="2"><strong>This repo</strong></td>
-        <td rowspan="2"><a href='https://drive.google.com/file/d/1FaW2Sp7Jj3eaoyZtbabM1IWZnuScN-u6/view?usp=sharing'>Download</a></td>
+        <td rowspan="2"><a href="https://github.com/kazuto1011/deeplab-pytorch/releases/download/v1.0/deeplabv2_resnet101_msc-vocaug-20000.pth">Download</a></td>
         <td></td>
         <td>94.64</td>
         <td>86.50</td>
@@ -240,7 +240,7 @@ python demo.py single \
 
 To run on a webcam:
 
-```console
+```bash
 python demo.py live \
     --config-path configs/voc12.yaml \
     --model-path deeplabv2_resnet101_msc-vocaug-20000.pth
@@ -252,12 +252,11 @@ To run a CRF post-processing, add `--crf`. To run on a CPU, add `--cpu`.
 
 ### torch.hub
 
-Model setup with 3 lines
+Model setup with two lines
 
 ```python
 import torch.hub
-model = torch.hub.load("kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", n_classes=182)
-model.load_state_dict(torch.load("deeplabv2_resnet101_msc-cocostuff164k-100000.pth"))
+model = torch.hub.load("kazuto1011/deeplab-pytorch", "deeplabv2_resnet101", pretrained='cocostuff164k', n_classes=182)
 ```
 
 ### Difference with Caffe version
