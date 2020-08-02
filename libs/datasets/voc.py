@@ -45,8 +45,8 @@ class VOC(_BaseDataset):
     def _load_data(self, index):
         # Set paths
         image_id = self.files[index]
-        image_path = osp.join(self.root, self.image_dir, image_id + ".jpg")
-        label_path = osp.join(self.root, self.label_dir, image_id + ".png")
+        image_path = osp.join(self.image_dir, image_id + ".jpg")
+        label_path = osp.join(self.label_dir, image_id + ".png")
         # Load an image
         image = cv2.imread(image_path, cv2.IMREAD_COLOR).astype(np.float32)
         label = np.asarray(Image.open(label_path), dtype=np.int32)
