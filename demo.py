@@ -7,6 +7,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import os
+from pathlib import Path
 import click
 import cv2
 import matplotlib
@@ -21,6 +23,9 @@ from omegaconf import OmegaConf
 from libs.models import *
 from libs.utils import DenseCRF
 
+def makedirs(path):
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
 def get_device(cuda):
     cuda = cuda and torch.cuda.is_available()
@@ -129,10 +134,18 @@ def main(ctx):
     help="Image to be processed",
 )
 @click.option(
+    "-i",
+    "--output-path",
+    type=click.Path(exists=False),
+    required=True,
+    default="./results/single",
+    help="Path to save outputs",
+)
+@click.option(
     "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
 )
 @click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
-def single(config_path, model_path, image_path, cuda, crf):
+def single(config_path, model_path, image_path, output_path, cuda, crf):
     """
     Inference from a single image
     """
@@ -176,9 +189,98 @@ def single(config_path, model_path, image_path, cuda, crf):
         ax.imshow(mask.astype(np.float32), alpha=0.5)
         ax.axis("off")
 
-    plt.tight_layout()
-    plt.show()
+    makedirs(output_path)
 
+    plt.tight_layout()
+    #plt.show()
+    plt.savefig(output_path + '/' + os.path.basename(image_path))
+
+@main.command()
+@click.option(
+    "-c",
+    "--config-path",
+    type=click.File(),
+    required=True,
+    help="Dataset configuration file in YAML",
+)
+@click.option(
+    "-m",
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="PyTorch model to be loaded",
+)
+@click.option(
+    "-i",
+    "--input-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="Dir including input images to be processed",
+)
+@click.option(
+    "-i",
+    "--output-path",
+    type=click.Path(exists=False),
+    required=True,
+    default="./results/multi",
+    help="Path to save outputs",
+)
+@click.option(
+    "--cuda/--cpu", default=True, help="Enable CUDA if available [default: --cuda]"
+)
+@click.option("--crf", is_flag=True, show_default=True, help="CRF post-processing")
+def multi(config_path, model_path, input_path, output_path, cuda, crf):
+    """
+    Inference from multi images
+    """
+
+    # Setup
+    CONFIG = OmegaConf.load(config_path)
+    device = get_device(cuda)
+    torch.set_grad_enabled(False)
+
+    classes = get_classtable(CONFIG)
+    postprocessor = setup_postprocessor(CONFIG) if crf else None
+
+    model = eval(CONFIG.MODEL.NAME)(n_classes=CONFIG.DATASET.N_CLASSES)
+    state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    model.eval()
+    model.to(device)
+    print("Model:", CONFIG.MODEL.NAME)
+
+    image_paths = list(Path(input_path).glob("*.jpg"))
+
+    for image_path in image_paths:
+        # Inference
+        print("path = " + str(image_path))
+        image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+        image, raw_image = preprocessing(image, device, CONFIG)
+        labelmap = inference(model, image, raw_image, postprocessor)
+        labels = np.unique(labelmap)
+
+        # Show result for each class
+        makedirs(output_path)
+
+        rows = np.floor(np.sqrt(len(labels) + 1))
+        cols = np.ceil((len(labels) + 1) / rows)
+        plt.figure(figsize=(10, 10))
+        ax = plt.subplot(rows, cols, 1)
+        ax.set_title("Input image")
+        ax.imshow(raw_image[:, :, ::-1])
+        ax.axis("off")
+
+        for i, label in enumerate(labels):
+            mask = labelmap == label
+            ax = plt.subplot(rows, cols, i + 2)
+            ax.set_title(classes[label])
+            ax.imshow(raw_image[..., ::-1])
+            ax.imshow(mask.astype(np.float32), alpha=0.5)
+            ax.axis("off")
+
+        plt.tight_layout()
+        #plt.show()
+        plt.savefig(output_path + '/' + os.path.basename(image_path))
 
 @main.command()
 @click.option(
