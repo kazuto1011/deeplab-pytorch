@@ -165,11 +165,17 @@ def single(config_path, model_path, image_path, output_path, cuda, crf):
     model.to(device)
     print("Model:", CONFIG.MODEL.NAME)
 
+    makedirs(output_path)
+    makedirs("./results/demo_map")
+
     # Inference
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     image, raw_image = preprocessing(image, device, CONFIG)
     labelmap = inference(model, image, raw_image, postprocessor)
     labels = np.unique(labelmap)
+
+    # save lavelmap as input of SPADE
+    cv2.imwrite(output_path + '/' + os.path.basename(image_path).split(".")[0] + '.png', labelmap)
 
     # Show result for each class
     rows = np.floor(np.sqrt(len(labels) + 1))
@@ -189,11 +195,11 @@ def single(config_path, model_path, image_path, output_path, cuda, crf):
         ax.imshow(mask.astype(np.float32), alpha=0.5)
         ax.axis("off")
 
-    makedirs(output_path)
-
     plt.tight_layout()
     #plt.show()
-    plt.savefig(output_path + '/' + os.path.basename(image_path))
+
+    # Save result for each class
+    plt.savefig('./results/demo_map/' + os.path.basename(image_path))
 
 @main.command()
 @click.option(
@@ -249,6 +255,9 @@ def multi(config_path, model_path, input_path, output_path, cuda, crf):
     model.to(device)
     print("Model:", CONFIG.MODEL.NAME)
 
+    makedirs(output_path)
+    makedirs("./results/demo_map")
+
     image_paths = list(Path(input_path).glob("*.jpg"))
 
     for image_path in image_paths:
@@ -259,9 +268,10 @@ def multi(config_path, model_path, input_path, output_path, cuda, crf):
         labelmap = inference(model, image, raw_image, postprocessor)
         labels = np.unique(labelmap)
 
-        # Show result for each class
-        makedirs(output_path)
+        # save lavelmap as input of SPADE
+        cv2.imwrite(output_path + '/' + os.path.basename(image_path).split(".")[0] + '.png', labelmap)
 
+        # Show result for each class
         rows = np.floor(np.sqrt(len(labels) + 1))
         cols = np.ceil((len(labels) + 1) / rows)
         plt.figure(figsize=(10, 10))
@@ -280,7 +290,9 @@ def multi(config_path, model_path, input_path, output_path, cuda, crf):
 
         plt.tight_layout()
         #plt.show()
-        plt.savefig(output_path + '/' + os.path.basename(image_path))
+
+        # Save result for each class
+        plt.savefig('./results/demo_map/' + os.path.basename(image_path))
 
 @main.command()
 @click.option(
